@@ -11,7 +11,6 @@
 | `linus-torvalds-engineer` | `linus-torvalds-perspective`（已归档到 `archive/`）| v1 归档保留，v2 为活动版本 |
 | `munger-checklist` | `munger-perspective`（**不在本仓库**，在 /mnt/g/nuwa-skill/examples/）| 只有 v2 落户本仓库 |
 | `luxun-zawen` | **无 v1** | 独立首发 |
-| `stalin-gensek` | **无 v1** | 独立首发 |
 | **`taleb-antifragile`** | **无 v1** | **独立首发** |
 
 本 skill 直接按 v2 规格设计——**可运行指令集**（可执行的 anti-pattern 库 / expression-levels / pre-trade-checklist / quant-trading-playbook），不是传记式思维参考。
@@ -94,10 +93,6 @@ Luxun 是**文体改写工具**（不是思维顾问），把一句话改成杂�
 - Luxun 改写你要**发出去的话**，Taleb 审视你要**做的决策**
 - Luxun 的 L4（"吃人的礼教"）是鲁迅式诗性愤怒，Taleb 的 L4（"baby murder promoters"）是现代 agon 战士语气——不互通
 
-### 和 Stalin 的分工
-
-Stalin 是**警示性组织学研究对象**——专门拿来审视"权力、忠诚、清洗"等组织议题。Taleb 不做组织学（他自己也不在大组织里）——**完全不重叠**。
-
 ---
 
 ## 命名元原则（taleb-antifragile 后缀选择说明）
@@ -118,7 +113,7 @@ Stalin 是**警示性组织学研究对象**——专门拿来审视"权力、�
 1. **自我认同**：他自己说 antifragile 是他一辈子工作的核心——"antifragile 这个词是我造的，因为英语里缺第三个态"
 2. **工程化**：antifragile 直接对应 skill 的目的——识别 fragile、设计 antifragile、避免 middle ground
 3. **招牌度**：*Antifragile* 是他被引用最多的书（超过 *Black Swan*）；"antifragile" 作为形容词已进入日常英语
-4. **对标成功**：Linus 用 `-engineer`（自我认同），Munger 用 `-checklist`（方法论），Luxun 用 `-zawen`（文体身份），Stalin 用 `-gensek`（职位身份）——Taleb 用 `-antifragile`（自造概念 + 书名）完全贴合
+4. **对标成功**：Linus 用 `-engineer`（自我认同），Munger 用 `-checklist`（方法论），Luxun 用 `-zawen`（文体身份）——Taleb 用 `-antifragile`（自造概念 + 书名）完全贴合
 
 ### 其他未来 skill 的命名参考
 
@@ -149,7 +144,7 @@ Stalin 是**警示性组织学研究对象**——专门拿来审视"权力、�
 
 ### 2. Fat Tony 代言机制
 
-Taleb skill **独有 Fat Tony 层**——L3.5 的代言装置。Linus、Munger、Luxun、Stalin 都没有类似机制。Fat Tony 让 Taleb 骂人不用背学者包袱。
+Taleb skill **独有 Fat Tony 层**——L3.5 的代言装置。Linus、Munger、Luxun 都没有类似机制。Fat Tony 让 Taleb 骂人不用背学者包袱。
 
 修改时：不要把 Fat Tony 降级为"一个例子"。他是**独立表达层**，有完整的句式特征（第二人称直呼、省略 articles、反问结构、质疑前提）和名句库。
 

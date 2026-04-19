@@ -15,7 +15,7 @@
 仓库里的 skill 分两类目标：
 
 - **思维顾问型**（Linus / Munger / Taleb）——**思维框架的提炼**，不是角色扮演（"我是 Linus，我会说 fuck"）。关心的是：他用什么心智模型看世界？用什么决策启发式做判断？绝对不会做什么？
-- **聊天娱乐型**（Luxun / Stalin）——**口吻 / 文体的工程化**，用于朋友间聊天娱乐。关心的是：他怎么表达？哪些句式是标志性的？哪些修辞是他的招牌？
+- **聊天娱乐型**（Luxun）——**口吻 / 文体的工程化**，用于朋友间聊天娱乐。关心的是：他怎么表达？哪些句式是标志性的？哪些修辞是他的招牌？
 
 两类都有各自的**诚实边界**（"做不到什么"写在 SKILL.md 里）——尤其娱乐型 skill 保留原有红线（不做决策建议、不做现代操作指南、具名活人护栏等）。
 
@@ -42,7 +42,6 @@
 | Skill | 人物 | 类型 | 用途 |
 |-------|------|------|------|
 | `luxun-zawen` | 鲁迅 | 文体改写工具 | 日常聊天 / 吐槽 / 反击的杂文腔改写，6 种修辞 DNA / 12 种场景 playbook |
-| `stalin-gensek` | Joseph Stalin | 口吻角色扮演（娱乐向） | 朋友间聊天装 Stalin 腔、互怼玩梗、批示风回复——**保留红线**：不做现代组织清洗 / 具名活人档案 / L4 对现代活人 / 1953 后事件判断，详见 `stalin-gensek/references/ethical-boundary.md` |
 
 **跨类隔离原则**（重要）：
 - A 类收到"帮我用 XX 口吻回朋友 / 改这句话阴一点" → 路由到 B 类
@@ -63,7 +62,6 @@
 - Munger 用 `-checklist`（招牌方法："We collect the asininities..."）
 - Taleb 用 `-antifragile`（自造概念 + magnum opus 书名——他一辈子工作的核心）
 - 鲁迅用 `-zawen`（杂文——一辈子的招牌文体）
-- Stalin 用 `-gensek`（Генсек / 总书记——他的权力基础岗位）
 
 新增 skill 时请沿用这个命名元原则（建议后缀例：费曼 `-teacher`、巴菲特 `-letter`、达里奥 `-principles`）。
 
@@ -100,7 +98,6 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 | `munger-checklist` | "用芒格视角"、"帮我审这个策略"、"过一遍 checklist"、"Lollapalooza" |
 | `taleb-antifragile` | "用 Taleb 视角"、"这策略 antifragile 吗"、"fragility check"、"turkey 检查"、"Sharpe 在厚尾下靠谱吗" |
 | `luxun-zawen` | "用鲁迅口吻"、"改成鲁迅腔"、"冷讽一下"、"阴阳怪气版" |
-| `stalin-gensek` | "用斯大林视角"、"拆解这个权力结构"、"5 管道扫描"、"1937 味" |
 
 完整触发词见各 skill 的 `SKILL.md` frontmatter。
 
@@ -133,7 +130,6 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 ### 特殊类型（非思维顾问型）
 
 - **`luxun-zawen` 是文体改写工具**：不做"鲁迅会怎么看 AI"这类思维顾问任务，只做文本风格转换。遇到思维顾问请求会退出角色并建议用其他 skill
-- **`stalin-gensek` 是组织学案例研究**：不是智识典范。skill 拒绝"帮我在公司做清洗"等现代操作请求，自动重写为历史问题。详见 `stalin-gensek/references/ethical-boundary.md`
 
 ---
 
@@ -143,7 +139,7 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 
 1. **调研**：收集一手来源（著作 / 访谈 / 决策记录），按维度写入 `<skill>/references/research/01-*.md` 到 `06-*.md`
 2. **提炼**：用三重验证（跨域复现 / 生成力 / 排他性）筛选心智模型（3-7 个）、决策启发式、表达 DNA、反模式、诚实边界
-3. **构建**：按 SKILL.md 模板（参考 `munger-checklist/SKILL.md` 或 `stalin-gensek/SKILL.md`）写入主文件，细节下沉到 references 子文件
+3. **构建**：按 SKILL.md 模板（参考 `munger-checklist/SKILL.md` 或 `taleb-antifragile/SKILL.md`）写入主文件，细节下沉到 references 子文件
 4. **验证**：用已知测试 / 边缘测试 / 风格测试独立验证 skill 质量
 5. **精炼**：用 skill-optimizer / skill-creator 双视角评审，应用不冲突改进
 
@@ -160,7 +156,6 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
   - Munger：2023-11-28 去世后不补新事件
   - Taleb：持续更新（1960- 仍在世，2026-04 截止；每次更新关注 X @nntaleb、新技术论文、新 beefs）
   - 鲁迅：1936-10-19 去世后不补新事件
-  - Stalin：1953-03-05 去世后不补新事件
 
 ---
 
@@ -180,8 +175,6 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 - 它做什么 / 不做什么
 - 信息截止日期
 - 学术争议未解决的部分（不强行收口）
-
-特别是 `stalin-gensek`——作为极权历史人物的 skill，带有 6 条 Hard Rules（强制规则）+ E/F/G/H 四类拒答模板 + 假引用黑名单 + 具名活人匿名化护栏。skill 的存在不等于对该人物政权的认同——**理解权力工程学是防止重演的前提**。
 
 ---
 
