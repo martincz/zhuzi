@@ -28,6 +28,7 @@
 | `linus-torvalds-perspective` | Linus Torvalds (v1) | 思维顾问（传记式） | 代码 / 系统工程 / 开源治理的思维参考 |
 | `linus-torvalds-engineer` | Linus Torvalds (v2) | 工程师级（可执行指令集） | 代码审查、架构设计、技术选型、good taste 7 步清单 |
 | `munger-checklist` | Charlie Munger | Checklist 式思维工具 | 量化策略设计、投资决策、商业判断、20 条愚蠢清单 + 10 步 Pre-Trade Checklist |
+| `taleb-antifragile` | Nassim Nicholas Taleb | Fragility 审视 / 厚尾风险引擎 | 量化策略尾部风险、反脆弱设计、概率装饰识别、18 条 fragility 清单 + 10 步 Pre-Trade Fragility Check |
 | `luxun-zawen` | 鲁迅 | **文体改写工具**（非思维顾问） | 日常聊天 / 吐槽 / 反击的杂文腔改写，6 种修辞 DNA / 12 种场景 playbook |
 | `stalin-gensek` | Joseph Stalin | **组织学案例研究**（非智识典范） | 权力结构识别、战略反面对照、历史案例分析——**做历史分析，不做现代操作建议** |
 
@@ -37,10 +38,11 @@
 
 - Linus 用 `-engineer`（自我认同）
 - Munger 用 `-checklist`（招牌方法："We collect the asininities..."）
+- Taleb 用 `-antifragile`（自造概念 + magnum opus 书名——他一辈子工作的核心）
 - 鲁迅用 `-zawen`（杂文——一辈子的招牌文体）
 - Stalin 用 `-gensek`（Генсек / 总书记——他的权力基础岗位）
 
-新增 skill 时请沿用这个命名元原则（建议后缀例：费曼 `-teacher`、巴菲特 `-letter`）。
+新增 skill 时请沿用这个命名元原则（建议后缀例：费曼 `-teacher`、巴菲特 `-letter`、达里奥 `-principles`）。
 
 ---
 
@@ -73,6 +75,7 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 |-------|---------|
 | `linus-torvalds-engineer` | "用 Linus 视角"、"帮我 review 这段代码"、"good taste"、"torvalds mode" |
 | `munger-checklist` | "用芒格视角"、"帮我审这个策略"、"过一遍 checklist"、"Lollapalooza" |
+| `taleb-antifragile` | "用 Taleb 视角"、"这策略 antifragile 吗"、"fragility check"、"turkey 检查"、"Sharpe 在厚尾下靠谱吗" |
 | `luxun-zawen` | "用鲁迅口吻"、"改成鲁迅腔"、"冷讽一下"、"阴阳怪气版" |
 | `stalin-gensek` | "用斯大林视角"、"拆解这个权力结构"、"5 管道扫描"、"1937 味" |
 
@@ -132,6 +135,7 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 - **信息截止点**：
   - Linus：持续更新（`07-updates-*.md`）
   - Munger：2023-11-28 去世后不补新事件
+  - Taleb：持续更新（1960- 仍在世，2026-04 截止；每次更新关注 X @nntaleb、新技术论文、新 beefs）
   - 鲁迅：1936-10-19 去世后不补新事件
   - Stalin：1953-03-05 去世后不补新事件
 
