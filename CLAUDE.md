@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `linus-torvalds-perspective/`（Linus v1）——传记式思维框架总结
 - `linus-torvalds-engineer/`（Linus v2）——v1 的重写，把思维参考升级为"可执行指令集"
-- `munger-engineer/`（Munger v2）——Charlie Munger 工程师级视角，对标 Linus v2 结构，专为量化策略设计 / 投资决策审视。基线参考 `/mnt/g/nuwa-skill/examples/munger-perspective`（v1，未收入本仓库）
+- `munger-checklist/`（Munger v2）——Charlie Munger 的 checklist 式清单工具箱，对标 Linus v2 结构，专为量化策略设计 / 投资决策审视。命名取自芒格自己的方法论（"We collect the asininities of the world in a kind of checklist"）——芒格不是工程师，所以不用 `-engineer` 后缀。基线参考 `/mnt/g/nuwa-skill/examples/munger-perspective`（v1，未收入本仓库）
 
 所有 skill 共存、互为补充，由用户触发词决定激活哪一个（见各自 SKILL.md 的 frontmatter `description` 字段）。Linus skill 擅长代码 / 系统工程 / 开源治理决策，Munger skill 擅长金融 / 量化 / 商业判断——量化工程师场景可能同时激活两者。
 
@@ -29,7 +29,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SKILL.md 是给模型加载的主文件，必须保持紧凑（v2 的设计目标是"激活后 5 秒内知道该做什么"）。细节下沉到 `references/`，SKILL.md 通过显式路径引用（`references/anti-patterns.md`）。
 
-**Munger 特有**：`references/quant-trading-playbook.md` 是 Linus skill 没有的量化专用模块——把心智模型映射到因子设计、回测审视、仓位决策、策略生命周期管理。
+**Munger 特有**：
+- `references/quant-trading-playbook.md` 是 Linus skill 没有的量化专用模块——把心智模型映射到因子设计、回测审视、仓位决策、策略生命周期管理
+- `references/pre-trade-checklist.md` 是芒格 skill 对 Linus `good-taste-checklist.md` 的等价物（10 步 vs 7 步）
 
 ## 关键设计原则（修改任何 skill 前必须理解）
 
@@ -47,6 +49,7 @@ SKILL.md 是给模型加载的主文件，必须保持紧凑（v2 的设计目�
 - **调整触发词**→ 改 SKILL.md 顶部 frontmatter 的 `description` 字段；v1 和 v2 的触发词要保持分化（动作词偏 v2，认知词偏 v1，见对应 upgrade-notes.md 最后一节）。
 - **新增 anti-pattern**→ 必须同时更新 SKILL.md 的表格和 `references/anti-patterns.md` 的详细条目，两处编号一致。Linus 是 12 条，Munger 是 20 条（10 认知 + 9 量化 + 1 元）。
 - **量化 playbook 扩展**（Munger）→ 每次新增"XX 映射到量化"内容时必须检查心智模型 7 个的完整对应——不要漏掉某个模型也不要强行塞入无关映射。
+- **命名约定的元原则**：新增第三位人物 skill 时，**后缀要贴合该人物自己的身份/方法论**——不要照搬 `-engineer` 当通用后缀。芒格用 `-checklist`（他的招牌方法），费曼可能用 `-teacher` 或 `-explainer`，巴菲特可能用 `-letter`（股东信体）。错误样例：把所有 v2 都叫 `-engineer` 会制造身份错认。
 
 ## 无需运行的检查
 

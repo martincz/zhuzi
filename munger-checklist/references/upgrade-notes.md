@@ -1,16 +1,17 @@
 # v1 → v2 · 升级说明
 
-> 本 Skill (`munger-engineer`) 是 `munger-perspective` (v1) 的深度重写。
-> v1 本身是高质量的传记式总结；v2 的目标是把它从"思维参考"升级为"可执行指令集"——面向量化交易和工程决策的专用工具。
+> 本 Skill (`munger-checklist`) 是 `munger-perspective` (v1) 的深度重写。
+> v1 本身是高质量的传记式总结；v2 的目标是把它从"思维参考"升级为"可执行清单"——面向量化交易和投资决策的专用工具。
+> **命名说明**：v2 最初曾叫 `munger-engineer`（对标 `linus-torvalds-engineer`），但芒格不是工程师（律师出身 + 投资家 + 思想家），沿用 `-engineer` 后缀是身份错认。改为 `checklist` 对应他一生反复强调的核心方法论——"We collect the asininities of the world in a kind of checklist and try to avoid everything on the checklist."
 > 两个版本可以共存——v1 适合想快速了解 Munger 思维框架的人，v2 适合想真正用它来做技术判断和量化决策的人。
 
 ---
 
 ## 核心改动总览
 
-| 维度 | v1 (munger-perspective) | v2 (munger-engineer) |
+| 维度 | v1 (munger-perspective) | v2 (munger-checklist) |
 |------|-----|-----|
-| 定位 | 思维顾问 / 传记总结 | 可执行指令集 / 量化专用 |
+| 定位 | 思维顾问 / 传记总结 | 可执行清单 / 量化专用 |
 | 心智模型数量 | 5 个 | **7 个**（新增「概率与赔率」独立模型、合并「避免愚蠢+安全边际+复利」为一个反灾难工程学模型）|
 | Anti-pattern 库 | 散落在决策启发式和反模式清单 | **独立文件，20 条结构化**（10 条认知偏误 + 9 条量化专用 + 1 条元反模式）|
 | Good Taste 等价物 | 无 | **10 步 Pre-Trade Checklist**，对标 Linus v2 的 7 步 good taste |
@@ -35,9 +36,9 @@
 - 用户激活后能学到"Munger 是谁"，但不一定知道"下一步该做什么"
 
 **v2 的修复**：
-- 名字 `munger-engineer`——对标 `linus-torvalds-engineer`，强调工程级应用
-- 结构像工具包：Quick Reference Card → 场景路由 → 心智模型 → Anti-Pattern → Checklist → 表达档位 → 降级模板
-- 激活后**5 秒内**知道该做什么（跟 Linus v2 一样的目标）
+- 名字 `munger-checklist`——对应芒格招牌的"愚蠢清单"方法论（"We collect the asininities of the world in a kind of checklist"）。这个命名**不用 `-engineer` 后缀**——芒格不是工程师，硬套会产生身份错认
+- 结构像清单工具箱：Quick Reference Card → 场景路由 → 心智模型 → Anti-Pattern 清单（20 条愚蠢识别器）→ Pre-Trade Checklist（10 步）→ 表达档位 → 降级模板
+- 激活后**5 秒内**知道该做什么（跟 Linus v2 一样的目标，但用清单而非"指令集"的比喻——清单是芒格自己的语言）
 
 ---
 
@@ -313,8 +314,8 @@ v3 不会很快出来——Munger 本人说"等演化跑够时间再说"。如�
 
 v2 的结构深度对标 `linus-torvalds-engineer`——这是有意的设计选择：
 
-| 维度 | linus-engineer | munger-engineer |
-|------|---------------|-----------------|
+| 维度 | linus-torvalds-engineer | munger-checklist |
+|------|------------------------|------------------|
 | 领域 | 系统工程、代码、开源治理 | 投资决策、量化策略、商业判断 |
 | 核心清单 | Good Taste 7 步 | Pre-Trade 10 步 |
 | Anti-Pattern 库 | 12 条（工程反模式）| 20 条（认知+量化）|
