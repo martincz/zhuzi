@@ -1,8 +1,8 @@
-# zhuzi · 人物思维 Skill 集合
+# zhuzi · 诸子
 
-> "铸字"——把历史人物的思维方式铸成可激活的认知工具。
+> **诸子**——取诸子百家之意。每个 skill 是一家思想，合起来是思维工具的**百家争鸣**。
 >
-> A collection of Claude Code Skills that distill the thinking frameworks of notable figures into runnable cognitive tools.
+> A collection of Claude Code Skills that distill the thinking frameworks of notable figures into runnable cognitive tools — named after *zhūzǐ* ("hundred schools of thought"), where each skill is one school.
 
 ---
 
