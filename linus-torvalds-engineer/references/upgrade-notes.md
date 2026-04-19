@@ -202,7 +202,7 @@ v1 的 `references/research/` 已经是扎实的一手材料整理（11 个一�
 
 但 v2 的心智模型推导在"反宗教化"和"愤怒-行动引擎"上需要新的材料支撑，这些我已经加入到 SKILL.md 的证据段落里。
 
-如果你想看原始 research：`~/.claude/skills/linus-torvalds-perspective/references/research/`
+如果你想看原始 research：`archive/linus-torvalds-perspective/references/research/`（v1 于 2026-04-20 归档到 zhuzi 仓库的 `archive/`，不再作为活动 skill，但文件完整保留供对照）
 
 ---
 

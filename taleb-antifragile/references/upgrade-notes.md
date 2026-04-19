@@ -8,7 +8,7 @@
 
 | Skill | v1 前身 | 关系 |
 |---|---|---|
-| `linus-torvalds-engineer` | `linus-torvalds-perspective`（本仓库存在）| v1 + v2 共存 |
+| `linus-torvalds-engineer` | `linus-torvalds-perspective`（已归档到 `archive/`）| v1 归档保留，v2 为活动版本 |
 | `munger-checklist` | `munger-perspective`（**不在本仓库**，在 /mnt/g/nuwa-skill/examples/）| 只有 v2 落户本仓库 |
 | `luxun-zawen` | **无 v1** | 独立首发 |
 | `stalin-gensek` | **无 v1** | 独立首发 |

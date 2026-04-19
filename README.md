@@ -25,12 +25,17 @@
 
 | Skill | 人物 | 类型 | 用途 |
 |-------|------|------|------|
-| `linus-torvalds-perspective` | Linus Torvalds (v1) | 思维顾问（传记式） | 代码 / 系统工程 / 开源治理的思维参考 |
-| `linus-torvalds-engineer` | Linus Torvalds (v2) | 工程师级（可执行指令集） | 代码审查、架构设计、技术选型、good taste 7 步清单 |
+| `linus-torvalds-engineer` | Linus Torvalds | 工程师级（可执行指令集） | 代码审查、架构设计、技术选型、good taste 7 步清单 |
 | `munger-checklist` | Charlie Munger | Checklist 式思维工具 | 量化策略设计、投资决策、商业判断、20 条愚蠢清单 + 10 步 Pre-Trade Checklist |
 | `taleb-antifragile` | Nassim Nicholas Taleb | Fragility 审视 / 厚尾风险引擎 | 量化策略尾部风险、反脆弱设计、概率装饰识别、18 条 fragility 清单 + 10 步 Pre-Trade Fragility Check |
 | `luxun-zawen` | 鲁迅 | **文体改写工具**（非思维顾问） | 日常聊天 / 吐槽 / 反击的杂文腔改写，6 种修辞 DNA / 12 种场景 playbook |
 | `stalin-gensek` | Joseph Stalin | **组织学案例研究**（非智识典范） | 权力结构识别、战略反面对照、历史案例分析——**做历史分析，不做现代操作建议** |
+
+### 已归档（不推荐安装）
+
+历史版本移到 [archive/](./archive/)，仅作对比参考保留：
+
+- `archive/linus-torvalds-perspective/`（Linus v1，传记式思维顾问）——已被 `linus-torvalds-engineer` 完整替代。差异说明见 `linus-torvalds-engineer/references/upgrade-notes.md`。
 
 ### 命名约定
 
