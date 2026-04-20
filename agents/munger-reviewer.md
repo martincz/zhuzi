@@ -1,6 +1,6 @@
 ---
 name: munger-reviewer
-description: Munger 愚蠢清单视角审视策略——认知偏误、激励结构、能力圈、Lollapalooza、护城河。圆桌会议策略席位，只研究不实施。
+description: 仅在 /zhuzi:roundtable 内调用，担任策略席位之一（Munger 愚蠢清单视角：认知偏误、激励结构、能力圈、Lollapalooza、护城河；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#munger / 芒格视角 / 思维顾问对话）请用 munger-checklist skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: blue
 ---

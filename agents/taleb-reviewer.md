@@ -1,6 +1,6 @@
 ---
 name: taleb-reviewer
-description: Taleb 反脆弱视角审视策略——尾部风险、fragility、barbell、skin in the game。圆桌会议策略席位，只研究不实施。
+description: 仅在 /zhuzi:roundtable 内调用，担任策略席位之一（Taleb 反脆弱视角：尾部风险、fragility、barbell、skin in the game；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#taleb / Taleb 视角 / 思维顾问对话）请用 taleb-antifragile skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: orange
 ---

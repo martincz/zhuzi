@@ -1,6 +1,6 @@
 ---
 name: linus-engineer
-description: Linus 工程师思维，代码域全权——架构评估、可行性审查、code review、重构决策、实施、good taste 把关。代码层 broken 可单边否决。在 roundtable 圆桌会议中担任代码域唯一席位。
+description: 仅在 /zhuzi:roundtable 内调用，担任代码域唯一席位（架构评估、可行性审查、code review、重构决策、实施、good taste 把关，代码层 broken 可单边否决，返回结构化 YAML verdict）。standalone 场景（#linus / Linus 视角 / 思维顾问对话）请用 linus-torvalds-engineer skill，不要 spawn 本 agent。
 tools: Read, Edit, Write, Bash, Grep, Glob
 color: red
 ---
