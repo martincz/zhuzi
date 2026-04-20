@@ -11,23 +11,64 @@ $ARGUMENTS
 
 ---
 
+## 流水线性质
+
+本流水线支持 **N 席位召开（N ≥ 1）**——阶段 0.5 扫议题关键词匹配"擅长领域"列，只 spawn 有资格的席位。弃权席位不产出 YAML。无代码席位时阶段 2（代码可行性）dispatch 不触发；N=1 时流水线退化为单席位审议，这是合法状态不需特殊 exit。
+
 ## 当前席位
 
-| 席位 | agent | 职责 | 域 |
+| 席位 | agent | 职责 | 擅长领域（议题匹配关键词） |
 |---|---|---|---|
-| 策略 | `taleb-reviewer` | 尾部风险、fragility、barbell、skin in the game | 策略层 |
-| 策略 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈 | 策略层 |
-| 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | 代码域全权 |
+| 策略 | `taleb-reviewer` | 尾部风险、fragility、barbell、skin in the game | 量化策略 / 尾部风险 / 投资决策 / 仓位管理 / 激励结构 / skin-in-the-game / 厚尾分布 |
+| 策略 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈 | 投资决策 / 商业判断 / 认知偏误审视 / 能力圈边界 / 策略审视 / 激励结构 / Lollapalooza |
+| 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | 代码架构 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
 
-**扩席位**：新建 `~/.claude/agents/<name>.md`（或项目级覆盖放 `.claude/agents/`），在本文件"当前席位"表 + 阶段 1 的 spawn 列表加一行即可。不拆新 command——圆桌会议本就是开放席位的隐喻。
+**扩席位**：新建 `~/.claude/agents/<name>.md`，在本表加一行（填齐"擅长领域"关键词），并在阶段 1 spawn 模板按需加对应 block。不拆新 command——圆桌会议本就是开放席位的隐喻。
 
 ---
 
 ## 流水线（严格按阶段推进，禁止跳阶段）
 
-### 阶段 0.5 — 议题 must_haves 定义（主 Claude）
+### 阶段 0.5 — 议题契约定义（主 Claude）
 
-spawn 任何席位**之前**，主 Claude 先把议题翻译成可验证的成功标准，输出如下段（原文呈现给用户，让用户在讨论开始前就能叫停/修正）：
+spawn 任何席位**之前**，主 Claude 完成三件事，一次性呈现给用户。
+
+#### Step 0 · 席位召开判定
+
+扫议题关键词 + 上方"当前席位"表的"擅长领域"列 → 匹配产出召开名单（**含每席位 `stages` 在哪些阶段出场**）+ 弃权名单 + 理由。**主 Claude 主动决定，不为每次召开单独问用户**（用户在 Step 2 一起确认/override）。
+
+输出格式：
+
+```yaml
+召开:
+  - seat: <agent名>
+    stages: [1]          # 该席位在哪些阶段 spawn；默认规则见下方表
+    reason: "<议题命中该席位的哪些擅长领域，以及为何是这些 stages>"
+弃权:
+  - seat: <agent名>
+    reason: "<为何不召开：议题不在此席位擅长领域；给出具体匹配失败的词>"
+```
+
+**硬约束**：
+- 席位自然语言匹配 ≠ 关键词精确命中——"激励结构"和"激励设计"算同一域，主 Claude 按语义判断
+- N=1 时（只 1 个席位召开）明确告知用户"本议题退化为单席位 roundtable"——这是合法状态，不需额外 exit 路径
+- N=0 时（无席位匹配）停流水线，建议用户改议题描述或用非 roundtable 流程直接和主 Claude 对话
+
+**`stages` 字段默认规则**（议题类型 → 每席位 stages 推荐值）：
+
+| 席位 | 纯量化策略议题 | 纯代码实施议题（补选项/修 bug） | 工程决策议题（架构/选型/good taste） | 混合议题（量化策略 + 大改架构） |
+|---|---|---|---|---|
+| Taleb | `[1]` | 弃权 | 弃权 | `[1]` |
+| Munger | `[1]` | 弃权 | 弃权 | `[1]` |
+| Linus | 弃权 | `[2]` | `[1, 2]` | `[1, 2]` |
+
+**判断"工程决策维度"的关键词**：架构 / 重构 / 技术选型 / 设计选择 / good taste / 数据结构 / 模块划分 / API 设计 / 工程规范。议题描述中含这类词 → Linus `stages` 含 `1`。
+
+**Linus `stages=[1,2]` 时**：阶段 1 和阶段 2 分别 spawn 两次——阶段 1 做"工程视角评议题"（good taste / 数据结构合理性 / anti-pattern 扫描，**不关心当前 codebase 能否承载**），阶段 2 做"可行性 gate"（吸收阶段 1 结论 + 其他席位意见 + must_haves → 能否干净落地）。两次 spawn 的 prompt 内容不同，不是重复。阶段 1 Linus 输出沿用 `linus_feasibility` schema 但 `phase: 1`，`seat_specific.broken_evidence` 和 `must_haves_coverage_detail` 留空（那是阶段 2 才填的字段），重点填 `risk_notes`（工程视角对议题本身的 risk，不是对当前 codebase 的风险）。
+
+#### Step 1 · must_haves 定义
+
+基于**召开名单的视角**（不给弃权席位预留 truth），把议题翻译成可验证的成功标准：
 
 ```yaml
 must_haves:
@@ -38,10 +79,10 @@ must_haves:
   verify_commands:   # 每条 truth 对应的可机器执行验证命令
     - truth: 1
       cmd: "python3 tools/historical_selection_eval.py --replay-from <baseline> --overrides <overrides>"
-      pass_criterion: "TBD — 待策略席审阅"       # 主 Claude 不拍阈值，打 TBD 让策略席在 verdict block 里填
+      pass_criterion: "TBD — 待召开席位审阅"       # 主 Claude 不拍阈值，打 TBD 让被召开席位在 verdict block.must_haves_review 里通过 proposed_criterion 填
     - truth: 2
       cmd: "<...>"
-      pass_criterion: "TBD — 待策略席审阅"
+      pass_criterion: "TBD — 待召开席位审阅"
   out_of_scope:      # 明示本议题不覆盖什么，避免席位/Linus 跑偏
     - "<例：不动 PHASE_FUND 权重>"
     - "<例：不改候选池定义>"
@@ -56,18 +97,35 @@ must_haves:
 
 2. **`truths` 数量 3-5 条硬上限**——超过 5 条说明议题粒度太粗，必须拆成两个 roundtable 分别开。
 
-3. **`verify_commands.pass_criterion` 主 Claude 原则上打 `TBD`**——阈值（"CI 下界 > 0.3pp"、"hit% 不跌超 1pp"）是策略判断，交策略席在 verdict block 的 `must_haves_sanity`（Taleb）/ `must_haves_integrity`（Munger）里填具体建议。
+3. **`verify_commands.pass_criterion` 主 Claude 原则上打 `TBD`**——阈值（"CI 下界 > 0.3pp"、"hit% 不跌超 1pp"）是判断值，交召开席位在 verdict block 的 `must_haves_review` 里通过 `proposed_criterion` 填具体建议。
    - 例外：truth 是纯技术断言（"py_compile 通过"、"接口返回 200"）时主 Claude 可直接写死 pass_criterion。
 
 4. **`out_of_scope`** 直接喂给阶段 3 DECISIONS 表的 `deferred` 段。
 
-5. **无法为某 truth 写出 verify 命令时**，先打 `TBD — 需要策略席确认指标口径`——缺验证标准比议题失败更严重。
+5. **无法为某 truth 写出 verify 命令时**，先打 `TBD — 需要召开席位确认指标口径`——缺验证标准比议题失败更严重。
 
 **小议题例外**：议题是纯代码整理/文案/修 bug 时 truths 可以简化成 "改动过的文件 `py_compile` 通过 + `<针对性最小测试>` 通过"，不要硬凑回测指标。
 
-### 阶段 1 — 策略并行审议
+#### Step 2 · 用户确认
 
-同一条消息内**并行** spawn 所有策略席位（多个 Agent tool call 并列写）：
+Step 0（召开/弃权名单）+ Step 1（must_haves）**一次性呈现**给用户。用户四选一：
+
+- **接受全部** → 进阶段 1
+- **override 召开名单**（增/减席位）→ 主 Claude 调整召开名单 + 基于新名单重定 must_haves → 重呈现 Step 2
+- **override must_haves** → 修 truths/verify_commands/out_of_scope → 重呈现 Step 2
+- **叫停议题** → 退出 roundtable
+
+### 阶段 1 — 视角并行审议（dispatch: 召开名单有席位 `stages` 含 `1` 时触发）
+
+**按阶段 0.5 Step 0 产出的召开名单**动态 spawn——在同一条消息内**并行** spawn 所有 `stages` 含 `1` 的被召开席位。默认包括所有策略席位（Taleb / Munger），**也可能包括代码席位 Linus**（当议题有工程决策维度，Step 0 给他 `stages: [1, 2]`）。
+
+- **召开名单有席位 `stages` 含 `1`** → spawn 所有此类席位（多个 Agent tool call 并列写）；弃权席位和 `stages` 不含 1 的席位**都不 spawn**
+- **无席位 `stages` 含 `1`**（纯实施议题，只召开 Linus 且 `stages=[2]`）→ **跳过本阶段**，直接进阶段 2
+- **阶段 1 席位 N=1** → 只 spawn 该 1 个 agent，阶段 1.5 修订 gate 仍生效
+
+**Linus 在阶段 1 出场时**（`stages=[1,2]`）：spawn prompt 明确他做"工程视角评议题"——good taste / 数据结构合理性 / bikeshedding / premature abstraction / anti-pattern 扫描，**不关心当前 codebase 能否承载**（那是阶段 2 的事）。阶段 2 的 Linus spawn 另起，prompt 明确"吸收阶段 1 所有席位结论 + must_haves → 可行性 gate"。两次 spawn 工作不同，不是重复。
+
+下面是**策略席位全召开**时的 spawn 模板，实际运行时**按召开名单裁剪**——召开名单不含某席位时，整个对应 Agent block 删去；若 Linus `stages` 含 `1` 也要在此阶段加一个 Linus 的 spawn block（prompt 按"工程视角评议题"写）：
 
 ```
 Agent(subagent_type="taleb-reviewer", prompt="""
@@ -104,9 +162,30 @@ Agent(subagent_type="munger-reviewer", prompt="""
 
 两个 agent 返回后：**原文完整呈现给用户，不得转述或软化**。
 
-### 阶段 2 — 代码可行性评审
+### 阶段 1.5 — must_haves 修订 gate（条件触发）
 
-把阶段 1 的所有策略席原文打包交 Linus，**保留 `linus_id` 以便阶段 4 续跑**：
+扫描阶段 1 所有席位 verdict block 的 `must_haves_challenge.triggered` 字段：
+
+- **全部 `triggered: no`** → 直接进阶段 2，Linus 拿 must_haves v1
+- **任一 `triggered: yes`** → **暂停，走修订流程**：
+
+1. 主 Claude 汇总所有 `triggered: yes` 席位的 `proposed_revision`，合并成 must_haves v2（多席位冲突时显式标注差异，不擅自取舍）
+2. 呈现给用户：
+   - v1 vs v2 对照表（按 truth_id）
+   - 每条修改的来源席位 + `fundamental_issue`
+   - 用户四选一：**接受 v2** / **接受部分**（指定哪些 truth 采纳）/ **保持 v1** / **重开议题**
+3. 用户选"接受 v2"或"接受部分" → 锁定新版 must_haves，阶段 2 Linus 拿新版
+4. 用户选"保持 v1" → 阶段 2 进行但显式告知 Linus"策略席建议修订 must_haves 但用户维持 v1"，Linus 在自己的 verdict 里可选择继续 challenge
+5. 用户选"重开议题" → 流水线终止，回阶段 0.5 重写议题
+
+**禁止**主 Claude 自行合并 challenge / 无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件从临场补 gate 升格成协议内置流程（见附录"共同 verdict schema（v2）"的 `must_haves_challenge` 字段）。
+
+### 阶段 2 — 代码可行性评审（dispatch: 召开名单有席位 `stages` 含 `2` 时触发）
+
+- **召开名单有席位 `stages` 含 `2`**（默认为 `linus-engineer`，`stages=[2]` 或 `stages=[1,2]`）→ 把阶段 1 所有席位原文（如有）打包交该席位，**保留 `linus_id` 以便阶段 4 续跑**：
+- **无席位 `stages` 含 `2`**（纯策略讨论，无代码落地需求）→ 跳过本阶段，直接进阶段 3（综合时标注"本议题无代码落地维度，阶段 2 跳过"）
+
+若 Linus `stages=[1,2]`，他在阶段 1 已有独立 verdict block（`linus_feasibility` with `phase: 1`）——阶段 2 的 spawn prompt 应显式提醒他"你阶段 1 已给出工程视角初判，本阶段吸收所有席位结论做可行性 gate，不要重复阶段 1 的 good taste 论证"。
 
 ```
 linus_id = Agent(subagent_type="linus-engineer", prompt="""
@@ -137,16 +216,27 @@ Linus 返回后：**原文完整呈现给用户**。
 
 ### 阶段 3 — 综合对齐（主 Claude 主持）
 
-你（主 Claude）做综合，**优先读每个席位原文末尾的 YAML verdict block**（机读），再补文字表达。输出：
+你（主 Claude）做综合，**优先读每个席位原文末尾的 YAML verdict block**（机读），再补文字表达。
 
-1. **策略层**：所有策略席的一致点 vs 分歧点（表格，verdict / blocker / key concern 三列）
-2. **代码层**：Linus 的 sane/broken 判断 + 可行性建议
+**阅读顺序**（所有席位共用 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific` 四层结构，详见文末附录"共同 verdict schema（v2）"）：
+
+1. **先扫 `core.route`**——聚合所有席位的路由（阶段 1.5 已处理过 challenge，这里主要看 `go` / `go_with_conditions` / `kill` / `too_hard` 分布）
+2. **读 `seat_native_verdict`**——角色表达风格（综合表同时列 native 和 route）
+3. **汇总所有 `core.hard_blockers`**——列成综合 blocker 列表
+4. **合并 `must_haves_review`**——同一 truth 多席位 flag 冲突时，取最严的 `proposed_criterion`
+5. **读 `seat_specific`**——补充细节（tail_events / anti_patterns / broken_evidence 等）作为"人读补充"
+6. **读 `core.peer_disagreements`**——显式列分歧，不要在综合时强行收敛
+
+**输出**：
+
+1. **策略层综合表**（若召开名单含策略席位）：列 `seat / core.route / seat_native_verdict / hard_blockers / key concern`——仅列被召开席位，弃权席位不出现
+2. **代码层**（若召开名单含 `linus-engineer` 且阶段 2 已执行）：Linus 的 `core.route` + `seat_native_verdict`（sane / broken / needs_refactor_first）+ 可行性建议；broken 时列 `seat_specific.broken_evidence` 的 file/symbol。若阶段 2 跳过（召开名单无 Linus）→ 本节改写为"本议题无代码落地维度，阶段 2 跳过"
 3. **最终方案候选表**：列 2-3 个可行路径 + 权衡 + 推荐项
 4. **DECISIONS 表**（用户拍板时同步定下，阶段 4 的输入）：
 
    | 分类 | 内容 | 来源 |
    |---|---|---|
-   | `locked`（必须实施，Linus 不得越过） | D-01 ... D-0N | 阶段 0.5 must_haves + 阶段 3 用户拍板 |
+   | `locked`（必须实施，Linus 不得越过） | D-01 ... D-0N | 阶段 0.5 must_haves（含阶段 1.5 修订后的 v2）+ 阶段 3 用户拍板 |
    | `deferred`（本议题明确不做） | ... | 阶段 0.5 out_of_scope + 用户拍板延后项 |
    | `discretion`（Linus 可自行判断的区域） | ... | 未被 locked/deferred 覆盖的实现细节 |
 
@@ -248,3 +338,77 @@ Linus 返回实施报告后：**原文完整呈现给用户**。
 - 阶段 4 已写成**条件分支**：主 Claude 运行时检查 tool schema，有 SendMessage 走路径 A 续跑，无则走路径 B 新 spawn + 阶段 2 原文注入
 - 官方修复后**无需改本文件**，主 Claude 自动切到路径 A
 - 两路径语义等价：路径 A 保留 agent 内部对话状态更高效，路径 B 信息完整但每次重建 agent
+
+---
+
+## 附录 · 共同 verdict schema（v2）
+
+所有席位（Taleb / Munger / Linus / 未来扩展）的 verdict block 遵守三层结构 —— `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific`（选填）。设计目的：主持人阶段 3 机读统一（不用翻译三套方言），同时保留各席位人格 DNA。
+
+### core（强制，主持人机读综合用）
+
+| 字段 | 取值 | 作用 |
+|---|---|---|
+| `seat` | taleb / munger / linus / 新席位 | 标识 |
+| `phase` | 1 / 2 / 4 | 阶段 |
+| `route` | `go` / `go_with_conditions` / `revise_must_haves` / `kill` / `too_hard` | **统一路由空间**，阶段 3 机读 |
+| `seat_native_verdict` | Taleb: fragile/robust/antifragile；Munger: keep/kill/too_hard；Linus 阶段 2: sane/broken/needs_refactor_first | 保留人格 DNA |
+| `confidence` | low / medium / high | 信心 |
+| `hard_blockers` | `[]` | 转 go 的必要条件（合并原 blockers / kill reasons / broken evidence） |
+| `peer_disagreements` | `[{peer, point}]` | 跨席位分歧（合并原 push_back_on_X） |
+
+### must_haves_review（强制，点状审视每条 truth）
+
+统一 flag 空间：`none` / `threshold_issue` / `method_issue` / `overfitting_risk` / `metric_gaming` / `coverage_gap` / `lookahead_unchecked` / `multiple_testing` / `incentive_mismatch` / `other`。
+
+席位对 `must_haves.truths` 的每条给出 flag + `proposed_criterion`（非 none 时必填）。主持人阶段 3 合并成 `pass_criterion` 建议 —— 同一 truth 多席位冲突时取最严。
+
+### must_haves_challenge（A1 逃生口）
+
+```yaml
+must_haves_challenge:
+  triggered: yes | no
+  challenged_truths: [1, 3]
+  fundamental_issue: "<为何 must_haves 框架从根本跑偏，不是单条阈值问题>"
+  proposed_revision: |
+    <具体修订版>
+```
+
+**任一席位 `triggered: yes` → 阶段 1.5 must_haves 修订 gate 强制触发**（见上文阶段 1.5）。orchestrator 不得忽略，也不得自行合并。
+
+`must_haves_review` vs `must_haves_challenge` 区分：前者是点状阈值/方法修订（"改 99%CI"），后者是根本框架推翻（"hit% 做主目标本身就是 Jensen 陷阱 / Goodhart metric"）。两者可并存。
+
+### seat_specific（选填，保留席位 DNA）
+
+各席位自由定义，主持人阶段 3 作为"人读补充"：
+
+- **Taleb**: `tail_events_breaking_must_haves` / `fragility_checklist_failures` / `skin_in_the_game`
+- **Munger**: `anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `reverse_kill_path`
+- **Linus 阶段 2**: `broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`
+
+### route 映射规则（各席位 native → core.route）
+
+| 席位 | native | → `core.route` |
+|---|---|---|
+| Taleb | fragile | `go_with_conditions` / `revise_must_haves` / `kill` |
+| Taleb | robust / antifragile | `go` |
+| Munger | keep | `go` |
+| Munger | kill | `kill` |
+| Munger | too_hard | `too_hard` |
+| Munger | （对 must_haves 框架本身不满） | `revise_must_haves` |
+| Linus | sane | `go` |
+| Linus | broken | `kill`（单边否决） |
+| Linus | needs_refactor_first | `revise_must_haves` / `go_with_conditions` |
+
+### 新增席位时的步骤
+
+1. 新建 `~/.claude/agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选——Linus `-engineer`、Munger `-checklist`、Buffett 可能 `-letter`）
+2. verdict block root key 用 `<seat>_verdict`（如 `buffett_verdict`）
+3. `core` 段字段齐全 + `must_haves_review` + `must_haves_challenge` 强制
+4. `seat_specific` 自定义字段
+5. 在本文件"当前席位"表 + 阶段 1 spawn 列表加一行
+6. 在本附录"route 映射规则"表加对应席位的 native → core.route 映射
+
+### 阶段 4 例外
+
+Linus 阶段 4 的 `linus_execution` block **不走**共同 verdict schema —— 它是实施验证状态输出，不是 verdict。保留原 `status` / `decisions_honored` / `verification_attempted` / `self_audit` / `commit_status` / `gaps_to_route_back` 字段结构。
