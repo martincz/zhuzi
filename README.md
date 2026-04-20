@@ -1,69 +1,175 @@
 # zhuzi · 诸子
 
-> **诸子**——取诸子百家之意。每个 skill 是一家思想，合起来是思维工具的**百家争鸣**。
+> **诸子**——取诸子百家之意。每家思想是一种独立的思维操作系统；合起来，是一张可被 Claude Code 直接加载、可以**并排坐到同一张圆桌上审议一个议题**的多视角思维网。
 >
-> A collection of Claude Code Skills that distill the thinking frameworks of notable figures into runnable cognitive tools — named after *zhūzǐ* ("hundred schools of thought"), where each skill is one school.
+> A Claude Code toolkit that turns distinct thinkers into runnable cognitive operating systems — and wires them together into a **roundtable pipeline** where multiple perspectives deliberate on the same question in parallel, each returning a machine-readable verdict under a shared schema.
 
 ---
 
 ## 这是什么
 
-这是一个 **Claude Code Skill 集合**——每个 skill 都是一套可激活的 Markdown 规约，把某个历史 / 当代人物的思维框架工程化成 Claude 可以直接运行的"认知操作系统"。
+本仓库不再只是"Claude Code Skill 集合"。它包含三类互相咬合的产物：
 
-没有构建系统、没有测试套件、没有运行时。全部内容都是 Markdown 文档，由 Claude Code 按 skill 规范加载。
+| 类别 | 数量 | 角色 |
+|---|---|---|
+| **Skills** | 5 个 | 单人物的思维操作系统——用户口语触发时，Claude 直接以该视角说话 |
+| **Agents** | 4 个 | Roundtable 的"席位"封装——把相应 skill 包装成可 spawn 的 subagent，强制输出共同 verdict schema |
+| **Commands** | 1 条 | `/zhuzi:roundtable`——把多个 agent 席位编排成 4 阶段协作流水线 |
 
-仓库里的 skill 分两类目标：
+三者的关系：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → command 是让这些席位围坐一桌的议事规则。**
 
-- **思维顾问型**（Linus / Munger / Taleb）——**思维框架的提炼**，不是角色扮演（"我是 Linus，我会说 fuck"）。关心的是：他用什么心智模型看世界？用什么决策启发式做判断？绝对不会做什么？
-- **聊天娱乐型**（Luxun）——**口吻 / 文体的工程化**，用于朋友间聊天娱乐。关心的是：他怎么表达？哪些句式是标志性的？哪些修辞是他的招牌？
+用户可以：
 
-两类都有各自的**诚实边界**（"做不到什么"写在 SKILL.md 里）——尤其娱乐型 skill 保留原有红线（不做决策建议、不做现代操作指南、具名活人护栏等）。
+- **直接触发 skill**（最轻）——在对话里说"用 Linus 视角看这段代码"、"过一遍芒格 checklist"、"改成鲁迅腔"，单一视角介入。
+- **召开圆桌**（最重）——`/zhuzi:roundtable <议题>` 启动多席位并行审议：主 Claude 先定 must_haves 契约 → 并行 spawn 策略席位（Taleb / Munger / López）+ 代码席位（Linus）→ 若任一席位推翻契约则进修订 gate → 综合 + 用户拍板 → 实施。
+
+没有构建系统、没有测试套件、没有运行时——全部是 Markdown 文档，由 Claude Code 按规范加载。
 
 ---
 
-## 已包含的 Skill
+## 三类产物
 
-本仓库的 skill 分**两类**，职责边界严格区分、不跨类承担对方任务：
+### 一、Skills（思维操作系统）
 
-### A 类 · 思维顾问型（Thinking Advisor）
+每个 skill 是一个独立目录，`SKILL.md` 是入口，`references/` 是支撑证据链（research / anti-patterns / expression-levels / playbook）。
 
-用于**严肃决策辅助**——代码审查、策略设计、风险诊断、商业判断。激活后在用户"想问题"时介入，输出可追溯到一手来源的结构化分析。
+Skill 按用途分两类：
 
-| Skill | 人物 | 类型 | 用途 |
-|-------|------|------|------|
-| `linus-torvalds-engineer` | Linus Torvalds | 工程师级（可执行指令集） | 代码审查、架构设计、技术选型、good taste 7 步清单 |
-| `munger-checklist` | Charlie Munger | Checklist 式思维工具 | 量化策略设计、投资决策、商业判断、20 条愚蠢清单 + 10 步 Pre-Trade Checklist |
-| `taleb-antifragile` | Nassim Nicholas Taleb | Fragility 审视 / 厚尾风险引擎 | 量化策略尾部风险、反脆弱设计、概率装饰识别、18 条 fragility 清单 + 10 步 Pre-Trade Fragility Check |
+#### A 类 · 思维顾问型（Thinking Advisor）
 
-### B 类 · 聊天娱乐型（Chat Entertainment）
+严肃决策辅助——代码审查、策略设计、研究诚信审查、风险诊断、商业判断。激活后在用户"想问题"时介入，输出可追溯到一手来源的结构化分析。
 
-用于**朋友间聊天娱乐**——把要发给朋友 / 群 / 朋友圈的一句话，改写成该人物的口吻；或以该人物的身份做有限的角色扮演互怼。**不做**决策建议、不做思维顾问、不做现代操作指南。
+| Skill | 人物 | 招牌方法论 |
+|---|---|---|
+| `linus-torvalds-engineer` | Linus Torvalds | Good Taste 7 步 / 12 条 anti-pattern / 4 级表达档位 |
+| `munger-checklist` | Charlie Munger | 20 条愚蠢清单 / 10 步 Pre-Trade Checklist / Lollapalooza 扫描 |
+| `taleb-antifragile` | Nassim Nicholas Taleb | 18 条 fragility 清单 / 10 步 Pre-Trade Fragility Check / barbell & turkey 检查 |
+| `lopezdeprado-scientist` | Marcos López de Prado | 18 条方法论 anti-pattern / 10 步 Research Integrity Check / Sisyphus vs Meta-Strategy |
 
-| Skill | 人物 | 类型 | 用途 |
-|-------|------|------|------|
-| `luxun-zawen` | 鲁迅 | 文体改写工具 | 日常聊天 / 吐槽 / 反击的杂文腔改写，6 种修辞 DNA / 12 种场景 playbook |
+#### B 类 · 聊天娱乐型（Chat Entertainment）
 
-**跨类隔离原则**（重要）：
-- A 类收到"帮我用 XX 口吻回朋友 / 改这句话阴一点" → 路由到 B 类
-- B 类收到"帮我审这个策略 / 做决策 / 看这段代码" → 路由到 A 类
-- 两类不混用——把娱乐改写当决策依据、或把决策分析包装成口吻梗，都是设计污染
+朋友间聊天娱乐——把要发出去的一句话改写成该人物的口吻。**不做**决策建议、不做思维顾问、不做现代操作指南。
 
-### 已归档（不推荐安装）
+| Skill | 人物 | 招牌方法论 |
+|---|---|---|
+| `luxun-zawen` | 鲁迅 | 6 种修辞 DNA / 12 条假鲁迅识别器 / 4 级阴狠度 / 12 种聊天场景 playbook |
 
-历史版本移到 [archive/](./archive/)，仅作对比参考保留：
+**跨类隔离**（硬约束）：
+- A 类收到"帮我用 XX 口吻回朋友" → 路由到 B 类
+- B 类收到"帮我审这个策略 / 做决策" → 退出角色并路由到 A 类
+- 禁止把娱乐改写当决策依据，也禁止把决策分析包装成口吻梗
 
-- `archive/linus-torvalds-perspective/`（Linus v1，传记式思维顾问）——已被 `linus-torvalds-engineer` 完整替代。差异说明见 `skills/linus-torvalds-engineer/references/upgrade-notes.md`。
+#### 已归档
 
-### 命名约定
+- `archive/linus-torvalds-perspective/`（Linus v1，传记式思维顾问）——已被 `linus-torvalds-engineer` 替代，仅作对比参考保留
 
-每个 skill 的**后缀**取自该人物自己的身份 / 方法论，不是通用的 `-engineer`：
+---
 
-- Linus 用 `-engineer`（自我认同）
-- Munger 用 `-checklist`（招牌方法："We collect the asininities..."）
-- Taleb 用 `-antifragile`（自造概念 + magnum opus 书名——他一辈子工作的核心）
-- 鲁迅用 `-zawen`（杂文——一辈子的招牌文体）
+### 二、Agents（Roundtable 席位）
 
-新增 skill 时请沿用这个命名元原则（建议后缀例：费曼 `-teacher`、巴菲特 `-letter`、达里奥 `-principles`）。
+每个 agent 是 `~/.claude/agents/<name>.md`——一份可被 spawn 的 subagent 定义，**把对应 skill 包装成圆桌会议的一个席位**，强制产出统一结构的 YAML verdict block。
+
+| Agent | 对应 skill | 席位性质 | 擅长领域 |
+|---|---|---|---|
+| `linus-engineer` | `linus-torvalds-engineer` | 代码席（唯一） | 架构、可行性、review、重构、good taste；代码层 broken 可单边否决 |
+| `munger-reviewer` | `munger-checklist` | 策略席 | 愚蠢清单、认知偏误、激励结构、能力圈、Lollapalooza |
+| `taleb-reviewer` | `taleb-antifragile` | 策略席 | 尾部风险、fragility、barbell、skin in the game、厚尾分布 |
+| `lopezdeprado-reviewer` | `lopezdeprado-scientist` | 策略席 | 研究诚信、associational vs causal、backtest overfitting、DSR / PBO / CPCV、Sisyphus vs Meta-Strategy |
+
+**设计要点**：
+
+- **agent ≠ skill**。Skill 是直接对用户说话（"我是 Linus……"），agent 是对主 Claude 返回结构化 verdict（`core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层）。
+- **只研究不实施**——所有策略席位（Taleb / Munger / López）只产出判断，不动文件；只有代码席位（Linus）在阶段 4 实施。
+- **席位资格路由**——agent 描述里显式列"擅长领域关键词"，主 Claude 在阶段 0.5 按议题关键词匹配决定召开哪些席位，不强制所有席位全开。
+- **持续更新**——skill 正文改了，agent 下次 spawn 自动拉最新，零同步成本。
+
+---
+
+### 三、Commands（协作流水线）
+
+#### `/zhuzi:roundtable <议题>` — 多席位圆桌会议
+
+4 阶段严格推进的协作流水线：
+
+| 阶段 | 动作 | 产物 |
+|---|---|---|
+| **0.5 · 议题契约** | 主 Claude 扫议题关键词 → 召开名单 + 弃权名单 → 定 must_haves（3-5 条可验证 truth + verify 命令 + out_of_scope） | 用户确认契约 |
+| **1 · 并行审议** | 并行 spawn 所有 `stages` 含 1 的席位，每个席位按自己 SKILL.md 的 checklist 审议，产出 YAML verdict | 席位原文完整呈现 |
+| **1.5 · 契约修订 gate**（条件触发） | 任一席位 `must_haves_challenge.triggered: yes` → 暂停，合并 v2，呈现给用户五选一 | 锁定 must_haves v2 |
+| **2 · 代码可行性** | 打包阶段 1 所有结论交 Linus 评 sane / broken / needs_refactor_first | Linus 可行性报告 |
+| **3 · 综合对齐** | 主 Claude 读 YAML verdict 做机读综合 → 策略层表 + 代码层表 + 候选方案表 + DECISIONS 表 | 等用户拍板 |
+| **4 · 实施** | Linus 按锁定方案实施（优先 SendMessage 续跑 / fallback 新 spawn + 完整上下文注入） | 实施报告 |
+
+核心设计：
+
+- **共同 verdict schema v2**——所有席位统一输出 `core` 层（`route` + `seat_native_verdict` + `hard_blockers` + `peer_disagreements`）+ `must_haves_review` + `must_haves_challenge` + `seat_specific`。主持人阶段 3 机读综合不用翻译席位方言。
+- **must_haves 契约优先于视角**——议题成功的 3-5 条可验证 truth 在阶段 0.5 就锁定，避免席位讨论跑题；席位可通过 `must_haves_challenge` 反向推翻契约，但必须走阶段 1.5 修订 gate、给用户决定。
+- **N ≥ 1 席位合法**——无匹配席位则退回普通对话；只匹配 1 席位（如纯 factor literature 审视→只召 López）仍按完整流程跑，不需特判。
+- **硬约束**：
+  1. 绝不转述 agent 原文——席位原文完整呈现给用户
+  2. 绝不跳阶段——阶段 3 用户未确认前禁进阶段 4
+  3. 实施阶段优先 SendMessage 续跑，不可用则新 spawn + 阶段 2 原文**完整注入**，不得摘要
+
+---
+
+## 人物介绍（Skills / Agents 背后的五位）
+
+### Linus Torvalds（1969-，在世）
+
+芬兰裔美籍软件工程师，**Linux 内核**（1991-）与 **Git**（2005-）的创造者；当代最具影响力的开源治理者之一，LKML 上以技术判断直接、骨头硬、骂代码不骂人著称。核心方法论：**数据结构先行、消除特殊情况、删除不必要的抽象层**；代表短语 "Talk is cheap. Show me the code." / "Bad programmers worry about the code. Good programmers worry about data structures."
+
+本仓库里他承担两个角色：
+- **Skill `linus-torvalds-engineer`**：6 心智模型 / 12 anti-pattern / 7 步 Good Taste 清单 / 4 级表达档位，用于代码审查、架构评估、技术选型、开源治理
+- **Agent `linus-engineer`**：Roundtable 唯一代码席，做可行性 gate 与实施；**代码层 broken 可单边否决**
+
+信息持续更新（`references/research/07-updates-*.md`）。
+
+---
+
+### Charlie Munger（1924-2023）
+
+美国律师、投资家、思想家；伯克希尔·哈撒韦副主席（1978-2023），巴菲特 60 年搭档。**跨学科思维**（Latticework of Mental Models）与**愚蠢清单**（"collect the asininities of the world in a kind of checklist"）的倡导者；代表短语 "All I want to know is where I'm going to die, so I'll never go there." / "It is remarkable how much long-term advantage people like us have gotten by trying to be consistently not stupid, instead of trying to be very intelligent."
+
+本仓库里他承担两个角色：
+- **Skill `munger-checklist`**：7 心智模型 / 20 条 anti-pattern（10 认知 + 9 量化 + 1 元）/ 10 步 Pre-Trade Checklist / 量化 playbook，用于投资决策、策略审视、商业判断
+- **Agent `munger-reviewer`**：Roundtable 策略席之一——扫 Lollapalooza、能力圈、激励结构
+
+**信息截止 2023-11-28**（去世）。之后不补新事件——任何 2023-11 后内容必须标注"按原则推断"，不能作为芒格原话。
+
+---
+
+### Nassim Nicholas Taleb（1960-，在世）
+
+黎巴嫩裔美籍学者、前期权交易员、Empirica（1999-2004）与 Universa Investments（2007-）顾问；Incerto 五部曲（*Fooled by Randomness* / *The Black Swan* / *The Bed of Procrustes* / *Antifragile* / *Skin in the Game*）作者，自造词 **antifragile** 的发明人。核心立场：金融**无法**科学化（tail 破坏 estimation），应用 barbell / via negativa / skin in the game 等结构性原则而非预测；实战档案包括 2008 年 +100%+、2020-03 +3,612% 的长尾对冲业绩。代表短语 "Don't tell me what you think, tell me what's in your portfolio." / "The Sharpe ratio is meaningless under fat tails."
+
+本仓库里他承担两个角色：
+- **Skill `taleb-antifragile`**：7 心智模型 / 18 条 fragility 清单 / 10 步 Pre-Trade Fragility Check / 4 级表达档位（独特之处：**按对手身份 route，不是按话题**——对 Wolfram 谈 ergodicity 是 L1，对 Pinker 谈同一概念是 L3）
+- **Agent `taleb-reviewer`**：Roundtable 策略席之一——判 fragile / robust / antifragile
+
+信息持续更新；每章量化 playbook 末尾强制 "⚠️ Taleb 可能反驳" 警示，明确区分 "Taleb 原话" 和 "基于原则的推演"。**与 López 是方法论对立阵营**：Taleb 认为金融不能科学化，López 认为应当且能够科学化——Roundtable 同时召开时不强行合并，留为 `peer_disagreements`。
+
+---
+
+### Marcos López de Prado（~1975-，在世）
+
+西班牙裔金融学者、量化从业者；ADIA Lab 董事 / 首席研究员，Cornell ORIE 兼职教授，SSRN Economics Top-10 作者。代表作 *Advances in Financial Machine Learning*（2018）、*Machine Learning for Asset Managers*（2020）、*Causal Factor Investing*（2023）；2019-12-06 美国众议院金融服务委员会作证（定性 financial research 的 scientific fraud 问题）。核心立场：**金融研究必须科学化**——通过 causal inference（DAG / do-calculus）+ FDR 控制 + Purged K-Fold / CPCV / Deflated Sharpe / PBO 等方法论纪律，把大量 factor literature 从 associational claim 升级为 causal claim。代表短语 "Most discoveries in empirical finance are false." / "Backtesting is not a research tool. Feature importance is." / "Virtually all factor literature makes associational claims, in denial of the causal content of factor models."
+
+本仓库里他承担两个角色：
+- **Skill `lopezdeprado-scientist`**：6 心智模型 / 18 条方法论 anti-pattern / 10 步 Research Integrity Check / 4 级表达档位（独特之处：**按议题性质 route**——谈 purged K-Fold 对任何人都是 L1，谈整个 factor zoo 工业对任何人都是 L3）/ 量化 playbook 含自反审查章
+- **Agent `lopezdeprado-reviewer`**：Roundtable 策略席之一——判 scientific / associational / pseudo_scientific，对每条 must_haves.truth 做 claim classification；命中议题属"量子 / 个股 / 宏观 / 地缘 / LLM agent alpha"的 L4 静默清单时自动 `too_hard`
+
+**pattern-level 批评纪律**：所有输出不点名具体公司 / 基金 / PM / ticker；仅对 pattern 开火。信息持续更新。
+
+---
+
+### 鲁迅（周树人，1881-1936）
+
+中国现代文学奠基人；杂文家、小说家、翻译家。一生写杂文数百万字（14 本杂文集：《坟》《华盖集》《而已集》《南腔北调集》《且介亭杂文》等），短篇小说三十余篇（《呐喊》《彷徨》《故事新编》），散文诗集《野草》。杂文是他自认为的"感应的神经，攻守的手足"——短、狠、冷、见微知著。代表语 "从来如此，便对吗？"（《狂人日记》，1918）/ "我向来是不惮以最坏的恶意，来推测中国人的。"（《纪念刘和珍君》，1926）
+
+本仓库里他承担一个角色：
+- **Skill `luxun-zawen`**：6 种招牌修辞（对比反讽 / 做标本 / 以小见大 / 假引退 / 层层剥皮 / 冷眼装蒜）/ 12 条假鲁迅识别器 / 4 级阴狠度（S 一句刀 / M 两句带转折 / L 小段杂文体 / XL 长 po 式）/ 12 种聊天场景 playbook，用于朋友间聊天娱乐的文体改写
+
+**信息截止 1936-10-19**（去世）。**不做思维顾问**——遇到"鲁迅会怎么看 AI / 房价"这类请求会退出角色并路由到 A 类 skill。**不进 Roundtable**——杂文体不是审议语言。
 
 ---
 
@@ -77,109 +183,86 @@ cd zhuzi
 ./install.sh
 ```
 
-`install.sh` 会把以下内容覆盖拷贝到 `~/.claude/`：
-- `skills/*/` → `~/.claude/skills/<name>/`（4 个 skill）
-- `agents/*.md` → `~/.claude/agents/`（3 个 roundtable 席位 agent）
-- `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（`/zhuzi:roundtable` 等命令）
+`install.sh` 覆盖安装到 `~/.claude/`：
 
-不保留备份。每次修改仓库后需重跑脚本。
+- `skills/*/` → `~/.claude/skills/<name>/`（5 个 skill 目录同步）
+- `agents/*.md` → `~/.claude/agents/<name>.md`（4 个 agent 逐文件拷贝，不影响旁边的 gsd-* 等）
+- `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（整目录同步，`/zhuzi:roundtable` 即时可用）
+
+不保留备份。每次修改仓库后重跑。环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`（测试用）。
 
 ### 方式 B：只装单个 skill
 
 ```bash
-git clone https://github.com/<your-fork>/zhuzi.git
 cp -r zhuzi/skills/<skill-name> ~/.claude/skills/
 ```
 
-### 仓库布局
+注意：只装 skill 不装 agent / command 时，`/zhuzi:roundtable` 不可用；单独触发该 skill 仍可工作。
+
+---
+
+## 仓库布局
 
 ```
 zhuzi/
-├── skills/                         # 可安装的 skill（本仓库的核心产物）
+├── skills/                           # 5 个 skill（思维操作系统）
 │   ├── linus-torvalds-engineer/
 │   ├── munger-checklist/
 │   ├── taleb-antifragile/
+│   ├── lopezdeprado-scientist/
 │   └── luxun-zawen/
-├── agents/                         # roundtable 圆桌会议的席位 agent 定义
-│   ├── linus-engineer.md           # 代码席
-│   ├── munger-reviewer.md          # 策略席之一
-│   └── taleb-reviewer.md           # 策略席之二
-├── commands/zhuzi/                 # 斜杠命令
-│   └── roundtable.md               # /zhuzi:roundtable
-├── archive/                        # 归档的 v1 skill（不推荐安装）
-└── install.sh
+├── agents/                           # 4 个 roundtable 席位
+│   ├── linus-engineer.md             # 代码席
+│   ├── munger-reviewer.md            # 策略席
+│   ├── taleb-reviewer.md             # 策略席
+│   └── lopezdeprado-reviewer.md      # 策略席
+├── commands/zhuzi/
+│   └── roundtable.md                 # /zhuzi:roundtable
+├── archive/
+│   └── linus-torvalds-perspective/   # Linus v1（不推荐安装，对比参考）
+├── CLAUDE.md                         # 仓库内部协作纪律
+├── install.sh
+└── README.md
 ```
 
 ---
 
 ## 激活
 
-Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息自动激活。也可以用触发词显式激活：
+### 直接触发 skill
 
-| Skill | 典型触发 |
-|-------|---------|
-| `linus-torvalds-engineer` | "用 Linus 视角"、"帮我 review 这段代码"、"good taste"、"torvalds mode" |
-| `munger-checklist` | "用芒格视角"、"帮我审这个策略"、"过一遍 checklist"、"Lollapalooza" |
-| `taleb-antifragile` | "用 Taleb 视角"、"这策略 antifragile 吗"、"fragility check"、"turkey 检查"、"Sharpe 在厚尾下靠谱吗" |
-| `luxun-zawen` | "用鲁迅口吻"、"改成鲁迅腔"、"冷讽一下"、"阴阳怪气版" |
+Claude Code 会按 skill 的 `description` frontmatter 匹配用户消息自动激活。典型触发词：
+
+| Skill | 触发 |
+|---|---|
+| `linus-torvalds-engineer` | "用 Linus 视角"、"帮我 review 这段代码"、"good taste"、"torvalds mode"、"#linus" |
+| `munger-checklist` | "用芒格视角"、"过一遍 checklist"、"Lollapalooza"、"#munger" |
+| `taleb-antifragile` | "用 Taleb 视角"、"这策略 antifragile 吗"、"fragility check"、"turkey 检查"、"#taleb" |
+| `lopezdeprado-scientist` | "用 López 视角"、"这是 associational 还是 causal"、"Deflated Sharpe"、"CPCV"、"#prado" |
+| `luxun-zawen` | "用鲁迅口吻"、"改成鲁迅腔"、"冷讽一下"、"阴阳怪气版"、"#luxun" |
 
 完整触发词见各 skill 的 `SKILL.md` frontmatter。
 
----
-
-## Skill 架构约定
-
-每个 skill 目录遵循 Claude Code 的 Skill 规范：
+### 召开圆桌
 
 ```
-<skill-name>/
-├── SKILL.md                      # 入口，顶部 YAML frontmatter 声明 name/description/触发词
-└── references/                   # SKILL.md 中链接的详细支撑材料
-    ├── research/                 # 一手 / 二手来源调研（按维度编号）
-    ├── anti-patterns.md          # 反模式识别库（可运行）
-    ├── expression-levels.md      # 分级表达 DNA（可运行）
-    ├── mental-models.md          # 心智模型详细版
-    └── ...                       # 其他 checklist / playbook（因 skill 而异）
+/zhuzi:roundtable v28 M1 因子：把 hit% 拉到 d20 基线以上，权重表不改
 ```
 
-### 核心设计原则
-
-1. **SKILL.md 是"激活即用"的主文件**——保持紧凑，细节下沉到 references
-2. **证据链不可断**——每个心智模型 / anti-pattern / 表达档位都必须可追溯到 research 文件里的一手来源（LKML URL、访谈 transcript、股东会 / 党代会 / 著作原文）
-3. **SKILL.md 用人物本人的品味写**——不是"关于他的描述"，是"他会怎么说"
-4. **表达分级**（engineer v2 独有）——Level 1/2/3/4 按场景切档
-5. **中文为主，技术术语保留英文**（如 `bikeshedding`、`good taste`、`Lollapalooza`、`Catechism`、`Kremlin`）。引用人物原话用原文（英语 / 俄语 / 古汉语）不翻译
-6. **Self-contained 分发**——所有调研文件必须在 skill 目录内（`references/research/`），不依赖外部路径。复制整个 skill 目录就能独立使用
-
-### 特殊类型（非思维顾问型）
-
-- **`luxun-zawen` 是文体改写工具**：不做"鲁迅会怎么看 AI"这类思维顾问任务，只做文本风格转换。遇到思维顾问请求会退出角色并建议用其他 skill
+主 Claude 会先给出召开名单 + 弃权名单 + must_haves 契约让用户确认，然后进入阶段 1 并行审议。
 
 ---
 
-## 如何新增 skill
+## 设计原则
 
-简化流程：
+修改仓库任何文件前请先读 [`CLAUDE.md`](./CLAUDE.md)。核心几条：
 
-1. **调研**：收集一手来源（著作 / 访谈 / 决策记录），按维度写入 `<skill>/references/research/01-*.md` 到 `06-*.md`
-2. **提炼**：用三重验证（跨域复现 / 生成力 / 排他性）筛选心智模型（3-7 个）、决策启发式、表达 DNA、反模式、诚实边界
-3. **构建**：按 SKILL.md 模板（参考 `skills/munger-checklist/SKILL.md` 或 `skills/taleb-antifragile/SKILL.md`）写入主文件，细节下沉到 references 子文件
-4. **验证**：用已知测试 / 边缘测试 / 风格测试独立验证 skill 质量
-5. **精炼**：用 skill-optimizer / skill-creator 双视角评审，应用不冲突改进
-
-本仓库的所有 skill 都是用 [女娲 · Skill 造人术](https://github.com/alchaincyf/nuwa-skill) 流程生成的。
-
-### 常见修改约定
-
-详见 [CLAUDE.md](./CLAUDE.md)。要点：
-
-- **v1 和 v2 共存**（如 `linus-torvalds-perspective` 与 `linus-torvalds-engineer`）——不要把 v2 改动回灌 v1
-- **补证据再加观点**：新增 anti-pattern / 心智模型前先进 `references/research/`
-- **信息截止点**：
-  - Linus：持续更新（`07-updates-*.md`）
-  - Munger：2023-11-28 去世后不补新事件
-  - Taleb：持续更新（1960- 仍在世，2026-04 截止；每次更新关注 X @nntaleb、新技术论文、新 beefs）
-  - 鲁迅：1936-10-19 去世后不补新事件
+1. **证据链不可断**——每个心智模型 / anti-pattern / 表达档位都必须可追溯到 `references/research/` 里的一手来源（LKML URL、SSRN 论文、股东会 transcript、杂文集原文）。新增观点前先补证据。
+2. **SKILL.md 用人物本人的品味写**——不是"关于他的描述"，是"他会怎么说"。
+3. **跨类隔离**——A 类（思维顾问）与 B 类（聊天娱乐）不混用；B 类（鲁迅）不进 Roundtable 席位。
+4. **命名约定**——新增 skill 后缀取自人物自己的身份 / 方法论，不照搬 `-engineer`：Linus 用 `-engineer`（自我认同）、Munger 用 `-checklist`（招牌方法）、Taleb 用 `-antifragile`（自造词 + magnum opus）、López 用 `-scientist`（scientist vs charlatan 二元轴）、鲁迅用 `-zawen`（一辈子的招牌文体）。
+5. **通用性约束**——skill / agent / command 对任意项目类型通用。禁止硬编码特定项目（某量化策略 / 某 web app）的场景、truth 形式、verdict 用词；硬约束层必须领域无关，示例层至少一组异领域对照。
+6. **Roundtable verdict schema v2 是契约**——新增席位必须填齐 `core` 四层字段并在 `roundtable.md` 的 "route 映射规则" 表加对应映射。
 
 ---
 
@@ -189,27 +272,30 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 
 - **内部一致性**：SKILL.md 引用的 `references/*.md` 路径真实存在
 - **证据一致性**：新增观点有对应的 research 文件支撑
-- **触发词不与其他已安装 skill 冲突**（用户侧关注）
+- **触发词不与其他已安装 skill 冲突**（用户侧关注，本仓库无法自动检查）
+- **Roundtable 烟雾测试**：skill 方向大改（verdict 档位、核心心智模型换了）后跑一次 `/zhuzi:roundtable`，必要时调对应 agent md 的硬边界段
 
 ---
 
 ## 伦理与边界
 
-每个 skill 都有**诚实边界** section 明确说明：
+每个 skill 的 `SKILL.md` 都有**诚实边界** section 明确说明：
+
 - 它做什么 / 不做什么
-- 信息截止日期
+- 信息截止日期（Linus / Taleb / López 持续更新；Munger 截至 2023-11-28；鲁迅截至 1936-10-19）
 - 学术争议未解决的部分（不强行收口）
+- Roundtable 席位的 `pattern-level` 批评纪律（不点名具体公司 / 个人 / ticker）
 
 ---
 
 ## 贡献
 
-欢迎 PR。新增 skill 请：
+欢迎 PR。新增人物 skill / agent 请：
 
-1. 遵循 [命名约定](#命名约定)（后缀贴合人物自我身份 / 方法论）
-2. 遵循 [架构约定](#skill-架构约定)（SKILL.md 紧凑 + references 下沉）
+1. 遵循[命名约定](#设计原则)——后缀贴合人物自我身份 / 方法论
+2. 遵循 skill 架构约定（SKILL.md 紧凑 + references 下沉）
 3. 证据链完整（每个观点可追溯到一手 / 二手来源）
-4. 对争议不强行收口（尤其历史人物 skill）
+4. 若拟进入 Roundtable 席位：同步新建 `agents/<name>-reviewer.md`（或 `-engineer.md`），在 `commands/zhuzi/roundtable.md` 的 "当前席位" 表和 "route 映射规则" 表加对应行
 5. 诚实边界写明"做不到什么"
 
 ---
@@ -220,4 +306,4 @@ MIT License. 调研使用的一手 / 二手来源版权归原作者所有。
 
 ---
 
-*"我们所有人都会按自己的品味去读一个人——skill 的价值不在复制他的原话，而在于让你用他的眼睛看自己的问题。"*
+*"诸子百家"不是"集大成"，是"各执一端"——把不同的端摆到同一张桌子上，让用户自己看见分歧、自己拍板，比强行合流成"通用智慧"更诚实。*
