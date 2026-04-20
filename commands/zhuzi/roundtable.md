@@ -78,33 +78,49 @@ must_haves:
     - "<例：Spearman ρ 与 walpha 方向一致>"
   verify_commands:   # 每条 truth 对应的可机器执行验证命令
     - truth: 1
-      cmd: "python3 tools/historical_selection_eval.py --replay-from <baseline> --overrides <overrides>"
-      pass_criterion: "TBD — 待召开席位审阅"       # 主 Claude 不拍阈值，打 TBD 让被召开席位在 verdict block.must_haves_review 里通过 proposed_criterion 填
+      cmd: "<observable_metric 示例：python3 tools/bench.py --replay-from <baseline> / curl -w '%{time_total}' <api> / du -b dist/bundle.js>"
+      pass_criterion: "TBD — 待召开席位审阅"       # observable_metric：主 Claude 打 TBD，席位在 must_haves_review.proposed_criterion 填阈值
     - truth: 2
-      cmd: "<...>"
-      pass_criterion: "TBD — 待召开席位审阅"
+      cmd: "<policy_discipline 示例：grep -E '<pattern>' <file> / jq '.schema.fields.X.type' <json>>"
+      pass_criterion: "grep 命中 ≥ 1 条且匹配 '<约定措辞>' / JSON 字段 X 存在且 type == 'Y'"   # policy_discipline：主 Claude 直接写死判断标准，不得 TBD
   out_of_scope:      # 明示本议题不覆盖什么，避免席位/Linus 跑偏
-    - "<例：不动 PHASE_FUND 权重>"
-    - "<例：不改候选池定义>"
+    - "<例：不动某权重表 / 不改某候选池定义 / 不触发新基准测试>"
 ```
 
 **硬约束（任一违反则 must_haves 段不合格，必须重写）：**
 
-1. **`truths` 只放 observable outcome**——成功时必须成立的**可观测行为**（IQ 典型 = 回测指标 / bootstrap CI / replay 产出）。
-   - ❌ 不放实施约束（"只改 2 个文件"、"不引入新依赖"）→ 这些走阶段 3 DECISIONS.locked
-   - ❌ 不放主观项（"代码写得好看"、"文档清楚"）
-   - ❌ 不放流程要求（"跑通 py_compile"走 out_of_scope 默认项，不是 truth）
+1. **`truths` 只放可验证主张**，两类合法：
+   - **observable_metric**：可观测的量化行为（例：回测 walpha Δ / API p99 latency / 内存峰值 / bundle 大小 / 编译耗时 / 错误率 / bootstrap CI）
+   - **policy_discipline**：可验证的结构性 / 纪律性事实（例：某文档新增条款且含指定措辞 / 某接口字段存在且类型正确 / 某输出列带约定前缀 / 某目录结构符合规范 / 某配置开关默认值符合约定）
+
+   两类都合法，但以下禁放 truths：
+   - ❌ 实施约束（"只改 N 个文件"、"不引入新依赖"）→ 走阶段 3 DECISIONS.locked
+   - ❌ 主观项（"代码写得好看"、"文档清楚"）
+   - ❌ 流程要求（"跑通编译"、"跑通测试"）→ 走 out_of_scope 默认项
 
 2. **`truths` 数量 3-5 条硬上限**——超过 5 条说明议题粒度太粗，必须拆成两个 roundtable 分别开。
 
-3. **`verify_commands.pass_criterion` 主 Claude 原则上打 `TBD`**——阈值（"CI 下界 > 0.3pp"、"hit% 不跌超 1pp"）是判断值，交召开席位在 verdict block 的 `must_haves_review` 里通过 `proposed_criterion` 填具体建议。
-   - 例外：truth 是纯技术断言（"py_compile 通过"、"接口返回 200"）时主 Claude 可直接写死 pass_criterion。
+3. **`pass_criterion` 按 truth 类型分写**：
+   - **observable_metric truth**：主 Claude 原则上打 `TBD — 待召开席位审阅`，交席位在 `must_haves_review.proposed_criterion` 填具体阈值（如 "CI 下界 > 0.3pp"、"p99 < 200ms"、"bundle < 500KB"）。阈值是**专业判断**，应由席位给。
+   - **policy_discipline truth**：主 Claude **必须直接写死**判断标准，**不得 TBD**——这类 truth 的通过条件本身就是契约内容（如 "grep 命中 ≥ 1 条且含 '禁' / '不得' 之一"、"JSON schema 含字段 X 且类型 Y"、"输出列名前缀为 `POSTMORTEM_`"），不是席位专业阈值。席位可在 `must_haves_challenge` 推翻整条，但不能被动等 orchestrator "留白让席位填"。
+   - 纯技术断言（"py_compile 通过"、"HTTP 200"、"lint 无 error"）按 policy_discipline 规则，主 Claude 直接写死。
 
 4. **`out_of_scope`** 直接喂给阶段 3 DECISIONS 表的 `deferred` 段。
 
 5. **无法为某 truth 写出 verify 命令时**，先打 `TBD — 需要召开席位确认指标口径`——缺验证标准比议题失败更严重。
 
-**小议题例外**：议题是纯代码整理/文案/修 bug 时 truths 可以简化成 "改动过的文件 `py_compile` 通过 + `<针对性最小测试>` 通过"，不要硬凑回测指标。
+6. **`pass_criterion` 禁"程序正义式"描述**——pass_criterion 回答"什么状态算通过"，不是"谁说了算 / 怎么达成一致"。以下写法禁用：
+   - ❌ "由 X 席位 endorse"
+   - ❌ "所有席位共同确认"
+   - ❌ "讨论后达成一致"
+   - ✅ 必须含：判断维度 + 存在性条件 / 阈值 / 结构约束（可被 grep / diff / 数值比较 / schema 检验之一验证）
+
+7. **`truths` 过席位必要性预检**——每条 truth 写完后，orchestrator 自问："此 truth 是否必须召开席位的专业视角才能评估？"
+   - 若答案是"orchestrator 或代码席自己能判"（如文档记账 / 目录结构 / 单纯 grep 验证 / 记忆同步 / 配置项存在性）→ **不进 `must_haves.truths`**，改入 `DECISIONS.locked`（强制实施项）或 `DECISIONS.discretion`（实施时判断）
+   - `must_haves.truths` 只放真正需要席位**专业视角**才能评估的主张（例：尾部风险覆盖度 / 认知偏误叠加 / 激励错位 / 架构 good taste / 跨模块耦合影响 / 分类设计合理性 / 可观测指标的合理阈值）
+   - 作用：席位带宽聚焦在"非席位不可判"的主张上，不被记账类 truth 稀释；verdict 焦点不失真
+
+**小议题例外**：议题是纯代码整理 / 文案 / 修 bug 时，truths 可简化为最小可验证集（例：改动文件 `py_compile` 通过 + 一条针对性断言通过 / lint 无 error + 回归测试 pass）。这些属于 policy_discipline truth，pass_criterion 直接写死，不硬凑专业指标。
 
 #### Step 2 · 用户确认
 
