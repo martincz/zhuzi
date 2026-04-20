@@ -21,6 +21,7 @@ $ARGUMENTS
 |---|---|---|---|
 | 策略 | `taleb-reviewer` | 尾部风险、fragility、barbell、skin in the game | 量化策略 / 尾部风险 / 投资决策 / 仓位管理 / 激励结构 / skin-in-the-game / 厚尾分布 |
 | 策略 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈 | 投资决策 / 商业判断 / 认知偏误审视 / 能力圈边界 / 策略审视 / 激励结构 / Lollapalooza |
+| 策略 | `lopezdeprado-reviewer` | 研究诚信、associational vs causal、backtest overfitting、DSR/PBO/CPCV、Sisyphus vs Meta-Strategy workflow | 量化研究方法论 / backtest overfitting / p-hacking / multiple testing / causal factor / specification error / Deflated Sharpe / Purged K-Fold / CPCV / Meta-Labeling / Fractional Differentiation / 研究流程诊断 / factor zoo 审视 |
 | 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | 代码架构 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
 
 **扩席位**：新建 `~/.claude/agents/<name>.md`，在本表加一行（填齐"擅长领域"关键词），并在阶段 1 spawn 模板按需加对应 block。不拆新 command——圆桌会议本就是开放席位的隐喻。
@@ -60,7 +61,10 @@ spawn 任何席位**之前**，主 Claude 完成三件事，一次性呈现给�
 |---|---|---|---|---|
 | Taleb | `[1]` | 弃权 | 弃权 | `[1]` |
 | Munger | `[1]` | 弃权 | 弃权 | `[1]` |
+| López | `[1]` | 弃权 | 弃权 | `[1]` |
 | Linus | 弃权 | `[2]` | `[1, 2]` | `[1, 2]` |
+
+**López 席位额外召开规则**（在上表基础上细化）：议题中含"研究方法论 / backtest 审视 / 因子诚信 / causal claim / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow"任一关键词时**必召开**，即使未命中 Taleb/Munger 的尾部 / 偏误触发词。**López 与 Taleb/Munger 高度互补但不重复**——三席可同时召开，也可单独 López 召开（例：议题是"审这篇 factor literature 的方法论"——Taleb 弃权 / Munger 弃权 / López 独呈）。
 
 **判断"工程决策维度"的关键词**：架构 / 重构 / 技术选型 / 设计选择 / good taste / 数据结构 / 模块划分 / API 设计 / 工程规范。议题描述中含这类词 → Linus `stages` 含 `1`。
 
@@ -174,9 +178,29 @@ Agent(subagent_type="munger-reviewer", prompt="""
 - 若 kill 指明违反第几条
 - 原文结尾必须带 YAML verdict block（见 agent 定义）
 """)
+
+Agent(subagent_type="lopezdeprado-reviewer", prompt="""
+议题: <议题原文>
+<同上数据>
+
+阶段 0.5 must_haves:
+<完整粘贴阶段 0.5 产出的 YAML 块>
+
+请做 Research Integrity Audit：
+- 10 步 Pre-Trade Research Integrity Check 逐条过
+- 对每条 must_haves.truth 做 claim classification（associational / causal / observable_metric / policy_discipline / untestable）
+- 18 条方法论 anti-pattern 扫描，命中的给 AP-N 编号
+- **针对 must_haves：truths 是否是 associational claim 伪装 causal / 是否缺 causal graph / 是否未披露 trial 数 / 是否用 random K-Fold / 是否激励 p-hacking**
+- 若发现 truth 本身是 associational / 把 backtest 当 theory / 未披露 trial 数等根本问题 → `must_haves_challenge.triggered: yes`
+- verdict: scientific / associational / pseudo_scientific（三态）
+- 若 pseudo_scientific 列出命中的 AP-N 编号；若 associational 给出升级 causal 的路径（7 步 Protocol 第几步缺）
+- 议题若落在 L4 静默清单（量子 / 个股 / 宏观 / 地缘 / LLM agent alpha）→ `domain_limit_flag` 标注 + `core.route: too_hard`
+- 原文结尾必须带 YAML verdict block（见 agent 定义）
+- **pattern-level 批评纪律不得违反**：原文和 YAML 里都不得点名具体公司 / 基金 / PM / ticker
+""")
 ```
 
-两个 agent 返回后：**原文完整呈现给用户，不得转述或软化**。
+三个 agent 返回后：**原文完整呈现给用户，不得转述或软化**。
 
 ### 阶段 1.5 — must_haves 修订 gate（条件触发）
 
@@ -337,7 +361,7 @@ Linus 返回实施报告后：**原文完整呈现给用户**。
 
 | 冲突类型 | 处理 |
 |---|---|
-| 策略席之间分歧（如 Taleb vs Munger） | 可选：SendMessage 让他们互相 push back 一轮；或主 Claude 呈分歧表给用户拍板 |
+| 策略席之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：SendMessage 让他们互相 push back 一轮；或主 Claude 呈分歧表给用户拍板。**典型 Taleb vs López 分歧**：Taleb 认为金融不能科学化（换分布 class），López 认为应当科学化（Gaussian 工具内 + FDR + causal 修正）——路径相反，不强行合并 |
 | Linus 说"代码层 broken" | 回阶段 1 问策略席：是否有等价路径可绕开该 broken 点 |
 | 策略必须 × 代码无法干净落地 | 主 Claude + 用户拍板：重构承载 / 降级策略 / 放弃本次改动 |
 | Linus 阶段 2 建议与策略结论矛盾 | 主 Claude 明确呈现给用户，不擅自取舍 |
@@ -436,6 +460,7 @@ must_haves_challenge:
 
 - **Taleb**: `tail_events_breaking_must_haves` / `fragility_checklist_failures` / `skin_in_the_game`
 - **Munger**: `anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `reverse_kill_path`
+- **López**: `claim_classification` / `causal_graph_missing` / `trial_count_disclosed` / `integrity_checklist_failures` / `anti_pattern_hits` / `workflow_diagnosis` / `domain_limit_flag`
 - **Linus 阶段 2**: `broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`
 
 ### route 映射规则（各席位 native → core.route）
@@ -448,6 +473,10 @@ must_haves_challenge:
 | Munger | kill | `kill` |
 | Munger | too_hard | `too_hard` |
 | Munger | （对 must_haves 框架本身不满） | `revise_must_haves` |
+| López | scientific | `go` |
+| López | associational | `go_with_conditions`（hard_blockers 列"必须补 causal graph + do-calculus adjustment"） |
+| López | pseudo_scientific | `kill`（命中 AP-1/2/4/7/10/16 等核心 anti-pattern 且不可救）/ `revise_must_haves`（must_haves 本身是 associational 伪装 causal，同时触发 challenge） |
+| López | （domain_limit_flag 非 none） | `too_hard`（议题属 L4 静默清单 / 非方法论 domain） |
 | Linus | sane | `go` |
 | Linus | broken | `kill`（单边否决） |
 | Linus | needs_refactor_first | `revise_must_haves` / `go_with_conditions` |
