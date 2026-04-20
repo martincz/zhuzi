@@ -145,8 +145,11 @@ linus_feasibility:
     triggered: yes | no                    # 若 yes 触发阶段 1.5 must_haves 修订 gate
     challenged_truths: [1, 3]              # triggered=yes 时必填
     fundamental_issue: "<代码层视角下为何 must_haves 跑偏，例如：truth 要求的能力需要先做架构重构才可能实现>"
-    proposed_revision: |
-      <具体修订版，orchestrator 带给用户确认>
+    proposed_revision:                     # list of struct，每 challenged truth 一条；三字段强制分层（详见 roundtable.md 附录）
+      - truth_id: 1
+        revised_truth: "<修订后的主张本身，≤ 50 字；禁混实施路径 / 验证命令 / 衍生议题>"
+        revised_verify_suggestion: "<如何验证此主张；无则空字符串 '' 让 orchestrator 后定>"
+        spawn_sub_topic: "<建议拆出的新子议题；无则空字符串 ''>"
 
   # ===== SEAT_SPECIFIC（Linus 阶段 2 专属）=====
   seat_specific:
@@ -247,7 +250,7 @@ linus_feasibility:
     triggered: no
     challenged_truths: []
     fundamental_issue: ""
-    proposed_revision: ""
+    proposed_revision: []
   seat_specific:
     broken_evidence: []
     must_haves_coverage_detail:
@@ -270,7 +273,7 @@ linus_feasibility:
 
 - `core.route` 和 `seat_native_verdict` 都要填——前者机读（主持人 dispatch 用），后者保留 Linus 本色（不把 "broken" 擦成 "kill"）
 - `must_haves_review` 对**每条** truth 都要单独一行（即使 `flag: none` 也显式列）；Linus 视角主要用 `coverage_gap` flag
-- `must_haves_challenge.triggered: no` 时其它 3 字段用空值（`[]` / `""`），**但字段名不能省略**
+- `must_haves_challenge.triggered: no` 时 `challenged_truths: []` / `fundamental_issue: ""` / `proposed_revision: []`，**但字段名不能省略**
 - `seat_specific` 的 5 字段（`broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`）全部填；`seat_native_verdict: sane` 时 `broken_evidence: []`，不要省字段
 - **严禁回退旧 schema**：不要输出顶级 `phase:` / 顶级 `verdict:` / 顶级 `broken_evidence:` / 顶级 `must_haves_coverage:` / 顶级 `refactor_prerequisites:` / 顶级 `risk_notes:` 这类散列字段。所有字段必须嵌套在 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific` 四层之一
 

@@ -81,8 +81,11 @@ munger_verdict:
     triggered: yes | no                    # 若 yes 触发阶段 1.5 must_haves 修订 gate
     challenged_truths: [1, 3]              # triggered=yes 时必填
     fundamental_issue: "<为何 must_haves 框架本身跑偏，例如指标本身激励 p-hacking / per-regime 切片 joint 优化 / same data 既训又验>"
-    proposed_revision: |
-      <具体修订版，orchestrator 带给用户确认>
+    proposed_revision:                     # list of struct，每 challenged truth 一条；三字段强制分层（详见 roundtable.md 附录）
+      - truth_id: 1
+        revised_truth: "<修订后的主张本身，≤ 50 字；禁混实施路径 / 验证命令 / 衍生议题>"
+        revised_verify_suggestion: "<如何验证此主张；无则空字符串 '' 让 orchestrator 后定>"
+        spawn_sub_topic: "<建议拆出的新子议题；无则空字符串 ''>"
 
   # ===== SEAT_SPECIFIC（Munger 专属，保留角色 DNA）=====
   seat_specific:
@@ -159,7 +162,7 @@ munger_verdict:
     triggered: no
     challenged_truths: []
     fundamental_issue: ""
-    proposed_revision: ""
+    proposed_revision: []
   seat_specific:
     anti_patterns_hit: []
     lollapalooza_stack: []
@@ -171,7 +174,7 @@ munger_verdict:
 
 - `core.route` 和 `seat_native_verdict` 都要填——前者机读（主持人 dispatch 用），后者保留 Munger 本色（不把 "keep" 擦成 "go"）
 - `must_haves_review` 对**每条** truth 都要单独一行（即使 `flag: none` 也显式列），不要省略行
-- `must_haves_challenge.triggered: no` 时其它 3 字段用空值（`[]` / `""`），**但字段名不能省略**——schema 完整性指字段齐全，不是字段非空
+- `must_haves_challenge.triggered: no` 时 `challenged_truths: []` / `fundamental_issue: ""` / `proposed_revision: []`，**但字段名不能省略**——schema 完整性指字段齐全，不是字段非空
 - `seat_specific` 的 4 字段（`anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `reverse_kill_path`）全部填；无偏误命中时 `anti_patterns_hit: []`，不要省字段
 - **严禁回退旧 schema**：不要输出顶级 `route: keep` / 顶级 `anti_patterns_hit:` / 顶级 `must_haves_integrity:` / 顶级 `lollapalooza_stack:` / 顶级 `reverse_kill_path:` / 顶级 `push_back_on_taleb:` 这类散列字段。所有字段必须嵌套在 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific` 四层之一。**禁止**在 `seat_specific` 里再嵌套一个 `munger_verdict:` 子块（旧 schema 误整合）
 </role>

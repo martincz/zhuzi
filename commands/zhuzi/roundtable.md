@@ -196,6 +196,31 @@ Agent(subagent_type="munger-reviewer", prompt="""
 
 **禁止**主 Claude 自行合并 challenge / 无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件从临场补 gate 升格成协议内置流程（见附录"共同 verdict schema（v2）"的 `must_haves_challenge` 字段）。
 
+#### 阶段 1.5 产物可读性约束
+
+任一违反则 orchestrator 综合产出不合格，必须重写。
+
+1. **去 persona 黑话**——席位专业方言（如 Goodhart / Doubt-Avoidance / metric_gaming / premature abstraction / bikeshedding / Lollapalooza / antifragile / fragility / Turkey / skin in the game / good taste）在 v2 对照表**首次出现时必须带 1 句通俗解释**（"指 X"）。席位原文已在阶段 1 完整呈现——对照表是**决策辅助**不是黑话复读。用户判断"是否同意修订"，不是"是否听懂席位方言"。
+
+2. **尊重席位侧已分层的 `proposed_revision`**——席位 `must_haves_challenge.proposed_revision` 已按 `revised_truth` / `revised_verify_suggestion` / `spawn_sub_topic` 三字段分层（见附录）。orchestrator 合并多席位 v2 时**直接对应字段合并**，不得再次展开或重新混合：
+   - 多席位对同一 truth 的 `revised_truth` 合并成一条（矛盾时显式标注"A 席位主张 X / B 席位主张 Y"），合并结果仍保持 ≤ 50 字
+   - `revised_verify_suggestion` 合并成对应 truth 的 pass_criterion 建议（按阶段 0.5 硬约束第 3 条按 truth 类型分写）
+   - `spawn_sub_topic` 收集到"衍生议题"段——**不进 v2 主 truth**，作为阶段 3 `DECISIONS.deferred` 或建议另开 roundtable
+
+3. **结构复杂度上限**：
+   - v2 主张单条 ≤ 50 字（席位侧已约束 `revised_truth ≤ 50 字`，orchestrator 合并时不得膨胀）
+   - 单条 v2 段不含超过 2 层括号嵌套
+   - "修订来源 + fundamental_issue" 按席位分列展示（每席位独立一行），禁止用"；"挤在一行
+
+4. **用户决策选项扩成五选一**（原 4 + 新 1）：
+   - 1. 接受 v2 / 2. 接受部分 / 3. 保持 v1 / 4. 重开议题 / **5. 要求 orchestrator 改写 v2 表达**（不改实质内容，只做去黑话 / 排版重组 / 人话化）
+   - 第 5 选项是"可读性回炉"——避免用户在"看不懂 v2"和"叫停议题"之间被迫二选一
+
+5. **orchestrator 自检**（产出前通读一遍）：
+   - 自问："如果我完全没读过席位 persona 的 SKILL.md / references，这段 v2 我能在 30 秒内判断是否接受吗？"
+   - 自问："v2 每条主句有没有超过 50 字？有没有括号嵌套 3 层？"
+   - 任一答案否 / 超限 → 重写，不得呈交用户
+
 ### 阶段 2 — 代码可行性评审（dispatch: 召开名单有席位 `stages` 含 `2` 时触发）
 
 - **召开名单有席位 `stages` 含 `2`**（默认为 `linus-engineer`，`stages=[2]` 或 `stages=[1,2]`）→ 把阶段 1 所有席位原文（如有）打包交该席位，**保留 `linus_id` 以便阶段 4 续跑**：
@@ -386,9 +411,20 @@ must_haves_challenge:
   triggered: yes | no
   challenged_truths: [1, 3]
   fundamental_issue: "<为何 must_haves 框架从根本跑偏，不是单条阈值问题>"
-  proposed_revision: |
-    <具体修订版>
+  proposed_revision:                        # list of struct，每 challenged truth 一条；三字段强制分层
+    - truth_id: 1
+      revised_truth: "<修订后的主张本身，≤ 50 字；禁混实施路径 / 验证命令 / 衍生议题>"
+      revised_verify_suggestion: "<如何验证此主张；无则空字符串 '' 让 orchestrator 后定>"
+      spawn_sub_topic: "<建议拆出的新子议题；无则空字符串 ''>"
 ```
+
+**`proposed_revision` 三字段分层规则**（席位侧源头保证阶段 1.5 产物可读）：
+
+- `revised_truth`：只放修订后的主张本身——"改为什么"。硬上限 ≤ 50 字、不超过 2 层括号嵌套。禁混：具体文件路径 / grep 命令 / 数值阈值 / 新子议题 / 触发条件。
+- `revised_verify_suggestion`：修订后主张的验证建议——"怎么验证"。具体文件路径 / grep / 阈值放这里。
+- `spawn_sub_topic`：修订触发的新子议题——"需要另开议题的部分"。无则空字符串 `""`。
+
+席位若不分层（把所有内容塞进 `revised_truth`），orchestrator 阶段 1.5 综合时会被迫展开给用户看——这是触发"说的不是人话"事件的源头。从席位侧保证分层，阶段 1.5 才能干净做合并 + 去黑话。**严禁回退为字符串字面量**（旧 schema 的 `proposed_revision: | <多行文本>` 禁用）。
 
 **任一席位 `triggered: yes` → 阶段 1.5 must_haves 修订 gate 强制触发**（见上文阶段 1.5）。orchestrator 不得忽略，也不得自行合并。
 
