@@ -6,10 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 这是一个 **Claude Code Skill 集合**——没有构建系统、没有测试套件、没有运行时。全部内容都是 Markdown 文档，定义可被 Claude Code 加载的人物/工程视角 skill：
 
-- `linus-torvalds-engineer/`（Linus，原 v2）——把传记式思维参考升级为"可执行指令集"。v1（`linus-torvalds-perspective`）已于 2026-04-20 归档到 `archive/`，不再作为活动 skill——见 `archive/README.md`
-- `munger-checklist/`（Munger v2）——Charlie Munger 的 checklist 式清单工具箱，对标 Linus v2 结构，专为量化策略设计 / 投资决策审视。命名取自芒格自己的方法论（"We collect the asininities of the world in a kind of checklist"）——芒格不是工程师，所以不用 `-engineer` 后缀。基线参考 `/mnt/g/nuwa-skill/examples/munger-perspective`（v1，未收入本仓库）
-- `taleb-antifragile/`（Taleb，**独立首发无 v1**）——Nassim Nicholas Taleb 的反脆弱 / 厚尾 / 凸性思维操作系统。对标 Linus v2 / Munger v2 的 engineer 级架构。命名取自 Taleb 自造的核心概念 + magnum opus 书名（*Antifragile*, 2012）——他一辈子工作的核心。7 心智模型（Antifragility / Fat Tails / Skin in the Game / Via Negativa / Barbell / Ergodicity / Lindy）/ 18 条 anti-pattern（fragility 清单，6 分布误用 + 5 认知论证 + 5 激励伦理 + 1 量化 + 1 元）/ 10 步 Pre-Trade Fragility Check / 4 级表达强度（按对手身份 route 而非话题——**独有**）/ 量化交易 playbook（基于 Incerto 原则推演，**非 Taleb 原话**，顶部强制声明）。**信息持续更新**（Taleb 仍在世，1960-，2026-04 截止；每次更新看 X @nntaleb、新技术论文、新 beefs、Gaza / Lebanon 立场演化）。
-- `luxun-zawen/`（鲁迅杂文改写）——**聊天娱乐型**（文体改写工具）。把日常聊天 / 吐槽 / 反击的一句话改写成鲁迅杂文体。命名取自鲁迅一辈子的招牌文体身份（杂文家），对标 Linus 的 `-engineer`、Munger 的 `-checklist`、Taleb 的 `-antifragile`。6 种招牌修辞 DNA（对比反讽 / 做标本 / 以小见大 / 假引退 / 层层剥皮 / 冷眼装蒜）/ 12 条假鲁迅识别器 / 4 级阴狠度（S 一句刀 / M 两句带转折 / L 小段杂文体 / XL 长 po）/ 12 种聊天场景 playbook。**信息截止 1936-10-19**（鲁迅去世）。
+- `skills/linus-torvalds-engineer/`（Linus，原 v2）——把传记式思维参考升级为"可执行指令集"。v1（`linus-torvalds-perspective`）已于 2026-04-20 归档到 `archive/`，不再作为活动 skill——见 `archive/README.md`
+- `skills/munger-checklist/`（Munger v2）——Charlie Munger 的 checklist 式清单工具箱，对标 Linus v2 结构，专为量化策略设计 / 投资决策审视。命名取自芒格自己的方法论（"We collect the asininities of the world in a kind of checklist"）——芒格不是工程师，所以不用 `-engineer` 后缀。基线参考 `/mnt/g/nuwa-skill/examples/munger-perspective`（v1，未收入本仓库）
+- `skills/taleb-antifragile/`（Taleb，**独立首发无 v1**）——Nassim Nicholas Taleb 的反脆弱 / 厚尾 / 凸性思维操作系统。对标 Linus v2 / Munger v2 的 engineer 级架构。命名取自 Taleb 自造的核心概念 + magnum opus 书名（*Antifragile*, 2012）——他一辈子工作的核心。7 心智模型（Antifragility / Fat Tails / Skin in the Game / Via Negativa / Barbell / Ergodicity / Lindy）/ 18 条 anti-pattern（fragility 清单，6 分布误用 + 5 认知论证 + 5 激励伦理 + 1 量化 + 1 元）/ 10 步 Pre-Trade Fragility Check / 4 级表达强度（按对手身份 route 而非话题——**独有**）/ 量化交易 playbook（基于 Incerto 原则推演，**非 Taleb 原话**，顶部强制声明）。**信息持续更新**（Taleb 仍在世，1960-，2026-04 截止；每次更新看 X @nntaleb、新技术论文、新 beefs、Gaza / Lebanon 立场演化）。
+- `skills/luxun-zawen/`（鲁迅杂文改写）——**聊天娱乐型**（文体改写工具）。把日常聊天 / 吐槽 / 反击的一句话改写成鲁迅杂文体。命名取自鲁迅一辈子的招牌文体身份（杂文家），对标 Linus 的 `-engineer`、Munger 的 `-checklist`、Taleb 的 `-antifragile`。6 种招牌修辞 DNA（对比反讽 / 做标本 / 以小见大 / 假引退 / 层层剥皮 / 冷眼装蒜）/ 12 条假鲁迅识别器 / 4 级阴狠度（S 一句刀 / M 两句带转折 / L 小段杂文体 / XL 长 po）/ 12 种聊天场景 playbook。**信息截止 1936-10-19**（鲁迅去世）。
 
 **两类 skill**：
 - **A 类 · 思维顾问型**：Linus / Munger / Taleb——用户"想问题"时介入，输出结构化分析。Linus skill 擅长代码 / 系统工程 / 开源治理决策，Munger skill 擅长金融 / 量化 / 商业判断，Taleb skill 擅长尾部风险 / 厚尾分布 / 反脆弱设计。量化工程师场景可能同时激活多个（Munger + Taleb 是最紧密互补：Munger 避免愚蠢 / 认知偏误，Taleb 避免破产 / 数学分布；Munger Kelly × 0.25，Taleb Kelly × 0.15；Munger 说"中等 = 稳健"，Taleb 说"中等 = 最脆弱 / barbell 拒绝中间"）
@@ -61,7 +61,7 @@ SKILL.md 是给模型加载的主文件，必须保持紧凑（v2 的设计目�
 4. **表达分级是核心特性**（engineer v2 独有）——Level 1/2/3/4 的词汇、触发条件、例句不能混淆。修改 `references/expression-levels.md` 时保留档位边界。Linus 的档位是"技术严肃性"，Munger 的档位是"判断严厉度"——不要把两者的档位逻辑混用。
 5. **量化 playbook 的推演声明**（Munger 独有）——`quant-trading-playbook.md` 明确声明是"基于原则推演"而非 Munger 原话。修改时保留这个声明，不要让它漂移成"Munger 说过 XX"。
 6. **中文为主，技术术语保留英文**（如 `bikeshedding`、`good taste`、`Lollapalooza`、`circle of competence`、`regression`）。引用人物原话用英文，不翻译。
-7. **聊天娱乐型 skill（Luxun）的特殊规则**——不是思维顾问而是口吻 / 文体工具。不能用它生成"人物观点 / 判断 / 推演"作为决策依据，只能做文本风格转换。每次改写必须能归类到已定义的修辞 DNA（Luxun 是 6 种 + S/M/L/XL 四档）——无法归类的产出说明破功。引用人物原话时必须查证出处（Luxun 的所有"鲁迅说过"引用都标注到作品与年份）——误引（把网络梗"我没有说过" / 蜘蛛侠"能力越大责任越大" 当鲁迅原话）是核心 anti-pattern（见 `luxun-zawen/references/anti-patterns.md` 症状 4）。
+7. **聊天娱乐型 skill（Luxun）的特殊规则**——不是思维顾问而是口吻 / 文体工具。不能用它生成"人物观点 / 判断 / 推演"作为决策依据，只能做文本风格转换。每次改写必须能归类到已定义的修辞 DNA（Luxun 是 6 种 + S/M/L/XL 四档）——无法归类的产出说明破功。引用人物原话时必须查证出处（Luxun 的所有"鲁迅说过"引用都标注到作品与年份）——误引（把网络梗"我没有说过" / 蜘蛛侠"能力越大责任越大" 当鲁迅原话）是核心 anti-pattern（见 `skills/luxun-zawen/references/anti-patterns.md` 症状 4）。
 8. **跨类隔离原则**（A 类思维顾问 vs B 类聊天娱乐不混用）：
    - **A 类**（Linus / Munger / Taleb）收到"帮我用 XX 口吻回朋友 / 把这句话改阴一点 / 装 XX 腔" → 不自己做文体改写，路由到 B 类（Luxun）
    - **B 类**（Luxun）收到"帮我审这段代码 / 看这个策略 / 做决策建议" → 不假扮人物输出"他会怎么看"，退出角色并路由到 A 类对应 skill
@@ -71,13 +71,13 @@ SKILL.md 是给模型加载的主文件，必须保持紧凑（v2 的设计目�
 
 ## 常见修改场景
 
-- **补 Linus 2026-04 之后的新素材**（新 LKML 事件、新访谈）→ 先进 `linus-torvalds-engineer/references/research/07-updates-2024-2026.md`，再决定是否升级到 SKILL.md 的心智模型或 anti-pattern 库。
+- **补 Linus 2026-04 之后的新素材**（新 LKML 事件、新访谈）→ 先进 `skills/linus-torvalds-engineer/references/research/07-updates-2024-2026.md`，再决定是否升级到 SKILL.md 的心智模型或 anti-pattern 库。
 - **Munger 信息截止 2023-11-28**（去世）→ 不补新事件；只能补**已有但调研没覆盖**的历史材料。任何 2023-11 后的内容应标注为"按原则推断"而非 Munger 原话。
 - **Taleb 信息持续更新**（仍在世 1960-）→ 更新策略：新访谈 / 新推文进 `research/02-conversations.md` 和 `03-expression-dna.md`；新技术论文（如 *Fat Tails* 第 4 版）进 `01-writings.md`；新 public beefs 进 `03-expression-dna.md` 的"近期动态 > 新 beefs"；立场演化（如他对 AI / LLM 从温和到更激烈）更新 SKILL.md 身份卡 + 时间线。**Gaza / Lebanon 立场**有隔离规则——skill 可引原话但加 "这是他立场不是普适真理" caveat，不做政治宣传。
 - **调整触发词**→ 改 SKILL.md 顶部 frontmatter 的 `description` 字段。已归档的 v1（在 `archive/`）不再扫描，不用考虑触发词冲突。
 - **新增 anti-pattern**→ 必须同时更新 SKILL.md 的表格和 `references/anti-patterns.md` 的详细条目，两处编号一致。Linus 是 12 条，Munger 是 20 条（10 认知 + 9 量化 + 1 元），Taleb 是 18 条（6 分布误用 + 5 认知论证 + 5 激励伦理 + 1 量化 + 1 元 "Fragility Stack"）。
 - **量化 playbook 扩展**（Munger / Taleb）→ 每次新增"XX 映射到量化"内容时必须检查心智模型完整对应（Munger 7 个 / Taleb 7 个）——不要漏掉某个模型也不要强行塞入无关映射。**Taleb 特别注意**：每章末尾的 "⚠️ Taleb 可能反驳" 警示不要被稀释——它是 skill 诚实性的关键。
-- **补 Luxun 鲁迅未覆盖的聊天场景**（如新的约定场景 / 新的朋友互动模式）→ 加到 `luxun-zawen/references/scenario-playbook.md`，不要改 SKILL.md 主表（主表只列入 12 个核心场景）。如果新场景需要引入新的修辞 DNA（超出 6 种），则必须同时更新：(1) SKILL.md 的修辞索引表、(2) `rhetoric-patterns.md` 详细条目、(3) `research/03-signature-devices.md` 的原文证据链（**至少 5 条精确出处引用**）——三处同步且编号一致。
+- **补 Luxun 鲁迅未覆盖的聊天场景**（如新的约定场景 / 新的朋友互动模式）→ 加到 `skills/luxun-zawen/references/scenario-playbook.md`，不要改 SKILL.md 主表（主表只列入 12 个核心场景）。如果新场景需要引入新的修辞 DNA（超出 6 种），则必须同时更新：(1) SKILL.md 的修辞索引表、(2) `rhetoric-patterns.md` 详细条目、(3) `research/03-signature-devices.md` 的原文证据链（**至少 5 条精确出处引用**）——三处同步且编号一致。
 - **补 Luxun 原文引用**（新发现的鲁迅原话可供 skill 引用）→ 进 `research/04-vocabulary-pool.md` 的"可引用原话"表，**必须精确到作品名 + 年份**。禁止引用无法查证的网络流传句。鲁迅信息**截止 1936-10-19**——不补后续二手评价。
 - **命名约定的元原则**：新增人物 skill 时，**后缀要贴合该人物自己的身份 / 方法论**——不要照搬 `-engineer` 当通用后缀。已落地案例：Linus 用 `-engineer`（自我认同），Munger 用 `-checklist`（招牌方法），Luxun 用 `-zawen` / 杂文（一辈子的招牌文体身份）。建议后缀：费曼可能用 `-teacher` 或 `-explainer`，巴菲特可能用 `-letter`（股东信体）。错误样例：把所有新 skill 都叫 `-engineer` 会制造身份错认。
 

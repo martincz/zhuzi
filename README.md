@@ -52,7 +52,7 @@
 
 历史版本移到 [archive/](./archive/)，仅作对比参考保留：
 
-- `archive/linus-torvalds-perspective/`（Linus v1，传记式思维顾问）——已被 `linus-torvalds-engineer` 完整替代。差异说明见 `linus-torvalds-engineer/references/upgrade-notes.md`。
+- `archive/linus-torvalds-perspective/`（Linus v1，传记式思维顾问）——已被 `linus-torvalds-engineer` 完整替代。差异说明见 `skills/linus-torvalds-engineer/references/upgrade-notes.md`。
 
 ### 命名约定
 
@@ -69,22 +69,46 @@
 
 ## 安装
 
-### 方式 A：复制到全局 skill 目录
-
-```bash
-git clone https://github.com/<your-fork>/zhuzi.git
-cp -r zhuzi/<skill-name> ~/.claude/skills/
-```
-
-### 方式 B：直接用这个仓库作为工作区
+### 方式 A：一键安装（推荐）
 
 ```bash
 git clone https://github.com/<your-fork>/zhuzi.git
 cd zhuzi
-claude
+./install.sh
 ```
 
-Claude Code 会自动识别当前目录下的 skill 目录。
+`install.sh` 会把以下内容覆盖拷贝到 `~/.claude/`：
+- `skills/*/` → `~/.claude/skills/<name>/`（4 个 skill）
+- `agents/*.md` → `~/.claude/agents/`（3 个 roundtable 席位 agent）
+- `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（`/zhuzi:roundtable` 等命令）
+
+不保留备份。每次修改仓库后需重跑脚本。
+
+### 方式 B：只装单个 skill
+
+```bash
+git clone https://github.com/<your-fork>/zhuzi.git
+cp -r zhuzi/skills/<skill-name> ~/.claude/skills/
+```
+
+### 仓库布局
+
+```
+zhuzi/
+├── skills/                         # 可安装的 skill（本仓库的核心产物）
+│   ├── linus-torvalds-engineer/
+│   ├── munger-checklist/
+│   ├── taleb-antifragile/
+│   └── luxun-zawen/
+├── agents/                         # roundtable 圆桌会议的席位 agent 定义
+│   ├── linus-engineer.md           # 代码席
+│   ├── munger-reviewer.md          # 策略席之一
+│   └── taleb-reviewer.md           # 策略席之二
+├── commands/zhuzi/                 # 斜杠命令
+│   └── roundtable.md               # /zhuzi:roundtable
+├── archive/                        # 归档的 v1 skill（不推荐安装）
+└── install.sh
+```
 
 ---
 
@@ -139,7 +163,7 @@ Claude Code 会按 skill 的 `description` frontmatter 字段匹配用户消息�
 
 1. **调研**：收集一手来源（著作 / 访谈 / 决策记录），按维度写入 `<skill>/references/research/01-*.md` 到 `06-*.md`
 2. **提炼**：用三重验证（跨域复现 / 生成力 / 排他性）筛选心智模型（3-7 个）、决策启发式、表达 DNA、反模式、诚实边界
-3. **构建**：按 SKILL.md 模板（参考 `munger-checklist/SKILL.md` 或 `taleb-antifragile/SKILL.md`）写入主文件，细节下沉到 references 子文件
+3. **构建**：按 SKILL.md 模板（参考 `skills/munger-checklist/SKILL.md` 或 `skills/taleb-antifragile/SKILL.md`）写入主文件，细节下沉到 references 子文件
 4. **验证**：用已知测试 / 边缘测试 / 风格测试独立验证 skill 质量
 5. **精炼**：用 skill-optimizer / skill-creator 双视角评审，应用不冲突改进
 
