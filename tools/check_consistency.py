@@ -101,7 +101,12 @@ def check_agent_skill_paths(errors: list[str]) -> None:
 def check_roundtable_seats(errors: list[str]) -> None:
     command = ROOT / "commands" / "zhuzi" / "roundtable.md"
     text = command.read_text(encoding="utf-8")
-    table_agents = set(re.findall(r"\|\s*(?:策略|代码)\s*\|\s*`([^`]+)`", text))
+    marker = "## 当前席位"
+    if marker not in text:
+        add_error(errors, command, 1, "roundtable missing current seat table")
+        return
+    seat_section = text.split(marker, 1)[1].split("**扩席位**", 1)[0]
+    table_agents = set(re.findall(r"^\|\s*[^|]+\s*\|\s*`([^`]+)`", seat_section, re.MULTILINE))
     file_agents = {path.stem for path in (ROOT / "agents").glob("*.md")}
     if table_agents != file_agents:
         add_error(

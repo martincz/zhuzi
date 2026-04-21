@@ -1,5 +1,5 @@
 ---
-description: 圆桌会议模式——默认短读的多席位协作审议（策略席 + 代码席）。席位可扩，流水线通用。
+description: 圆桌会议模式——默认短读的多席位协作审议（决策质量席 + 风险结构席 + 证据质量席 + 代码席）。席位可扩，流水线通用。
 argument-hint: [议题/策略/提案/需求描述]
 ---
 
@@ -74,10 +74,10 @@ Quick 模式的用户可见输出必须使用下列骨架，除非用户显式�
 
 | 席位 | agent | 职责 | 擅长领域（议题匹配关键词） |
 |---|---|---|---|
-| 策略 | `taleb-reviewer` | 尾部风险、fragility、barbell、skin in the game | 量化策略 / 尾部风险 / 投资决策 / 仓位管理 / 激励结构 / skin-in-the-game / 厚尾分布 |
-| 策略 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈 | 投资决策 / 商业判断 / 认知偏误审视 / 能力圈边界 / 策略审视 / 激励结构 / Lollapalooza |
-| 策略 | `lopezdeprado-reviewer` | 研究诚信、associational vs causal、backtest overfitting、DSR/PBO/CPCV、Sisyphus vs Meta-Strategy workflow | 量化研究方法论 / backtest overfitting / p-hacking / multiple testing / causal factor / specification error / Deflated Sharpe / Purged K-Fold / CPCV / Meta-Labeling / Fractional Differentiation / 研究流程诊断 / factor zoo 审视 |
-| 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | 代码架构 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
+| 风险结构 | `taleb-reviewer` | 尾部风险、fragility、凸性、barbell、skin in the game | 不确定性 / 尾部风险 / 脆弱性 / 凸性 / ruin risk / barbell / 冗余 / 选择权 / 依赖链风险 / skin-in-the-game / 厚尾分布 |
+| 决策质量 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈、机会成本 | 投资决策 / 商业判断 / 产品策略 / 组织决策 / 认知偏误审视 / 能力圈边界 / 机会成本 / 安全边际 / 激励结构 / 护城河 / Lollapalooza |
+| 证据质量 | `lopezdeprado-reviewer` | 研究诚信、associational vs causal、实验/评估设计、backtest overfitting、DSR/PBO/CPCV | 研究方法论 / 实验设计 / 因果声明 / benchmark / A-B test / eval / data leakage / backtest overfitting / p-hacking / multiple testing / specification error / Deflated Sharpe / Purged K-Fold / CPCV / 研究流程诊断 |
+| 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | 软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
 
 **扩席位**：新建 `~/.claude/agents/<name>.md`，在本表加一行（填齐"擅长领域"关键词），并在阶段 1 spawn 模板按需加对应 block。不拆新 command——圆桌会议本就是开放席位的隐喻。
 
@@ -113,16 +113,16 @@ spawn 任何席位**之前**，orchestrator 完成三件事。Quick 模式下不
 
 **`stages` 字段默认规则**（议题类型 → 每席位 stages 推荐值）：
 
-| 席位 | 纯量化策略议题 | 纯代码实施议题（补选项/修 bug） | 工程决策议题（架构/选型/good taste） | 混合议题（量化策略 + 大改架构） |
-|---|---|---|---|---|
-| Taleb | `[1]` | 弃权 | 弃权 | `[1]` |
-| Munger | `[1]` | 弃权 | 弃权 | `[1]` |
-| López | `[1]` | 弃权 | 弃权 | `[1]` |
-| Linus | 弃权 | `[2]` | `[1, 2]` | `[1, 2]` |
+| 席位 | 策略/投资/商业/组织决策 | 研究/实验/因果评估 | 纯代码实施议题（补选项/修 bug） | 工程决策议题（架构/选型/good taste） | 混合议题 |
+|---|---|---|---|---|---|
+| Taleb | 含不确定性 / 尾部 / 脆弱性 → `[1]` | 只在评估暴露尾部风险时 `[1]` | 弃权 | 只在工程方案有系统性脆弱性时 `[1]` | `[1]` |
+| Munger | 含判断质量 / 激励 / 能力圈 / 机会成本 → `[1]` | 只在指标激励或研究者偏误关键时 `[1]` | 弃权 | 弃权 | `[1]` |
+| López | 只在 evidence claim 关键时 `[1]` | 含实验 / 因果 / benchmark / eval / 回测 → `[1]` | 弃权 | 弃权 | `[1]` |
+| Linus | 弃权 | 弃权 | `[2]` | `[1, 2]` | `[1, 2]` |
 
-**López 席位额外召开规则**（在上表基础上细化）：议题中含"研究方法论 / backtest 审视 / 因子诚信 / causal claim / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow"任一关键词时**必召开**，即使未命中 Taleb/Munger 的尾部 / 偏误触发词。**López 与 Taleb/Munger 高度互补但不重复**——三席可同时召开，也可单独 López 召开（例：议题是"审这篇 factor literature 的方法论"——Taleb 弃权 / Munger 弃权 / López 独呈）。
+**López 席位额外召开规则**（在上表基础上细化）：议题中含"研究方法论 / 实验设计 / benchmark / eval / A-B test / 因果声明 / causal claim / data leakage / selection bias / backtest 审视 / 因子诚信 / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow"任一关键词时**必召开**，即使议题不是量化金融，也即使未命中 Taleb/Munger 的尾部 / 偏误触发词。**López 与 Taleb/Munger 高度互补但不重复**——三席可同时召开，也可单独 López 召开（例：议题是"审这个产品 A/B test 的因果口径"——Taleb 弃权 / Munger 视激励情况可弃权 / López 独呈）。
 
-**判断"工程决策维度"的关键词**：架构 / 重构 / 技术选型 / 设计选择 / good taste / 数据结构 / 模块划分 / API 设计 / 工程规范。议题描述中含这类词 → Linus `stages` 含 `1`。
+**判断"工程决策维度"的关键词**：架构 / 重构 / 技术选型 / 设计选择 / good taste / 数据结构 / 模块划分 / API 设计 / 并发 / 性能 / 可靠性 / 安全 / 构建 / 测试链路 / 工程规范。议题描述中含这类词 → Linus `stages` 含 `1`。
 
 **Linus `stages=[1,2]` 时**：阶段 1 和阶段 2 分别 spawn 两次——阶段 1 做"工程视角评议题"（good taste / 数据结构合理性 / anti-pattern 扫描，**不关心当前 codebase 能否承载**），阶段 2 做"可行性 gate"（吸收阶段 1 结论 + 其他席位意见 + must_haves → 能否干净落地）。两次 spawn 的 prompt 内容不同，不是重复。阶段 1 Linus 输出沿用 `linus_feasibility` schema 但 `phase: 1`，`seat_specific.broken_evidence` 和 `must_haves_coverage_detail` 留空（那是阶段 2 才填的字段），重点填 `risk_notes`（工程视角对议题本身的 risk，不是对当前 codebase 的风险）。
 
@@ -193,7 +193,7 @@ Step 0（召开/弃权名单）+ Step 1（must_haves）**用议题卡一次性�
 
 ### 阶段 1 — 视角并行审议（dispatch: 召开名单有席位 `stages` 含 `1` 时触发）
 
-**按阶段 0.5 Step 0 产出的召开名单**动态 spawn——在同一条消息内**并行** spawn 所有 `stages` 含 `1` 的被召开席位。默认包括所有策略席位（Taleb / Munger），**也可能包括代码席位 Linus**（当议题有工程决策维度，Step 0 给他 `stages: [1, 2]`）。
+**按阶段 0.5 Step 0 产出的召开名单**动态 spawn——在同一条消息内**并行** spawn 所有 `stages` 含 `1` 的被召开席位。默认按议题召集相关非代码评议席位，**也可能包括代码席位 Linus**（当议题有工程决策维度，Step 0 给他 `stages: [1, 2]`）。
 
 - **召开名单有席位 `stages` 含 `1`** → spawn 所有此类席位（多个 Agent tool call 并列写）；弃权席位和 `stages` 不含 1 的席位**都不 spawn**
 - **无席位 `stages` 含 `1`**（纯实施议题，只召开 Linus 且 `stages=[2]`）→ **跳过本阶段**，直接进阶段 2
@@ -201,7 +201,7 @@ Step 0（召开/弃权名单）+ Step 1（must_haves）**用议题卡一次性�
 
 **Linus 在阶段 1 出场时**（`stages=[1,2]`）：spawn prompt 明确他做"工程视角评议题"——good taste / 数据结构合理性 / bikeshedding / premature abstraction / anti-pattern 扫描，**不关心当前 codebase 能否承载**（那是阶段 2 的事）。阶段 2 的 Linus spawn 另起，prompt 明确"吸收阶段 1 所有席位结论 + must_haves → 可行性 gate"。两次 spawn 工作不同，不是重复。
 
-下面是**策略席位全召开**时的 spawn 模板，实际运行时**按召开名单裁剪**——召开名单不含某席位时，整个对应 Agent block 删去；若 Linus `stages` 含 `1` 也要在此阶段加一个 Linus 的 spawn block（prompt 按"工程视角评议题"写）：
+下面是**非代码评议席位全召开**时的 spawn 模板，实际运行时**按召开名单裁剪**——召开名单不含某席位时，整个对应 Agent block 删去；若 Linus `stages` 含 `1` 也要在此阶段加一个 Linus 的 spawn block（prompt 按"工程视角评议题"写）：
 
 ```
 Agent(subagent_type="taleb-reviewer", prompt="""
@@ -282,7 +282,7 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
    - 每条修改的来源席位 + `fundamental_issue`
    - 用户四选一：**接受 v2** / **接受部分**（指定哪些 truth 采纳）/ **保持 v1** / **重开议题**
 3. 用户选"接受 v2"或"接受部分" → 锁定新版 must_haves，阶段 2 Linus 拿新版
-4. 用户选"保持 v1" → 阶段 2 进行但显式告知 Linus"策略席建议修订 must_haves 但用户维持 v1"，Linus 在自己的 verdict 里可选择继续 challenge
+4. 用户选"保持 v1" → 阶段 2 进行但显式告知 Linus"非代码评议席位建议修订 must_haves 但用户维持 v1"，Linus 在自己的 verdict 里可选择继续 challenge
 5. 用户选"重开议题" → 流水线终止，回阶段 0.5 重写议题
 
 **禁止**orchestrator 自行合并 challenge / 无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件从临场补 gate 升格成协议内置流程（见附录"共同 verdict schema（v2）"的 `must_haves_challenge` 字段）。
@@ -323,7 +323,7 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 linus_id = Agent(subagent_type="linus-engineer", prompt="""
 议题: <议题原文>
 
-策略层结论：
+非代码评议结论：
 
 === Taleb ===
 <Taleb 原文>
@@ -374,7 +374,7 @@ Linus 返回后默认呈现代码席短评：`sane/broken/needs_refactor_first`�
 
 5. **等用户确认**：用户未明示 go 之前，禁止进入阶段 4
 
-full 模式可额外展示策略层表、代码层表、候选方案表和完整 YAML；Quick 模式只在用户要求时展开。
+full 模式可额外展示非代码评议表、代码层表、候选方案表和完整 YAML；Quick 模式只在用户要求时展开。
 
 ### 阶段 4 — 实施
 
@@ -407,7 +407,7 @@ Agent(subagent_type="linus-engineer", prompt="""
 === 你在阶段 2 的可行性评审原文（作为自己上一轮判断对待）===
 <完整粘贴阶段 2 Linus 输出，不要摘要>
 
-=== 策略席位结论摘要 ===
+=== 非代码评议席位结论摘要 ===
 Taleb verdict: <fragile/robust/antifragile + 关键理由>
 Munger verdict: <keep/kill/too-hard + 关键理由>
 
@@ -430,10 +430,10 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 | 冲突类型 | 处理 |
 |---|---|
-| 策略席之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：SendMessage 让他们互相 push back 一轮；或 orchestrator 呈分歧表给用户拍板。**典型 Taleb vs López 分歧**：Taleb 认为金融不能科学化（换分布 class），López 认为应当科学化（Gaussian 工具内 + FDR + causal 修正）——路径相反，不强行合并 |
-| Linus 说"代码层 broken" | 回阶段 1 问策略席：是否有等价路径可绕开该 broken 点 |
-| 策略必须 × 代码无法干净落地 | orchestrator + 用户拍板：重构承载 / 降级策略 / 放弃本次改动 |
-| Linus 阶段 2 建议与策略结论矛盾 | orchestrator 明确呈现给用户，不擅自取舍 |
+| 非代码评议席位之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：SendMessage 让他们互相 push back 一轮；或 orchestrator 呈分歧表给用户拍板。**典型 Taleb vs López 分歧**：Taleb 认为金融不能科学化（换分布 class），López 认为应当科学化（Gaussian 工具内 + FDR + causal 修正）——路径相反，不强行合并 |
+| Linus 说"代码层 broken" | 回阶段 1 问相关评议席位：是否有等价路径可绕开该 broken 点 |
+| 非工程要求 × 代码无法干净落地 | orchestrator + 用户拍板：重构承载 / 降级需求 / 放弃本次改动 |
+| Linus 阶段 2 建议与非代码结论矛盾 | orchestrator 明确呈现给用户，不擅自取舍 |
 
 ---
 

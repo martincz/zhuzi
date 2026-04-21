@@ -47,7 +47,7 @@ chore: 固化圆桌短读输出模板
 | `luxun-zawen`             | B · 聊天娱乐 | 鲁迅（1881-1936）          | 1936-10-19 | 6 修辞 DNA（对比反讽 / 做标本 / 以小见大 / 假引退 / 层层剥皮 / 冷眼装蒜）/ 12 条假鲁迅识别器 / 4 级阴狠度（**按文本长度**档：S/M/L/XL）/ 12 种聊天场景 playbook |
 
 **两类 skill**：
-- **A 类 · 思维顾问型**（4 个）——用户"想问题"时介入，输出结构化分析。量化场景常多激活：
+- **A 类 · 思维顾问型**（4 个）——用户"想问题"时介入，输出结构化分析。复杂决策可多席位激活，量化只是常见场景之一：
   - **Munger + Taleb 互补**：Munger 避免愚蠢（认知偏误），Taleb 避免破产（数学分布）
   - **Munger + López 互补**：Munger 看能力圈 + 激励，López 看研究诚信 + causal 纪律
   - **Taleb vs López 方法论对立**：Taleb 认为金融**不能**科学化（tail 破坏 estimation），López 认为**应当且能够**科学化（通过 causal + FDR）——**不强行合并**，留为分歧
@@ -66,15 +66,15 @@ chore: 固化圆桌短读输出模板
 
 | Agent                   | 对应 skill                | 席位性质       | 可单边否决                       | 擅长领域匹配关键词                                           |
 | ----------------------- | ------------------------- | -------------- | -------------------------------- | ------------------------------------------------------------ |
-| `linus-engineer`        | `linus-torvalds-engineer` | 代码席（唯一） | **是**（代码层 broken 单边否决） | 代码架构 / 实施 / 可行性 / 重构 / 工程纪律 / 技术选型 / good taste |
-| `munger-reviewer`       | `munger-checklist`        | 策略席         | 否                               | 投资决策 / 商业判断 / 认知偏误 / 能力圈 / 激励结构 / Lollapalooza |
-| `taleb-reviewer`        | `taleb-antifragile`       | 策略席         | 否                               | 量化策略 / 尾部风险 / 投资决策 / 仓位管理 / 激励结构 / skin-in-the-game / 厚尾分布 |
-| `lopezdeprado-reviewer` | `lopezdeprado-scientist`  | 策略席         | 否                               | 量化研究方法论 / backtest overfitting / p-hacking / multiple testing / causal factor / specification error / Deflated Sharpe / Purged K-Fold / CPCV / Meta-Labeling / Fractional Differentiation / 研究流程诊断 / factor zoo |
+| `linus-engineer`        | `linus-torvalds-engineer` | 代码席（唯一） | **是**（代码层 broken 单边否决） | 软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 实施 / 可行性 / 重构 / 工程纪律 / 技术选型 / good taste |
+| `munger-reviewer`       | `munger-checklist`        | 决策质量席     | 否                               | 投资决策 / 商业判断 / 产品策略 / 组织决策 / 认知偏误 / 能力圈 / 机会成本 / 安全边际 / 激励结构 / 护城河 / Lollapalooza |
+| `taleb-reviewer`        | `taleb-antifragile`       | 风险结构席     | 否                               | 不确定性 / 尾部风险 / 脆弱性 / 凸性 / ruin risk / barbell / 冗余 / 选择权 / 依赖链风险 / skin-in-the-game / 厚尾分布 |
+| `lopezdeprado-reviewer` | `lopezdeprado-scientist`  | 证据质量席     | 否                               | 研究方法论 / 实验设计 / 因果声明 / benchmark / A-B test / eval / backtest overfitting / p-hacking / multiple testing / data leakage / specification error / Deflated Sharpe / Purged K-Fold / CPCV / 研究流程诊断 |
 
 **Agent 架构约定**（所有 agent 遵循）：
 
 1. **Pull 模式引用 skill**——agent body 的第一步是 `Read` 对应 skill 的 `SKILL.md`。skill 更新后，agent 下次 spawn 自动拉最新，**零同步成本**。不要把 skill 内容复制到 agent md 里。
-2. **只研究不实施**——所有策略席位（Taleb / Munger / López）的 tools 字段不含 `Edit` / `Write`；只有 `linus-engineer` 有完整工具（他在阶段 4 实施）。
+2. **非代码席只研究不实施**——Munger / Taleb / López 的 tools 字段不含 `Edit` / `Write`；只有 `linus-engineer` 有完整工具（他在阶段 4 实施）。
 3. **强制共同 verdict schema v2**——所有 agent 返回 YAML verdict block，含 `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层。`core` 字段机读统一（`route` / `seat_native_verdict` / `hard_blockers` / `peer_disagreements`），主持人阶段 3 不用翻译席位方言。
 4. **pattern-level 批评纪律**（López 最严）——不点名具体公司 / 基金 / PM / ticker；仅对 pattern 开火。
 5. **角色隔离 via description 路由护栏**——每个 agent 的 `description` 字段显式写 "仅在 /zhuzi:roundtable 内调用……standalone 场景请用 XX skill，不要 spawn 本 agent"。防止与 skill 触发词撞车。
@@ -214,7 +214,7 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 ### Agent 侧
 
 - **新增席位** → 1) 新建 `agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选）；2) `description` 字段加路由护栏（"仅在 /zhuzi:roundtable 内调用……standalone 请用 XX skill"）；3) body 第一步 Read 对应 skill 的 `SKILL.md`（pull 模式，不复制内容）；4) 在 `commands/zhuzi/roundtable.md` 的"当前席位"表加一行（填齐擅长领域关键词）；5) 在 `roundtable.md` 附录"route 映射规则"表加 native → core.route 映射；6) verdict block root key 用 `<seat>_verdict`
-- **调整席位工具权限** → 策略席（只研究不实施）tools 不含 `Edit` / `Write`；代码席（Linus）才有完整工具
+- **调整席位工具权限** → 非代码席（只研究不实施）tools 不含 `Edit` / `Write`；代码席（Linus）才有完整工具
 - **调整擅长领域关键词** → 同步改 agent `description` 段和 `roundtable.md` 的"当前席位"表（阶段 0.5 路由依赖此表）
 
 ### Command 侧

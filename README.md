@@ -87,15 +87,15 @@ Skill 按用途分两类：
 
 | Agent | 对应 skill | 席位性质 | 擅长领域 |
 |---|---|---|---|
-| `linus-engineer` | `linus-torvalds-engineer` | 代码席（唯一） | 架构、可行性、review、重构、good taste；代码层 broken 可单边否决 |
-| `munger-reviewer` | `munger-checklist` | 策略席 | 愚蠢清单、认知偏误、激励结构、能力圈、Lollapalooza |
-| `taleb-reviewer` | `taleb-antifragile` | 策略席 | 尾部风险、fragility、barbell、skin in the game、厚尾分布 |
-| `lopezdeprado-reviewer` | `lopezdeprado-scientist` | 策略席 | 研究诚信、associational vs causal、backtest overfitting、DSR / PBO / CPCV、Sisyphus vs Meta-Strategy |
+| `linus-engineer` | `linus-torvalds-engineer` | 代码席（唯一） | 软件架构、数据结构、API 边界、并发、性能、可靠性、review、重构、good taste；代码层 broken 可单边否决 |
+| `munger-reviewer` | `munger-checklist` | 决策质量席 | 愚蠢清单、认知偏误、能力圈、机会成本、安全边际、激励结构、商业质量、护城河、Lollapalooza |
+| `taleb-reviewer` | `taleb-antifragile` | 风险结构席 | 不确定性、尾部风险、fragility、凸性、barbell、ruin risk、冗余、选择权、skin in the game |
+| `lopezdeprado-reviewer` | `lopezdeprado-scientist` | 证据质量席 | 研究诚信、实验设计、associational vs causal、benchmark / eval、backtest overfitting、DSR / PBO / CPCV、Sisyphus vs Meta-Strategy |
 
 **设计要点**：
 
 - **agent ≠ skill**。Skill 是直接对用户说话（"我是 Linus……"），agent 是对 orchestrator 返回结构化 verdict（`core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层）。
-- **只研究不实施**——所有策略席位（Taleb / Munger / López）只产出判断，不动文件；只有代码席位（Linus）在阶段 4 实施。
+- **非代码席只研究不实施**——Munger / Taleb / López 只产出判断，不动文件；只有代码席位（Linus）在阶段 4 实施。
 - **席位资格路由**——agent 描述里显式列"擅长领域关键词"，orchestrator 在阶段 0.5 按议题关键词匹配决定召开哪些席位，不强制所有席位全开。
 - **持续更新**——skill 正文改了，agent 下次 spawn 自动拉最新，零同步成本。
 
@@ -148,7 +148,7 @@ Skill 按用途分两类：
 
 本仓库里他承担两个角色：
 - **Skill `munger-checklist`**：7 心智模型 / 20 条 anti-pattern（10 认知 + 9 量化 + 1 元）/ 10 步 Pre-Trade Checklist / 量化 playbook，用于投资决策、策略审视、商业判断
-- **Agent `munger-reviewer`**：Roundtable 策略席之一——扫 Lollapalooza、能力圈、激励结构
+- **Agent `munger-reviewer`**：Roundtable 决策质量席——扫 Lollapalooza、能力圈、机会成本、激励结构
 
 **信息截止 2023-11-28**（去世）。之后不补新事件——任何 2023-11 后内容必须标注"按原则推断"，不能作为芒格原话。
 
@@ -160,7 +160,7 @@ Skill 按用途分两类：
 
 本仓库里他承担两个角色：
 - **Skill `taleb-antifragile`**：7 心智模型 / 18 条 fragility 清单 / 10 步 Pre-Trade Fragility Check / 4 级表达档位（独特之处：**按对手身份 route，不是按话题**——对 Wolfram 谈 ergodicity 是 L1，对 Pinker 谈同一概念是 L3）
-- **Agent `taleb-reviewer`**：Roundtable 策略席之一——判 fragile / robust / antifragile
+- **Agent `taleb-reviewer`**：Roundtable 风险结构席——判 fragile / robust / antifragile
 
 信息持续更新；每章量化 playbook 末尾强制 "⚠️ Taleb 可能反驳" 警示，明确区分 "Taleb 原话" 和 "基于原则的推演"。**与 López 是方法论对立阵营**：Taleb 认为金融不能科学化，López 认为应当且能够科学化——Roundtable 同时召开时不强行合并，留为 `peer_disagreements`。
 
@@ -172,7 +172,7 @@ Skill 按用途分两类：
 
 本仓库里他承担两个角色：
 - **Skill `lopezdeprado-scientist`**：6 心智模型 / 18 条方法论 anti-pattern / 10 步 Research Integrity Check / 4 级表达档位（独特之处：**按议题性质 route**——谈 purged K-Fold 对任何人都是 L1，谈整个 factor zoo 工业对任何人都是 L3）/ 量化 playbook 含自反审查章
-- **Agent `lopezdeprado-reviewer`**：Roundtable 策略席之一——判 scientific / associational / pseudo_scientific，对每条 must_haves.truth 做 claim classification；命中议题属"量子 / 个股 / 宏观 / 地缘 / LLM agent alpha"的 L4 静默清单时自动 `too_hard`
+- **Agent `lopezdeprado-reviewer`**：Roundtable 证据质量席——判 scientific / associational / pseudo_scientific，对每条 must_haves.truth 做 claim classification；命中议题属"量子 / 个股 / 宏观 / 地缘 / LLM agent alpha"的 L4 静默清单时自动 `too_hard`
 
 **pattern-level 批评纪律**：所有输出不点名具体公司 / 基金 / PM / ticker；仅对 pattern 开火。信息持续更新。
 
@@ -231,9 +231,9 @@ zhuzi/
 │   └── luxun-zawen/
 ├── agents/                           # 4 个 roundtable 席位
 │   ├── linus-engineer.md             # 代码席
-│   ├── munger-reviewer.md            # 策略席
-│   ├── taleb-reviewer.md             # 策略席
-│   └── lopezdeprado-reviewer.md      # 策略席
+│   ├── munger-reviewer.md            # 决策质量席
+│   ├── taleb-reviewer.md             # 风险结构席
+│   └── lopezdeprado-reviewer.md      # 证据质量席
 ├── commands/zhuzi/
 │   └── roundtable.md                 # /zhuzi:roundtable
 ├── examples/
