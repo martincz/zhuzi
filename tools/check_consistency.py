@@ -28,6 +28,11 @@ AGENT_SKILLS = {
 }
 
 BANNED_SNIPPETS = [
+    "本仓库不再",
+    "不再只是",
+    "Skill 集合",
+    "它包含三类互相咬合的产物",
+    "不是某个单一运行时",
     "可被 Claude Code 直接加载",
     "/home/martincz",
     "/mnt/g/zhuzi",

@@ -4,15 +4,17 @@ This file provides guidance to agent runtimes (Codex, Claude Code, and compatibl
 
 ## 仓库性质
 
-这个仓库不是某个单一运行时的 Skill 集合——它已经演化为 **skill + agent + command 三件套**：
+zhuzi 是一组以"诸子百家"为隐喻的 agent 思维席位与圆桌审议流程。每一位人物代表一种稳定的方法论、边界和表达风格；单独使用时是一个 skill，多席位协作时进入 `/zhuzi:roundtable` 圆桌流程。
+
+落地时分为 **skill + agent + command** 三层：
 
 - **Skills**（`skills/`，5 个）——单人物的思维操作系统，面向**用户直接触发**，激活后以"我"身份说话
 - **Agents**（`agents/`，4 个）——把 skill 包装成可 spawn 的 roundtable 席位，**只在 `/zhuzi:roundtable` 内被 orchestrator 调用**，返回结构化 YAML verdict（不直接对话用户）
 - **Commands**（`commands/zhuzi/`，1 条）——`/zhuzi:roundtable` 多席位协作审议流水线，把多个 agent 席位按 4 阶段编排
 
-三者咬合关系：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → command 是让这些席位围坐一桌的议事规则**。修改任何一层前必须理解三者的路由边界（skill 触发词撞上 agent 触发词会造成错路由——见下方"关键设计原则"第 9 条）。
+开发边界：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → command 是让这些席位围坐一桌的议事规则**。修改任何一层前必须理解三者的路由边界（skill 触发词撞上 agent 触发词会造成错路由——见下方"关键设计原则"第 9 条）。
 
-没有构建系统、没有测试套件、没有应用运行时。全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载；当前仓库同时维护 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
+运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载；当前仓库同时维护 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
 
 ---
 

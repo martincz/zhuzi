@@ -6,9 +6,28 @@
 
 ---
 
-## 这是什么
+## 项目作用
 
-本仓库不再只是"Skill 集合"。它包含三类互相咬合的产物：
+zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位人物代表一种稳定的方法论、边界和表达风格。你可以单独调用某一家的视角，也可以把多个席位放到同一张圆桌上，让它们围绕同一个议题各自审议、互相保留分歧，最后交给用户拍板。
+
+这里的"诸子百家"强调保留不同学派的锋利边界：
+
+- Linus 看代码结构、抽象层和 good taste。
+- Munger 看愚蠢清单、能力圈、激励结构和 Lollapalooza。
+- Taleb 看尾部风险、fragility、skin in the game 和凸性。
+- López de Prado 看研究诚信、causal claim、backtest overfitting 和方法论纪律。
+- 鲁迅只做杂文式文体改写，不参与决策审议。
+
+圆桌的价值在于把"多视角建议"变成一个可执行流程：先定义议题成功必须满足的 `must_haves`，再让合适席位并行给出结构化 verdict，必要时修订契约，最后综合成可选择、可实施、可验证的决策表。
+
+## 使用方式
+
+| 用法 | 适合场景 | 结果 |
+|---|---|---|
+| 直接触发单个 skill | 想用某一家的视角审代码、看策略、改文体 | 模型以该人物的思维框架直接回应 |
+| `/zhuzi:roundtable <议题>` | 议题需要多视角审议、存在策略/工程/方法论冲突 | 多个席位并行输出 YAML verdict，orchestrator 综合并等待用户拍板 |
+
+## 核心组成
 
 | 类别 | 数量 | 角色 |
 |---|---|---|
@@ -18,16 +37,11 @@
 
 三者的关系：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → command 是让这些席位围坐一桌的议事规则。**
 
-用户可以：
-
-- **直接触发 skill**（最轻）——在对话里说"用 Linus 视角看这段代码"、"过一遍芒格 checklist"、"改成鲁迅腔"，单一视角介入。
-- **召开圆桌**（最重）——`/zhuzi:roundtable <议题>` 启动多席位并行审议：orchestrator 先定 must_haves 契约 → 并行 spawn 策略席位（Taleb / Munger / López）+ 代码席位（Linus）→ 若任一席位推翻契约则进修订 gate → 综合 + 用户拍板 → 实施。
-
-没有构建系统、没有测试套件、没有应用运行时——全部是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
+运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
 
 ---
 
-## 三类产物
+## 目录详解
 
 ### 一、Skills（思维操作系统）
 
