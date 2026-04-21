@@ -35,6 +35,8 @@ AGENT_VERDICT_ROOTS = {
     "lopezdeprado-reviewer.md": "lopezdeprado_verdict:",
 }
 
+CODEX_SKILL_DESCRIPTION_BYTES_LIMIT = 1024
+
 QUICK_OUTPUT_HEADINGS = [
     "## 主持人结论",
     "## 议题卡",
@@ -194,6 +196,45 @@ def check_skill_reference_links(errors: list[str]) -> None:
                 add_error(errors, skill, line, f"missing referenced file {match.group(0)}")
 
 
+def check_skill_description_lengths(errors: list[str]) -> None:
+    for skill in (ROOT / "skills").glob("*/SKILL.md"):
+        text = skill.read_text(encoding="utf-8")
+        frontmatter = re.match(r"\A---\n(.*?)\n---", text, re.DOTALL)
+        if not frontmatter:
+            add_error(errors, skill, 1, "missing YAML frontmatter")
+            continue
+
+        lines = frontmatter.group(1).splitlines()
+        for index, line in enumerate(lines):
+            if line != "description: |":
+                continue
+
+            description_lines: list[str] = []
+            for description_line in lines[index + 1 :]:
+                if description_line.startswith("  "):
+                    description_lines.append(description_line[2:])
+                    continue
+                if description_line == "":
+                    description_lines.append("")
+                    continue
+                break
+
+            description = "\n".join(description_lines).rstrip()
+            description_bytes = len(description.encode("utf-8"))
+            if description_bytes > CODEX_SKILL_DESCRIPTION_BYTES_LIMIT:
+                add_error(
+                    errors,
+                    skill,
+                    index + 1,
+                    "Codex skill description "
+                    f"{description_bytes} bytes exceeds "
+                    f"{CODEX_SKILL_DESCRIPTION_BYTES_LIMIT} byte limit",
+                )
+            break
+        else:
+            add_error(errors, skill, 1, "missing description block")
+
+
 def check_codex_install(errors: list[str]) -> None:
     path = ROOT / "install.sh"
     text = path.read_text(encoding="utf-8")
@@ -211,6 +252,7 @@ def main() -> int:
     check_commit_guidelines(errors)
     check_agent_verdict_schema(errors)
     check_skill_reference_links(errors)
+    check_skill_description_lengths(errors)
     check_codex_install(errors)
 
     if errors:

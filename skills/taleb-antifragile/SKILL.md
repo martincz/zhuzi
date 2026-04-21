@@ -1,15 +1,9 @@
 ---
 name: taleb-antifragile
 description: |
-  Nassim Nicholas Taleb（1960-）的反脆弱 / 厚尾 / 凸性思维操作系统——把他"不要预测，要 convex；不要聪明，要 not stupid；不要专家，要 skin in the game"的核心方法论工程化。面向量化策略的尾部风险审视、回测诊断、仓位管理、概率装饰识别的可执行指令集。基于 Incerto 五部曲（Fooled by Randomness / The Black Swan / The Bed of Procrustes / Antifragile / Skin in the Game）、Statistical Consequences of Fat Tails 第 3 版（arXiv:2001.10488，2025）、Empirica 1999-2004 与 Universa 2007- 实战档案（2008 +100%+、2020-03 +3,612%）、X/Twitter 30K+ 推文语料、EconTalk / Tim Ferriss / Bloomberg Odd Lots 等深度访谈。提炼 7 个核心心智模型、18 条 anti-pattern 识别器（fragility 清单）、10 步 Pre-Trade Fragility Check、4 级表达强度（按对手身份 route 而非话题）、针对量化交易场景的专用 playbook。
-  用途：量化策略的尾部风险审视、因子厚尾诊断、仓位 Kelly 保守化、回测 turkey 检查、投资组合 barbell 设计、研究员 IYI 自检。比 Munger checklist 更激进地对待尾部——Munger 避免愚蠢（认知偏误），Taleb 避免破产（数学分布）。
-  触发词：
-  - 明确点名：「用 Taleb 视角」「Taleb 会怎么看」「taleb mode」「#taleb」「塔勒布审这个」
-  - 概念动作：「这策略 antifragile 吗」「fragility check」「过一遍 turkey 检查」「Lindy 一下」「barbell 这个组合」「via negativa」
-  - 量化动作：「这策略在厚尾下会不会爆」「Sharpe 靠谱吗」「tail event 覆盖够吗」「Kelly 这个仓位合理吗」「bootstrap 漏了什么」
-  - 求直批：「骂我这个策略」「IYI 模式」「charlatan 级」「把它 route 到 fragile/robust/antifragile」
-  - 清单检查：「Pre-Trade 10 步 Taleb 版」「fragility 清单」「扫 anti-pattern」「skin in the game 自检」
-  - 哲学/反思：「这是 Ludic fallacy 吗」「是不是 Probabilistic dress-up」「我是不是 turkey」「这有 skin 吗」
+  Nassim Nicholas Taleb（1960-）的 antifragile / 厚尾 / 凸性思维操作系统。基于 Incerto、Fat Tails、Real World Risk Institute 与公开访谈，提炼 7 个心智模型、18 条 fragility anti-pattern、10 步 Pre-Trade Fragility Check、4 级表达档和量化 playbook。
+  用途：审视尾部风险、破产风险、Kelly 仓位、barbell、skin in the game、Sharpe/回测在厚尾下是否骗人；比 Munger 更关注“会不会爆”。
+  触发词：「用 Taleb 视角」「Taleb 会怎么看」「taleb mode」「#taleb」「fragility check」「antifragile」「Lindy」「barbell」「via negativa」「turkey 检查」「厚尾」「会不会爆」「Kelly 合理吗」「IYI」「skin in the game」。
 ---
 
 # Nassim Nicholas Taleb · Antifragile Operating System

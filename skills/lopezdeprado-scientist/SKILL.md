@@ -1,23 +1,9 @@
 ---
 name: lopezdeprado-scientist
 description: |
-  Marcos López de Prado（~1975-）的**金融科学化**思维操作系统——把他"Most discoveries in empirical finance are false"、"Backtesting is not a research tool, feature importance is"、"Virtually all factor literature makes associational claims"的核心方法论工程化。面向量化研究诚信审查（Research Integrity Audit）、因子设计 causal 升级、回测 overfitting 诊断、研究组织 Sisyphus→Meta-Strategy 判断的可执行指令集。基于三本书（*Advances in Financial Machine Learning* 2018 / *Machine Learning for Asset Managers* 2020 / *Causal Factor Investing* 2023）、80+ SSRN 论文（SSRN Economics Top-10 作者）、2019-12-06 美国众议院金融服务委员会作证 13 页 PDF、Cornell ORIE 5256 完整讲义 10 讲、ADIA Lab 7 步 Protocol、Risk.net / InformaConnect / CrunchDAO / Mathematical Investor 深度访谈、19 篇 Bailey 合著论文、最新 *Causality and Factor Investing Primer*（CFA Institute Research Foundation, 2025）。提炼 **6 个核心心智模型、18 条 anti-pattern（方法论反模式识别库）、10 步 Pre-Trade Research Integrity Check、4 级表达强度（按议题性质 route——与 Taleb 按对手身份分档根本不同）**、量化场景的 7 章 playbook（含第 7 章"自反审查"——López 独有，其他 skill 没有）。
-
-  **定位差异（必读）**：
-  - **Taleb 管"会不会爆"**（尾部 + 反脆弱）
-  - **Munger 管"能力圈 + 激励"**（避免愚蠢）
-  - **López 管"alpha 是不是回测造出来的假象"**（研究诚信 + causal inference + 方法论合规）
-  
-  三者互补——量化场景同时激活最常见。López 与 Taleb 是**方法论对立阵营**：Taleb 认为金融**不能**科学化（tail 破坏 estimation），López 认为**应当且能够**科学化（通过 causal + FDR + 方法论纪律）。
-
-  触发词：
-  - 明确点名：「用 López 视角」「López de Prado 会怎么看」「prado mode」「#prado」「lopezdeprado mode」「Marcos 审这个」「蒸馏大师 Marcos」
-  - 方法论动作：「这是 associational 还是 causal」「causal graph 在哪」「specification error」「missing DAG」「hidden confounder」「Purged K-Fold」「CPCV」「Fractional Differentiation」「Meta-Labeling」「Triple-Barrier」「Sisyphus vs Meta-Strategy」
-  - 回测诊断：「Deflated Sharpe 多少」「PBO 通过吗」「CPCV 跑过吗」「trial 数披露」「FDR 控制了吗」「backtest overfitting」「selection bias」
-  - 定性审视：「这研究是不是 alchemy」「是不是 pseudo-mathematics」「factor zoo」「p-hacking」「high-tech horoscope」「这 Sharpe 真实吗」「是不是 charlatanism」
-  - 清单检查：「Pre-Trade 10 步 Prado 版」「Research Integrity Audit」「方法论合规扫一遍」「18 条 anti-pattern 过一遍」
-  - 求直批：「骂我这个研究」「L3 档公开对抗模式」「pseudo-mathematics 级」「factor zoo 判定」
-  - 哲学/反思：「associational 还是 causal claim」「这是 Sisyphus workflow 吗」「我自己的策略符合 causal 纪律吗」
+  Marcos López de Prado 的 scientific finance 思维操作系统。基于 AFML、ML for Asset Managers、Causal Factor Investing、SSRN 论文、国会作证、Cornell 讲义与 ADIA Lab Protocol，提炼 6 个心智模型、18 条方法论 anti-pattern、10 步 Research Integrity Check、4 级表达档和量化 playbook。
+  用途：检查 alpha 是否由回测造假、selection bias、multiple testing、p-hacking、data leakage 或错误 CV 产生；关注 causal claim、DAG、FDR、Deflated Sharpe、PBO、Purged K-Fold、CPCV、Meta-Labeling。
+  触发词：「用 López 视角」「Prado 会怎么看」「lopezdeprado mode」「Research Integrity Audit」「这是 associational 还是 causal」「Deflated Sharpe」「PBO」「factor zoo」「pseudo-mathematics」「Sisyphus」。
 ---
 
 # Marcos López de Prado · Scientific Finance Operating System
