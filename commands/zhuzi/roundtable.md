@@ -30,13 +30,13 @@ $ARGUMENTS
 
 ## 流水线（严格按阶段推进，禁止跳阶段）
 
-### 阶段 0.5 — 议题契约定义（主 Claude）
+### 阶段 0.5 — 议题契约定义（orchestrator）
 
-spawn 任何席位**之前**，主 Claude 完成三件事，一次性呈现给用户。
+spawn 任何席位**之前**，orchestrator 完成三件事，一次性呈现给用户。
 
 #### Step 0 · 席位召开判定
 
-扫议题关键词 + 上方"当前席位"表的"擅长领域"列 → 匹配产出召开名单（**含每席位 `stages` 在哪些阶段出场**）+ 弃权名单 + 理由。**主 Claude 主动决定，不为每次召开单独问用户**（用户在 Step 2 一起确认/override）。
+扫议题关键词 + 上方"当前席位"表的"擅长领域"列 → 匹配产出召开名单（**含每席位 `stages` 在哪些阶段出场**）+ 弃权名单 + 理由。**orchestrator 主动决定，不为每次召开单独问用户**（用户在 Step 2 一起确认/override）。
 
 输出格式：
 
@@ -51,9 +51,9 @@ spawn 任何席位**之前**，主 Claude 完成三件事，一次性呈现给�
 ```
 
 **硬约束**：
-- 席位自然语言匹配 ≠ 关键词精确命中——"激励结构"和"激励设计"算同一域，主 Claude 按语义判断
+- 席位自然语言匹配 ≠ 关键词精确命中——"激励结构"和"激励设计"算同一域，orchestrator 按语义判断
 - N=1 时（只 1 个席位召开）明确告知用户"本议题退化为单席位 roundtable"——这是合法状态，不需额外 exit 路径
-- N=0 时（无席位匹配）停流水线，建议用户改议题描述或用非 roundtable 流程直接和主 Claude 对话
+- N=0 时（无席位匹配）停流水线，建议用户改议题描述或用非 roundtable 流程直接和 orchestrator 对话
 
 **`stages` 字段默认规则**（议题类型 → 每席位 stages 推荐值）：
 
@@ -83,10 +83,10 @@ must_haves:
   verify_commands:   # 每条 truth 对应的可机器执行验证命令
     - truth: 1
       cmd: "<observable_metric 示例：python3 tools/bench.py --replay-from <baseline> / curl -w '%{time_total}' <api> / du -b dist/bundle.js>"
-      pass_criterion: "TBD — 待召开席位审阅"       # observable_metric：主 Claude 打 TBD，席位在 must_haves_review.proposed_criterion 填阈值
+      pass_criterion: "TBD — 待召开席位审阅"       # observable_metric：orchestrator 打 TBD，席位在 must_haves_review.proposed_criterion 填阈值
     - truth: 2
       cmd: "<policy_discipline 示例：grep -E '<pattern>' <file> / jq '.schema.fields.X.type' <json>>"
-      pass_criterion: "grep 命中 ≥ 1 条且匹配 '<约定措辞>' / JSON 字段 X 存在且 type == 'Y'"   # policy_discipline：主 Claude 直接写死判断标准，不得 TBD
+      pass_criterion: "grep 命中 ≥ 1 条且匹配 '<约定措辞>' / JSON 字段 X 存在且 type == 'Y'"   # policy_discipline：orchestrator 直接写死判断标准，不得 TBD
   out_of_scope:      # 明示本议题不覆盖什么，避免席位/Linus 跑偏
     - "<例：不动某权重表 / 不改某候选池定义 / 不触发新基准测试>"
 ```
@@ -105,9 +105,9 @@ must_haves:
 2. **`truths` 数量 3-5 条硬上限**——超过 5 条说明议题粒度太粗，必须拆成两个 roundtable 分别开。
 
 3. **`pass_criterion` 按 truth 类型分写**：
-   - **observable_metric truth**：主 Claude 原则上打 `TBD — 待召开席位审阅`，交席位在 `must_haves_review.proposed_criterion` 填具体阈值（如 "CI 下界 > 0.3pp"、"p99 < 200ms"、"bundle < 500KB"）。阈值是**专业判断**，应由席位给。
-   - **policy_discipline truth**：主 Claude **必须直接写死**判断标准，**不得 TBD**——这类 truth 的通过条件本身就是契约内容（如 "grep 命中 ≥ 1 条且含 '禁' / '不得' 之一"、"JSON schema 含字段 X 且类型 Y"、"输出列名前缀为 `POSTMORTEM_`"），不是席位专业阈值。席位可在 `must_haves_challenge` 推翻整条，但不能被动等 orchestrator "留白让席位填"。
-   - 纯技术断言（"py_compile 通过"、"HTTP 200"、"lint 无 error"）按 policy_discipline 规则，主 Claude 直接写死。
+   - **observable_metric truth**：orchestrator 原则上打 `TBD — 待召开席位审阅`，交席位在 `must_haves_review.proposed_criterion` 填具体阈值（如 "CI 下界 > 0.3pp"、"p99 < 200ms"、"bundle < 500KB"）。阈值是**专业判断**，应由席位给。
+   - **policy_discipline truth**：orchestrator **必须直接写死**判断标准，**不得 TBD**——这类 truth 的通过条件本身就是契约内容（如 "grep 命中 ≥ 1 条且含 '禁' / '不得' 之一"、"JSON schema 含字段 X 且类型 Y"、"输出列名前缀为 `POSTMORTEM_`"），不是席位专业阈值。席位可在 `must_haves_challenge` 推翻整条，但不能被动等 orchestrator "留白让席位填"。
+   - 纯技术断言（"py_compile 通过"、"HTTP 200"、"lint 无 error"）按 policy_discipline 规则，orchestrator 直接写死。
 
 4. **`out_of_scope`** 直接喂给阶段 3 DECISIONS 表的 `deferred` 段。
 
@@ -131,7 +131,7 @@ must_haves:
 Step 0（召开/弃权名单）+ Step 1（must_haves）**一次性呈现**给用户。用户四选一：
 
 - **接受全部** → 进阶段 1
-- **override 召开名单**（增/减席位）→ 主 Claude 调整召开名单 + 基于新名单重定 must_haves → 重呈现 Step 2
+- **override 召开名单**（增/减席位）→ orchestrator 调整召开名单 + 基于新名单重定 must_haves → 重呈现 Step 2
 - **override must_haves** → 修 truths/verify_commands/out_of_scope → 重呈现 Step 2
 - **叫停议题** → 退出 roundtable
 
@@ -200,7 +200,7 @@ Agent(subagent_type="lopezdeprado-reviewer", prompt="""
 """)
 ```
 
-三个 agent 返回后：**原文完整呈现给用户，不得转述或软化**。
+四个 agent 返回后：**原文完整呈现给用户，不得转述或软化**。
 
 ### 阶段 1.5 — must_haves 修订 gate（条件触发）
 
@@ -209,7 +209,7 @@ Agent(subagent_type="lopezdeprado-reviewer", prompt="""
 - **全部 `triggered: no`** → 直接进阶段 2，Linus 拿 must_haves v1
 - **任一 `triggered: yes`** → **暂停，走修订流程**：
 
-1. 主 Claude 汇总所有 `triggered: yes` 席位的 `proposed_revision`，合并成 must_haves v2（多席位冲突时显式标注差异，不擅自取舍）
+1. orchestrator 汇总所有 `triggered: yes` 席位的 `proposed_revision`，合并成 must_haves v2（多席位冲突时显式标注差异，不擅自取舍）
 2. 呈现给用户：
    - v1 vs v2 对照表（按 truth_id）
    - 每条修改的来源席位 + `fundamental_issue`
@@ -218,7 +218,7 @@ Agent(subagent_type="lopezdeprado-reviewer", prompt="""
 4. 用户选"保持 v1" → 阶段 2 进行但显式告知 Linus"策略席建议修订 must_haves 但用户维持 v1"，Linus 在自己的 verdict 里可选择继续 challenge
 5. 用户选"重开议题" → 流水线终止，回阶段 0.5 重写议题
 
-**禁止**主 Claude 自行合并 challenge / 无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件从临场补 gate 升格成协议内置流程（见附录"共同 verdict schema（v2）"的 `must_haves_challenge` 字段）。
+**禁止**orchestrator 自行合并 challenge / 无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件从临场补 gate 升格成协议内置流程（见附录"共同 verdict schema（v2）"的 `must_haves_challenge` 字段）。
 
 #### 阶段 1.5 产物可读性约束
 
@@ -279,9 +279,9 @@ Linus 会在启动时自动发现当前项目的 `AGENTS.md` / `CLAUDE.md` 并�
 
 Linus 返回后：**原文完整呈现给用户**。
 
-### 阶段 3 — 综合对齐（主 Claude 主持）
+### 阶段 3 — 综合对齐（orchestrator 主持）
 
-你（主 Claude）做综合，**优先读每个席位原文末尾的 YAML verdict block**（机读），再补文字表达。
+你（orchestrator）做综合，**优先读每个席位原文末尾的 YAML verdict block**（机读），再补文字表达。
 
 **阅读顺序**（所有席位共用 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific` 四层结构，详见文末附录"共同 verdict schema（v2）"）：
 
@@ -313,7 +313,7 @@ Linus 返回后：**原文完整呈现给用户**。
 
 #### 路径 A · SendMessage 续跑（首选）
 
-主 Claude 在阶段 4 先检查自己的 tool schema 是否包含 `SendMessage` 工具。**如果有**，用它续跑同一个 `linus_id`：
+orchestrator 在阶段 4 先检查自己的 tool schema 是否包含 `SendMessage` 工具。**如果有**，用它续跑同一个 `linus_id`：
 
 ```
 SendMessage(to=linus_id, """
@@ -328,7 +328,7 @@ SendMessage(to=linus_id, """
 
 #### 路径 B · 新 spawn + 完整上下文注入（fallback）
 
-**SendMessage 不可用**时（当前 Claude Code 版本存在 bug [#42737](https://github.com/anthropics/claude-code/issues/42737)，普通 session 该 tool 未暴露），走新 spawn：
+**SendMessage 不可用**时（当前 runtime 未暴露该工具或不支持续跑同一 subagent），走新 spawn：
 
 ```
 Agent(subagent_type="linus-engineer", prompt="""
@@ -351,7 +351,7 @@ Munger verdict: <keep/kill/too-hard + 关键理由>
 
 #### 路径自动切换
 
-两路径语义等价。官方修复 SendMessage 后主 Claude 自动走路径 A，**本 command 无需改动**。
+两路径语义等价。runtime 支持 SendMessage 后，orchestrator 自动走路径 A，**本 command 无需改动**。
 
 Linus 返回实施报告后：**原文完整呈现给用户**。
 
@@ -361,10 +361,10 @@ Linus 返回实施报告后：**原文完整呈现给用户**。
 
 | 冲突类型 | 处理 |
 |---|---|
-| 策略席之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：SendMessage 让他们互相 push back 一轮；或主 Claude 呈分歧表给用户拍板。**典型 Taleb vs López 分歧**：Taleb 认为金融不能科学化（换分布 class），López 认为应当科学化（Gaussian 工具内 + FDR + causal 修正）——路径相反，不强行合并 |
+| 策略席之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：SendMessage 让他们互相 push back 一轮；或 orchestrator 呈分歧表给用户拍板。**典型 Taleb vs López 分歧**：Taleb 认为金融不能科学化（换分布 class），López 认为应当科学化（Gaussian 工具内 + FDR + causal 修正）——路径相反，不强行合并 |
 | Linus 说"代码层 broken" | 回阶段 1 问策略席：是否有等价路径可绕开该 broken 点 |
-| 策略必须 × 代码无法干净落地 | 主 Claude + 用户拍板：重构承载 / 降级策略 / 放弃本次改动 |
-| Linus 阶段 2 建议与策略结论矛盾 | 主 Claude 明确呈现给用户，不擅自取舍 |
+| 策略必须 × 代码无法干净落地 | orchestrator + 用户拍板：重构承载 / 降级策略 / 放弃本次改动 |
+| Linus 阶段 2 建议与策略结论矛盾 | orchestrator 明确呈现给用户，不擅自取舍 |
 
 ---
 
@@ -381,9 +381,9 @@ Linus 返回实施报告后：**原文完整呈现给用户**。
 
 | 资源 | 路径 | 说明 |
 |---|---|---|
-| 三个 agent 定义 | `~/.claude/agents/{taleb,munger,linus}-*.md` | 全局，跨项目可用 |
-| 本 command | `~/.claude/commands/roundtable.md` | 全局 |
-| persona skill 原文 | `~/.claude/skills/{taleb-antifragile,munger-checklist,linus-torvalds-engineer}/SKILL.md` | agent body 引用，skill 更新自动生效 |
+| 四个 agent 定义 | `~/.claude/agents/{taleb,munger,lopezdeprado,linus}-*.md` | Claude-style adapter，跨项目可用 |
+| 本 command | `~/.claude/commands/zhuzi/roundtable.md` | 全局 |
+| persona skill 原文 | `~/.claude/skills/{taleb-antifragile,munger-checklist,lopezdeprado-scientist,linus-torvalds-engineer}/SKILL.md` | agent body 引用，skill 更新自动生效 |
 | 项目特定规则 | `<项目根>/AGENTS.md` 或 `<项目根>/CLAUDE.md` | Linus 运行时自动读取 |
 
 ### skill 更新后的同步
@@ -391,24 +391,24 @@ Linus 返回实施报告后：**原文完整呈现给用户**。
 - skill 正文改了 → **零同步**，agent 下次 spawn 自动拉最新
 - skill 路径/文件名改了 → 改对应 agent md 里的引用路径（1 行）
 - 新增/调整席位 → 新建 agent md + 更新本 command 的席位表和阶段 1 spawn 列表
-- skill 方向大改（verdict 档位、核心心智模型换了）→ 跑一次 `/roundtable` 烟雾测试，必要时调 agent md 的硬边界段
+- skill 方向大改（verdict 档位、核心心智模型换了）→ 跑一次 `/zhuzi:roundtable` 烟雾测试，必要时调 agent md 的硬边界段
 
 ### 项目级覆盖
 
-某项目有专属需求（比如定制的流水线阶段、特殊席位）时，在该项目的 `.claude/commands/roundtable.md` 放一份覆盖全局版。Claude Code 同名时项目级优先。日常不需要，有需求再加。
+某项目有专属需求（比如定制的流水线阶段、特殊席位）时，在该项目的 `.claude/commands/zhuzi/roundtable.md` 放一份覆盖全局版。支持项目级覆盖的 runtime 会优先读取项目内同名 command。日常不需要，有需求再加。
 
 ### SendMessage 续跑能力（自适应）
 
-- 当前 Claude Code 存在 bug：SendMessage 工具被错误锁在 agent teams 功能后，普通 session 未暴露（[#42737](https://github.com/anthropics/claude-code/issues/42737)）
-- 阶段 4 已写成**条件分支**：主 Claude 运行时检查 tool schema，有 SendMessage 走路径 A 续跑，无则走路径 B 新 spawn + 阶段 2 原文注入
-- 官方修复后**无需改本文件**，主 Claude 自动切到路径 A
+- 不同 runtime 对 subagent 续跑能力支持不同；有些暴露 `SendMessage`，有些只能重新 spawn。
+- 阶段 4 已写成**条件分支**：orchestrator 运行时检查 tool schema，有 SendMessage 走路径 A 续跑，无则走路径 B 新 spawn + 阶段 2 原文注入
+- runtime 支持 SendMessage 后**无需改本文件**，orchestrator 自动切到路径 A
 - 两路径语义等价：路径 A 保留 agent 内部对话状态更高效，路径 B 信息完整但每次重建 agent
 
 ---
 
 ## 附录 · 共同 verdict schema（v2）
 
-所有席位（Taleb / Munger / Linus / 未来扩展）的 verdict block 遵守三层结构 —— `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific`（选填）。设计目的：主持人阶段 3 机读统一（不用翻译三套方言），同时保留各席位人格 DNA。
+所有席位（Taleb / Munger / López / Linus / 未来扩展）的 verdict block 遵守三层结构 —— `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific`（选填）。设计目的：主持人阶段 3 机读统一（不用翻译三套方言），同时保留各席位人格 DNA。
 
 ### core（强制，主持人机读综合用）
 

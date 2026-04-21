@@ -292,7 +292,7 @@ L4 极限类比："raisins and turds / viper down my shirt / venereal disease"�
 - 追求复利但忽视愚蠢 → 一次就归零
 
 **应用**（量化策略版）：
-- **避免愚蠢**：过拟合、look-ahead、survivorship、数据挖掘、不测 regime 敏感性——这些是"量化愚蠢清单"。列出来，每次策略开发逐条检查。IndustroQuant 的「逐因子递增」「只加分不减分」「禁用不稳定 PE 因子」都是这种清单的实例
+- **避免愚蠢**：过拟合、look-ahead、survivorship、数据挖掘、不测 regime 敏感性——这些是"量化愚蠢清单"。列出来，每次策略开发逐条检查。「逐因子递增」「只加分不减分」「禁用不稳定 PE 因子」这类纪律都是这种清单的实例
 - **安全边际**：Kelly criterion 算出的最优仓位要打 0.25x 折扣；最大回撤假设要 2x 历史最大值；流动性假设要按"市场最差的 5% 日子"计算
 - **复利**：策略容量比年化收益更重要。**年化 15% 但能跑 20 年复利 >> 年化 30% 但第 5 年爆仓**
 
@@ -658,7 +658,7 @@ Step 10 "I have nothing to add" 测试  不做会损失多少？如果答案是"
 - **10 步 Pre-Trade Checklist**：对标 Linus Good Taste 清单，不再只是散落的"原则"
 - **表达 DNA 4 级强度**：明确触发条件与例句库，让用户能显式选择档位
 - **Agentic Protocol v2**：从 3 类问题分类改为 7 类场景路由，加入短路规则
-- **量化交易专用 playbook**：独立文件 `quant-trading-playbook.md`，对标 IndustroQuant 等 A 股选股场景
+- **量化交易专用 playbook**：独立文件 `quant-trading-playbook.md`，对标 A 股选股、因子投资、高频、CTA、套利等量化场景
 - **降级策略表**：超纲时的具体模板，保持角色一致性
 - **扩展时间线**：加入 Wheeler Munger 1973-74 崩盘、BABA 失误、2023 最后表达
 

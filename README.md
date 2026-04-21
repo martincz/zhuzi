@@ -1,18 +1,18 @@
 # zhuzi · 诸子
 
-> **诸子**——取诸子百家之意。每家思想是一种独立的思维操作系统；合起来，是一张可被 Claude Code 直接加载、可以**并排坐到同一张圆桌上审议一个议题**的多视角思维网。
+> **诸子**——取诸子百家之意。每家思想是一种独立的思维操作系统；合起来，是一张可被支持 Skills / Agents / Commands 的 agent runtime 加载、可以**并排坐到同一张圆桌上审议一个议题**的多视角思维网。
 >
-> A Claude Code toolkit that turns distinct thinkers into runnable cognitive operating systems — and wires them together into a **roundtable pipeline** where multiple perspectives deliberate on the same question in parallel, each returning a machine-readable verdict under a shared schema.
+> An agent-runtime toolkit that turns distinct thinkers into runnable cognitive operating systems — and wires them together into a **roundtable pipeline** where multiple perspectives deliberate on the same question in parallel, each returning a machine-readable verdict under a shared schema.
 
 ---
 
 ## 这是什么
 
-本仓库不再只是"Claude Code Skill 集合"。它包含三类互相咬合的产物：
+本仓库不再只是"Skill 集合"。它包含三类互相咬合的产物：
 
 | 类别 | 数量 | 角色 |
 |---|---|---|
-| **Skills** | 5 个 | 单人物的思维操作系统——用户口语触发时，Claude 直接以该视角说话 |
+| **Skills** | 5 个 | 单人物的思维操作系统——用户口语触发时，模型直接以该视角说话 |
 | **Agents** | 4 个 | Roundtable 的"席位"封装——把相应 skill 包装成可 spawn 的 subagent，强制输出共同 verdict schema |
 | **Commands** | 1 条 | `/zhuzi:roundtable`——把多个 agent 席位编排成 4 阶段协作流水线 |
 
@@ -21,9 +21,9 @@
 用户可以：
 
 - **直接触发 skill**（最轻）——在对话里说"用 Linus 视角看这段代码"、"过一遍芒格 checklist"、"改成鲁迅腔"，单一视角介入。
-- **召开圆桌**（最重）——`/zhuzi:roundtable <议题>` 启动多席位并行审议：主 Claude 先定 must_haves 契约 → 并行 spawn 策略席位（Taleb / Munger / López）+ 代码席位（Linus）→ 若任一席位推翻契约则进修订 gate → 综合 + 用户拍板 → 实施。
+- **召开圆桌**（最重）——`/zhuzi:roundtable <议题>` 启动多席位并行审议：orchestrator 先定 must_haves 契约 → 并行 spawn 策略席位（Taleb / Munger / López）+ 代码席位（Linus）→ 若任一席位推翻契约则进修订 gate → 综合 + 用户拍板 → 实施。
 
-没有构建系统、没有测试套件、没有运行时——全部是 Markdown 文档，由 Claude Code 按规范加载。
+没有构建系统、没有测试套件、没有应用运行时——全部是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
 
 ---
 
@@ -67,7 +67,7 @@ Skill 按用途分两类：
 
 ### 二、Agents（Roundtable 席位）
 
-每个 agent 是 `~/.claude/agents/<name>.md`——一份可被 spawn 的 subagent 定义，**把对应 skill 包装成圆桌会议的一个席位**，强制产出统一结构的 YAML verdict block。
+每个 agent 是 `agents/<name>.md`——一份可被支持 subagent 的 runtime 加载的席位定义，**把对应 skill 包装成圆桌会议的一个席位**，强制产出统一结构的 YAML verdict block。当前安装脚本会把这些定义写入 Claude-style `~/.claude/agents/`；Codex 可先直接使用 `skills/`，roundtable adapter 后续可按 Codex 命令机制补齐。
 
 | Agent | 对应 skill | 席位性质 | 擅长领域 |
 |---|---|---|---|
@@ -78,9 +78,9 @@ Skill 按用途分两类：
 
 **设计要点**：
 
-- **agent ≠ skill**。Skill 是直接对用户说话（"我是 Linus……"），agent 是对主 Claude 返回结构化 verdict（`core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层）。
+- **agent ≠ skill**。Skill 是直接对用户说话（"我是 Linus……"），agent 是对 orchestrator 返回结构化 verdict（`core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层）。
 - **只研究不实施**——所有策略席位（Taleb / Munger / López）只产出判断，不动文件；只有代码席位（Linus）在阶段 4 实施。
-- **席位资格路由**——agent 描述里显式列"擅长领域关键词"，主 Claude 在阶段 0.5 按议题关键词匹配决定召开哪些席位，不强制所有席位全开。
+- **席位资格路由**——agent 描述里显式列"擅长领域关键词"，orchestrator 在阶段 0.5 按议题关键词匹配决定召开哪些席位，不强制所有席位全开。
 - **持续更新**——skill 正文改了，agent 下次 spawn 自动拉最新，零同步成本。
 
 ---
@@ -93,11 +93,11 @@ Skill 按用途分两类：
 
 | 阶段 | 动作 | 产物 |
 |---|---|---|
-| **0.5 · 议题契约** | 主 Claude 扫议题关键词 → 召开名单 + 弃权名单 → 定 must_haves（3-5 条可验证 truth + verify 命令 + out_of_scope） | 用户确认契约 |
+| **0.5 · 议题契约** | orchestrator 扫议题关键词 → 召开名单 + 弃权名单 → 定 must_haves（3-5 条可验证 truth + verify 命令 + out_of_scope） | 用户确认契约 |
 | **1 · 并行审议** | 并行 spawn 所有 `stages` 含 1 的席位，每个席位按自己 SKILL.md 的 checklist 审议，产出 YAML verdict | 席位原文完整呈现 |
 | **1.5 · 契约修订 gate**（条件触发） | 任一席位 `must_haves_challenge.triggered: yes` → 暂停，合并 v2，呈现给用户五选一 | 锁定 must_haves v2 |
 | **2 · 代码可行性** | 打包阶段 1 所有结论交 Linus 评 sane / broken / needs_refactor_first | Linus 可行性报告 |
-| **3 · 综合对齐** | 主 Claude 读 YAML verdict 做机读综合 → 策略层表 + 代码层表 + 候选方案表 + DECISIONS 表 | 等用户拍板 |
+| **3 · 综合对齐** | orchestrator 读 YAML verdict 做机读综合 → 策略层表 + 代码层表 + 候选方案表 + DECISIONS 表 | 等用户拍板 |
 | **4 · 实施** | Linus 按锁定方案实施（优先 SendMessage 续跑 / fallback 新 spawn + 完整上下文注入） | 实施报告 |
 
 核心设计：
@@ -183,18 +183,20 @@ cd zhuzi
 ./install.sh
 ```
 
-`install.sh` 覆盖安装到 `~/.claude/`：
+`install.sh` 默认安装两类目标：
 
-- `skills/*/` → `~/.claude/skills/<name>/`（5 个 skill 目录同步）
+- `skills/*/` → `~/.claude/skills/<name>/`（Claude-style skills）
+- `skills/*/` → `$CODEX_HOME/skills/<name>/`，默认 `$HOME/.codex/skills/<name>/`（Codex skills）
 - `agents/*.md` → `~/.claude/agents/<name>.md`（4 个 agent 逐文件拷贝，不影响旁边的 gsd-* 等）
 - `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（整目录同步，`/zhuzi:roundtable` 即时可用）
 
-不保留备份。每次修改仓库后重跑。环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`（测试用）。
+不保留备份。每次修改仓库后重跑。环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`。
 
 ### 方式 B：只装单个 skill
 
 ```bash
 cp -r zhuzi/skills/<skill-name> ~/.claude/skills/
+cp -r zhuzi/skills/<skill-name> "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
 注意：只装 skill 不装 agent / command 时，`/zhuzi:roundtable` 不可用；单独触发该 skill 仍可工作。
@@ -220,7 +222,9 @@ zhuzi/
 │   └── roundtable.md                 # /zhuzi:roundtable
 ├── archive/
 │   └── linus-torvalds-perspective/   # Linus v1（不推荐安装，对比参考）
-├── CLAUDE.md                         # 仓库内部协作纪律
+├── AGENTS.md                         # 仓库内部协作纪律（Codex / Claude 共用）
+├── CLAUDE.md                         # Claude Code 兼容 shim，指向 AGENTS.md
+├── tools/check_consistency.py         # 本仓库 Markdown 运行时一致性检查
 ├── install.sh
 └── README.md
 ```
@@ -231,7 +235,7 @@ zhuzi/
 
 ### 直接触发 skill
 
-Claude Code 会按 skill 的 `description` frontmatter 匹配用户消息自动激活。典型触发词：
+支持 Skill frontmatter 的 runtime 会按 `description` 匹配用户消息自动激活；Codex 也可以直接读取 `skills/<name>/SKILL.md` 作为本地 skill。典型触发词：
 
 | Skill | 触发 |
 |---|---|
@@ -249,7 +253,7 @@ Claude Code 会按 skill 的 `description` frontmatter 匹配用户消息自动�
 /zhuzi:roundtable v28 M1 因子：把 hit% 拉到 d20 基线以上，权重表不改
 ```
 
-主 Claude 会先给出召开名单 + 弃权名单 + must_haves 契约让用户确认，然后进入阶段 1 并行审议。
+orchestrator 会先给出召开名单 + 弃权名单 + must_haves 契约让用户确认，然后进入阶段 1 并行审议。
 
 ---
 
@@ -274,6 +278,7 @@ Claude Code 会按 skill 的 `description` frontmatter 匹配用户消息自动�
 - **证据一致性**：新增观点有对应的 research 文件支撑
 - **触发词不与其他已安装 skill 冲突**（用户侧关注，本仓库无法自动检查）
 - **Roundtable 烟雾测试**：skill 方向大改（verdict 档位、核心心智模型换了）后跑一次 `/zhuzi:roundtable`，必要时调对应 agent md 的硬边界段
+- **自动一致性检查**：运行 `python3 tools/check_consistency.py`
 
 ---
 
