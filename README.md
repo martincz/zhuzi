@@ -25,7 +25,9 @@ zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位�
 | 用法 | 适合场景 | 结果 |
 |---|---|---|
 | 直接触发单个 skill | 想用某一家的视角审代码、看策略、改文体 | 模型以该人物的思维框架直接回应 |
-| `/zhuzi:roundtable <议题>` | 议题需要多视角审议、存在策略/工程/方法论冲突 | 多个席位并行输出 YAML verdict，orchestrator 综合并等待用户拍板 |
+| `/zhuzi:roundtable <议题>` | 议题需要多视角审议、存在策略/工程/方法论冲突 | 默认输出议题卡、席位短评和决策表；完整 YAML 可展开 |
+
+快速了解圆桌输出长相：看 [Quick Roundtable 示例](./examples/roundtable-quick.md)。
 
 ## 核心组成
 
@@ -33,7 +35,7 @@ zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位�
 |---|---|---|
 | **Skills** | 5 个 | 单人物的思维操作系统——用户口语触发时，模型直接以该视角说话 |
 | **Agents** | 4 个 | Roundtable 的"席位"封装——把相应 skill 包装成可 spawn 的 subagent，强制输出共同 verdict schema |
-| **Commands** | 1 条 | `/zhuzi:roundtable`——把多个 agent 席位编排成 4 阶段协作流水线 |
+| **Commands** | 1 条 | `/zhuzi:roundtable`——把多个 agent 席位编排成默认短读的协作流水线 |
 
 三者的关系：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → command 是让这些席位围坐一桌的议事规则。**
 
@@ -234,6 +236,8 @@ zhuzi/
 │   └── lopezdeprado-reviewer.md      # 策略席
 ├── commands/zhuzi/
 │   └── roundtable.md                 # /zhuzi:roundtable
+├── examples/
+│   └── roundtable-quick.md            # 默认短读圆桌示例
 ├── archive/
 │   └── linus-torvalds-perspective/   # Linus v1（不推荐安装，对比参考）
 ├── AGENTS.md                         # 仓库内部协作纪律（Codex / Claude 共用）
@@ -267,7 +271,9 @@ zhuzi/
 /zhuzi:roundtable v28 M1 因子：把 hit% 拉到 d20 基线以上，权重表不改
 ```
 
-orchestrator 会先给出召开名单 + 弃权名单 + must_haves 契约让用户确认，然后进入阶段 1 并行审议。
+orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权席位、成功标准和暂不讨论内容，然后进入并行审议。
+
+默认输出是短读格式：`主持人结论 → 议题卡 → 席位短评 → 决策表 → 下一步`。完整原文和 YAML 只在你要求“展开原文 / 展开 YAML / full / strict”时显示。
 
 ---
 

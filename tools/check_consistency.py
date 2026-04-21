@@ -15,6 +15,7 @@ ACTIVE_TEXT_GLOBS = [
     "AGENTS.md",
     "CLAUDE.md",
     "install.sh",
+    "examples/**/*.md",
     "agents/*.md",
     "commands/**/*.md",
     "skills/*/SKILL.md",
@@ -26,6 +27,21 @@ AGENT_SKILLS = {
     "taleb-reviewer.md": "taleb-antifragile",
     "lopezdeprado-reviewer.md": "lopezdeprado-scientist",
 }
+
+AGENT_VERDICT_ROOTS = {
+    "linus-engineer.md": "linus_feasibility:",
+    "munger-reviewer.md": "munger_verdict:",
+    "taleb-reviewer.md": "taleb_verdict:",
+    "lopezdeprado-reviewer.md": "lopezdeprado_verdict:",
+}
+
+QUICK_OUTPUT_HEADINGS = [
+    "## 主持人结论",
+    "## 议题卡",
+    "## 席位短评",
+    "## 决策表",
+    "## 下一步",
+]
 
 BANNED_SNIPPETS = [
     "本仓库不再",
@@ -96,6 +112,58 @@ def check_roundtable_seats(errors: list[str]) -> None:
         )
 
 
+def check_required_order(
+    errors: list[str], path: Path, text: str, required: list[str], label: str
+) -> None:
+    position = -1
+    for snippet in required:
+        next_position = text.find(snippet)
+        if next_position == -1:
+            add_error(errors, path, 1, f"{label} missing {snippet}")
+            continue
+        if next_position < position:
+            add_error(errors, path, 1, f"{label} out of order at {snippet}")
+        position = next_position
+
+
+def check_quick_roundtable_contract(errors: list[str]) -> None:
+    command = ROOT / "commands" / "zhuzi" / "roundtable.md"
+    command_text = command.read_text(encoding="utf-8")
+    for required in [
+        "## 默认交互契约",
+        "### Quick 输出模板（默认必须使用）",
+        "Quick Roundtable",
+        "locked / deferred / discretion",
+    ]:
+        if required not in command_text:
+            add_error(errors, command, 1, f"quick roundtable contract missing {required}")
+    check_required_order(errors, command, command_text, QUICK_OUTPUT_HEADINGS, "quick template")
+
+    example = ROOT / "examples" / "roundtable-quick.md"
+    if not example.exists():
+        add_error(errors, example, 1, "missing Quick Roundtable example")
+        return
+    example_text = example.read_text(encoding="utf-8")
+    check_required_order(errors, example, example_text, QUICK_OUTPUT_HEADINGS, "quick example")
+
+    readme = ROOT / "README.md"
+    readme_text = readme.read_text(encoding="utf-8")
+    if "./examples/roundtable-quick.md" not in readme_text:
+        add_error(errors, readme, 1, "README missing Quick Roundtable example link")
+
+
+def check_agent_verdict_schema(errors: list[str]) -> None:
+    required_sections = ["core:", "must_haves_review:", "must_haves_challenge:", "seat_specific:"]
+    for agent_file, root_key in AGENT_VERDICT_ROOTS.items():
+        path = ROOT / "agents" / agent_file
+        text = path.read_text(encoding="utf-8")
+        if root_key not in text:
+            add_error(errors, path, 1, f"missing verdict root {root_key}")
+        for section in required_sections:
+            if section not in text:
+                add_error(errors, path, 1, f"missing verdict schema section {section}")
+
+
 def check_skill_reference_links(errors: list[str]) -> None:
     link_pattern = re.compile(r"references/[A-Za-z0-9_./-]+\.md")
     for skill in (ROOT / "skills").glob("*/SKILL.md"):
@@ -120,6 +188,8 @@ def main() -> int:
     check_banned_snippets(errors)
     check_agent_skill_paths(errors)
     check_roundtable_seats(errors)
+    check_quick_roundtable_contract(errors)
+    check_agent_verdict_schema(errors)
     check_skill_reference_links(errors)
     check_codex_install(errors)
 
