@@ -50,7 +50,7 @@ color: purple
 
 ## 返回格式
 
-orchestrator 会把你的原文完整呈现给用户——**不要为了让 orchestrator 好读而软化表达**，按 skill 里定义的档位工作。
+orchestrator 默认会把你的判断压缩成短评卡，用户要求时才展开原文；**不要为了让 orchestrator 好读而软化表达**，按 skill 里定义的档位工作。
 
 ### 结尾机读 verdict block（必须）
 

@@ -1,5 +1,5 @@
 ---
-description: 圆桌会议模式——多席位协作审议（策略席 + 代码席）。席位可扩，流水线通用。
+description: 圆桌会议模式——默认短读的多席位协作审议（策略席 + 代码席）。席位可扩，流水线通用。
 argument-hint: [议题/策略/提案/需求描述]
 ---
 
@@ -15,6 +15,22 @@ $ARGUMENTS
 
 本流水线支持 **N 席位召开（N ≥ 1）**——阶段 0.5 扫议题关键词匹配"擅长领域"列，只 spawn 有资格的席位。弃权席位不产出 YAML。无代码席位时阶段 2（代码可行性）dispatch 不触发；N=1 时流水线退化为单席位审议，这是合法状态不需特殊 exit。
 
+## 默认交互契约
+
+圆桌默认走 **Quick Roundtable**：内部保留完整阶段、原文和 YAML，用户界面只展示能帮助决策的短读内容。只有用户显式说"完整圆桌 / strict / full / 展开原文 / 展开 YAML"时，才展示完整席位原文和完整协议细节。
+
+默认对用户只呈现三类内容：
+
+1. **议题卡**：目标、召开席位、成功标准、暂不讨论。
+2. **席位短评**：每席 5 行以内，格式为 `结论 / 最大风险 / 必须满足 / 分歧 / 信心`。
+3. **主持人结论 + 决策表**：推荐做什么、为什么、hard blocker、下一步。
+
+**可读性预算**：
+- 第一屏先给主持人结论，不先铺流程。
+- 默认阶段 1 同时召开的评议席位不超过 3 个；超过时选最相关、分歧价值最高的席位，其他席位弃权并简短说明。
+- 默认 `must_haves.truths` 1-3 条；只有 full 模式或议题天然很大时才放宽到 5 条。
+- agent 原文和 YAML 是机读证据，不是默认阅读材料；默认只在"展开原文 / 调试 / 审计"请求下显示。
+
 ## 当前席位
 
 | 席位 | agent | 职责 | 擅长领域（议题匹配关键词） |
@@ -28,32 +44,33 @@ $ARGUMENTS
 
 ---
 
-## 流水线（严格按阶段推进，禁止跳阶段）
+## 内部流水线（严格按阶段推进，外部默认短读）
 
 ### 阶段 0.5 — 议题契约定义（orchestrator）
 
-spawn 任何席位**之前**，orchestrator 完成三件事，一次性呈现给用户。
+spawn 任何席位**之前**，orchestrator 完成三件事。Quick 模式下不要把内部 YAML 整段甩给用户，而是压缩成一张议题卡；full 模式或用户要求展开时再显示完整结构。
 
 #### Step 0 · 席位召开判定
 
 扫议题关键词 + 上方"当前席位"表的"擅长领域"列 → 匹配产出召开名单（**含每席位 `stages` 在哪些阶段出场**）+ 弃权名单 + 理由。**orchestrator 主动决定，不为每次召开单独问用户**（用户在 Step 2 一起确认/override）。
 
-输出格式：
+默认用户可见格式：
 
-```yaml
-召开:
-  - seat: <agent名>
-    stages: [1]          # 该席位在哪些阶段 spawn；默认规则见下方表
-    reason: "<议题命中该席位的哪些擅长领域，以及为何是这些 stages>"
-弃权:
-  - seat: <agent名>
-    reason: "<为何不召开：议题不在此席位擅长领域；给出具体匹配失败的词>"
-```
+| 项 | 内容 |
+|---|---|
+| 目标 | 一句话重述议题要决定什么 |
+| 召开席位 | `seat` + 1 句理由；最多 3 个默认评议席位 |
+| 弃权席位 | 只列有争议或用户可能期待的席位；无关席位不刷屏 |
+| 成功标准 | 1-3 条可验证标准 |
+| 暂不讨论 | 本轮明确不覆盖的内容 |
+
+内部仍保留结构化 `seat / stages / reason`，供后续 spawn 使用；用户要求"展开契约"时再显示完整 YAML。
 
 **硬约束**：
 - 席位自然语言匹配 ≠ 关键词精确命中——"激励结构"和"激励设计"算同一域，orchestrator 按语义判断
 - N=1 时（只 1 个席位召开）明确告知用户"本议题退化为单席位 roundtable"——这是合法状态，不需额外 exit 路径
 - N=0 时（无席位匹配）停流水线，建议用户改议题描述或用非 roundtable 流程直接和 orchestrator 对话
+- Quick 模式下评议席位默认不超过 3 个；若语义命中超过 3 个，优先保留最能发现 hard blocker 或真实分歧的席位
 
 **`stages` 字段默认规则**（议题类型 → 每席位 stages 推荐值）：
 
@@ -76,7 +93,7 @@ spawn 任何席位**之前**，orchestrator 完成三件事，一次性呈现给
 
 ```yaml
 must_haves:
-  truths:            # 3-5 条 observable outcome，议题成功时必须全部成立
+  truths:            # Quick 默认 1-3 条；full 模式最多 5 条
     - "<例：v28 M1 在 baseline 上 paired bootstrap walpha Δ 下界 > 0>"
     - "<例：d20 hit% 不回退超 1pp>"
     - "<例：Spearman ρ 与 walpha 方向一致>"
@@ -102,7 +119,7 @@ must_haves:
    - ❌ 主观项（"代码写得好看"、"文档清楚"）
    - ❌ 流程要求（"跑通编译"、"跑通测试"）→ 走 out_of_scope 默认项
 
-2. **`truths` 数量 3-5 条硬上限**——超过 5 条说明议题粒度太粗，必须拆成两个 roundtable 分别开。
+2. **`truths` 数量默认 1-3 条，硬上限 5 条**——Quick 模式超过 3 条必须删到最关键；full 模式超过 5 条说明议题粒度太粗，必须拆成两个 roundtable 分别开。
 
 3. **`pass_criterion` 按 truth 类型分写**：
    - **observable_metric truth**：orchestrator 原则上打 `TBD — 待召开席位审阅`，交席位在 `must_haves_review.proposed_criterion` 填具体阈值（如 "CI 下界 > 0.3pp"、"p99 < 200ms"、"bundle < 500KB"）。阈值是**专业判断**，应由席位给。
@@ -128,7 +145,7 @@ must_haves:
 
 #### Step 2 · 用户确认
 
-Step 0（召开/弃权名单）+ Step 1（must_haves）**一次性呈现**给用户。用户四选一：
+Step 0（召开/弃权名单）+ Step 1（must_haves）**用议题卡一次性呈现**给用户。用户四选一：
 
 - **接受全部** → 进阶段 1
 - **override 召开名单**（增/减席位）→ orchestrator 调整召开名单 + 基于新名单重定 must_haves → 重呈现 Step 2
@@ -200,7 +217,18 @@ Agent(subagent_type="lopezdeprado-reviewer", prompt="""
 """)
 ```
 
-四个 agent 返回后：**原文完整呈现给用户，不得转述或软化**。
+agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户呈现席位短评卡。不得软化、反向改写或掩盖 hard blocker；但也不得把长原文当默认阅读材料。
+
+默认席位短评卡：
+
+| 席位 | 结论 | 最大风险 | 必须满足 | 分歧 | 信心 |
+|---|---|---|---|---|---|
+| `<seat>` | `core.route` + native verdict | 1 句 | 1 句 | 1 句，没有写"无" | low/medium/high |
+
+**展开规则**：
+- 用户说"展开原文 / 展开 YAML / strict / full" → 按席位完整展示原文和 YAML。
+- 有 `kill` / `too_hard` / `revise_must_haves` / 代码层 `broken` → 短评卡里必须直接露出，不得藏到展开内容里。
+- 席位原文仍作为内部证据保留，阶段 2/3/4 可引用；默认 UI 只展示短评卡。
 
 ### 阶段 1.5 — must_haves 修订 gate（条件触发）
 
@@ -224,7 +252,7 @@ Agent(subagent_type="lopezdeprado-reviewer", prompt="""
 
 任一违反则 orchestrator 综合产出不合格，必须重写。
 
-1. **去 persona 黑话**——席位专业方言（如 Goodhart / Doubt-Avoidance / metric_gaming / premature abstraction / bikeshedding / Lollapalooza / antifragile / fragility / Turkey / skin in the game / good taste）在 v2 对照表**首次出现时必须带 1 句通俗解释**（"指 X"）。席位原文已在阶段 1 完整呈现——对照表是**决策辅助**不是黑话复读。用户判断"是否同意修订"，不是"是否听懂席位方言"。
+1. **去 persona 黑话**——席位专业方言（如 Goodhart / Doubt-Avoidance / metric_gaming / premature abstraction / bikeshedding / Lollapalooza / antifragile / fragility / Turkey / skin in the game / good taste）在 v2 对照表**首次出现时必须带 1 句通俗解释**（"指 X"）。席位原文可按需展开；对照表是**决策辅助**不是黑话复读。用户判断"是否同意修订"，不是"是否听懂席位方言"。
 
 2. **尊重席位侧已分层的 `proposed_revision`**——席位 `must_haves_challenge.proposed_revision` 已按 `revised_truth` / `revised_verify_suggestion` / `spawn_sub_topic` 三字段分层（见附录）。orchestrator 合并多席位 v2 时**直接对应字段合并**，不得再次展开或重新混合：
    - 多席位对同一 truth 的 `revised_truth` 合并成一条（矛盾时显式标注"A 席位主张 X / B 席位主张 Y"），合并结果仍保持 ≤ 50 字
@@ -277,7 +305,7 @@ linus_id = Agent(subagent_type="linus-engineer", prompt="""
 
 Linus 会在启动时自动发现当前项目的 `AGENTS.md` / `CLAUDE.md` 并按项目纪律工作——**不需要在 prompt 里硬编码项目特定规则**。
 
-Linus 返回后：**原文完整呈现给用户**。
+Linus 返回后默认呈现代码席短评：`sane/broken/needs_refactor_first`、最关键证据、是否能实施、必须先做什么。完整原文只在用户要求展开或进入 full 模式时展示。
 
 ### 阶段 3 — 综合对齐（orchestrator 主持）
 
@@ -292,11 +320,11 @@ Linus 返回后：**原文完整呈现给用户**。
 5. **读 `seat_specific`**——补充细节（tail_events / anti_patterns / broken_evidence 等）作为"人读补充"
 6. **读 `core.peer_disagreements`**——显式列分歧，不要在综合时强行收敛
 
-**输出**：
+**默认输出顺序**：
 
-1. **策略层综合表**（若召开名单含策略席位）：列 `seat / core.route / seat_native_verdict / hard_blockers / key concern`——仅列被召开席位，弃权席位不出现
-2. **代码层**（若召开名单含 `linus-engineer` 且阶段 2 已执行）：Linus 的 `core.route` + `seat_native_verdict`（sane / broken / needs_refactor_first）+ 可行性建议；broken 时列 `seat_specific.broken_evidence` 的 file/symbol。若阶段 2 跳过（召开名单无 Linus）→ 本节改写为"本议题无代码落地维度，阶段 2 跳过"
-3. **最终方案候选表**：列 2-3 个可行路径 + 权衡 + 推荐项
+1. **主持人结论**（必须在第一屏）：推荐做什么；是否有 hard blocker；下一步是否值得实施。
+2. **席位短评汇总**：只列被召开席位，每席 1 行。
+3. **冲突与取舍**：最多 3 条；没有真实冲突就写"无关键分歧"。
 4. **DECISIONS 表**（用户拍板时同步定下，阶段 4 的输入）：
 
    | 分类 | 内容 | 来源 |
@@ -306,6 +334,8 @@ Linus 返回后：**原文完整呈现给用户**。
    | `discretion`（Linus 可自行判断的区域） | ... | 未被 locked/deferred 覆盖的实现细节 |
 
 5. **等用户确认**：用户未明示 go 之前，禁止进入阶段 4
+
+full 模式可额外展示策略层表、代码层表、候选方案表和完整 YAML；Quick 模式只在用户要求时展开。
 
 ### 阶段 4 — 实施
 
@@ -353,7 +383,7 @@ Munger verdict: <keep/kill/too-hard + 关键理由>
 
 两路径语义等价。runtime 支持 SendMessage 后，orchestrator 自动走路径 A，**本 command 无需改动**。
 
-Linus 返回实施报告后：**原文完整呈现给用户**。
+Linus 返回实施报告后默认给用户短报告：改了什么、验证结果、是否有缺口、是否需要回流圆桌。完整实施原文和 `linus_execution` block 只在用户要求展开时显示。
 
 ---
 
@@ -370,7 +400,7 @@ Linus 返回实施报告后：**原文完整呈现给用户**。
 
 ## 硬约束（任何情况不得违反）
 
-1. **绝不转述 agent 原文**：各席位的判断是职业发言，转述会失真，必须完整呈现。
+1. **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker；用户要求展开时必须提供完整原文和 YAML。
 2. **绝不跳阶段**：阶段 3 用户未确认前不得进阶段 4。
 3. **实施阶段优先 SendMessage 续跑**：tool schema 里有 `SendMessage` 就走阶段 4 路径 A；没有则走路径 B（新 spawn + 阶段 2 原文**完整注入**，不得摘要）。禁止"新 spawn 但只传简短摘要"这种懒做法。
 4. **项目纪律由 agent 自己发现**：不在 command 里硬编码项目特定规则。Linus 启动时会自动 Read 当前项目的 AGENTS.md/CLAUDE.md。

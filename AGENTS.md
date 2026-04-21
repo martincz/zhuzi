@@ -65,25 +65,25 @@ zhuzi 是一组以"诸子百家"为隐喻的 agent 思维席位与圆桌审议�
 
 ## Roundtable Command 架构（`commands/zhuzi/roundtable.md`）
 
-`/zhuzi:roundtable <议题>` 是本仓库的核心协作产物——严格按 4 阶段推进，禁止跳阶段。
+`/zhuzi:roundtable <议题>` 是本仓库的核心协作产物。默认交互是 Quick Roundtable：内部严格按阶段推进，外部只展示议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
 
 | 阶段                                       | 动作                                                         | 产出                       |
 | ------------------------------------------ | ------------------------------------------------------------ | -------------------------- |
-| **0.5 · 议题契约**                         | orchestrator 扫议题关键词 → **席位资格路由**（召开名单 + 弃权名单 + 每席位 `stages`）→ 定 `must_haves`（3-5 条可验证 truth + verify 命令 + out_of_scope） | 用户确认契约               |
-| **1 · 并行审议**                           | 并行 spawn 所有 `stages` 含 `1` 的席位（`Agent` tool calls 写在同一 message 里以触发并行） | 席位 YAML verdict 完整呈现 |
+| **0.5 · 议题卡**                           | orchestrator 扫议题关键词 → **席位资格路由**（召开名单 + 弃权名单 + 每席位 `stages`）→ 定成功标准（Quick 默认 1-3 条，full 最多 5 条） | 用户确认议题卡             |
+| **1 · 并行审议**                           | 并行 spawn 所有 `stages` 含 `1` 的席位（Quick 默认评议席位不超过 3 个） | 默认呈现席位短评；原文/YAML 可展开 |
 | **1.5 · must_haves 修订 gate**（条件触发） | 任一席位 `must_haves_challenge.triggered: yes` → 暂停，合并 v2，**五选一**呈现给用户（含"要求 orchestrator 改写 v2 表达"选项） | 锁定 must_haves v2         |
 | **2 · 代码可行性**                         | 打包阶段 1 所有结论交 Linus 评 `sane` / `broken` / `needs_refactor_first`；Linus 启动时自动 Read 当前项目的 `AGENTS.md` / `CLAUDE.md` 按项目纪律工作 | Linus 可行性报告           |
-| **3 · 综合对齐**                           | orchestrator 读 YAML verdict 做机读综合 → 策略层表 + 代码层表 + 候选方案表 + **DECISIONS 表**（`locked` / `deferred` / `discretion` 三档） | 等用户拍板                 |
-| **4 · 实施**                               | Linus 按锁定方案实施：**优先 `SendMessage` 续跑**同一 `linus_id`（保留阶段 2 内部状态）；SendMessage 不可用时 fallback 新 spawn + **阶段 2 原文完整注入**（不得摘要） | 实施报告                   |
+| **3 · 综合对齐**                           | orchestrator 读 YAML verdict 做机读综合 → 主持人结论 + 冲突与取舍 + **DECISIONS 表**（`locked` / `deferred` / `discretion` 三档） | 等用户拍板                 |
+| **4 · 实施**                               | Linus 按锁定方案实施：**优先 `SendMessage` 续跑**同一 `linus_id`（保留阶段 2 内部状态）；SendMessage 不可用时 fallback 新 spawn + **阶段 2 原文完整注入**（不得摘要） | 默认短实施报告             |
 
 **硬约束**（改 command 前必须守住）：
 
-1. 绝不转述 agent 原文——席位 verdict 原文完整呈现给用户
+1. 绝不篡改 agent 判断——默认短评卡，用户要求时展开完整原文和 YAML
 2. 绝不跳阶段——阶段 3 用户未确认前禁进阶段 4
 3. 实施阶段 SendMessage 可用时走路径 A；不可用时走路径 B + 阶段 2 原文**完整注入**（禁"新 spawn 但只传简短摘要"）
 4. 项目纪律由 Linus 自己发现——不在 command 里硬编码项目特定规则
 
-**N ≥ 1 席位合法**——无匹配席位（N=0）停流水线；只匹配 1 席位（N=1）按完整流程跑，不需特判。
+**N ≥ 1 席位合法**——无匹配席位（N=0）停流水线；只匹配 1 席位（N=1）按流程跑，不需特判。Quick 模式下评议席位默认不超过 3 个。
 
 **must_haves 的两类 truth**（阶段 0.5 硬约束第 1 条）：
 - `observable_metric`——可观测的量化行为（回测 CI / p99 latency / 内存 / bundle size / 错误率）。`pass_criterion` 打 `TBD`，让席位在 `must_haves_review.proposed_criterion` 填专业阈值

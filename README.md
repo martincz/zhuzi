@@ -103,24 +103,24 @@ Skill 按用途分两类：
 
 #### `/zhuzi:roundtable <议题>` — 多席位圆桌会议
 
-4 阶段严格推进的协作流水线：
+默认是 **Quick Roundtable**：内部仍按阶段推进，用户默认只读议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
 
 | 阶段 | 动作 | 产物 |
 |---|---|---|
-| **0.5 · 议题契约** | orchestrator 扫议题关键词 → 召开名单 + 弃权名单 → 定 must_haves（3-5 条可验证 truth + verify 命令 + out_of_scope） | 用户确认契约 |
-| **1 · 并行审议** | 并行 spawn 所有 `stages` 含 1 的席位，每个席位按自己 SKILL.md 的 checklist 审议，产出 YAML verdict | 席位原文完整呈现 |
+| **0.5 · 议题卡** | orchestrator 扫议题关键词 → 召开名单 + 成功标准（Quick 默认 1-3 条）+ 暂不讨论 | 用户确认议题卡 |
+| **1 · 并行审议** | 并行 spawn 相关席位，每个席位按自己 SKILL.md 的 checklist 审议，产出 YAML verdict | 默认显示席位短评 |
 | **1.5 · 契约修订 gate**（条件触发） | 任一席位 `must_haves_challenge.triggered: yes` → 暂停，合并 v2，呈现给用户五选一 | 锁定 must_haves v2 |
 | **2 · 代码可行性** | 打包阶段 1 所有结论交 Linus 评 sane / broken / needs_refactor_first | Linus 可行性报告 |
-| **3 · 综合对齐** | orchestrator 读 YAML verdict 做机读综合 → 策略层表 + 代码层表 + 候选方案表 + DECISIONS 表 | 等用户拍板 |
-| **4 · 实施** | Linus 按锁定方案实施（优先 SendMessage 续跑 / fallback 新 spawn + 完整上下文注入） | 实施报告 |
+| **3 · 综合对齐** | orchestrator 读 YAML verdict 做机读综合 → 主持人结论 + 冲突与取舍 + DECISIONS 表 | 等用户拍板 |
+| **4 · 实施** | Linus 按锁定方案实施（优先 SendMessage 续跑 / fallback 新 spawn + 完整上下文注入） | 默认显示短实施报告 |
 
 核心设计：
 
 - **共同 verdict schema v2**——所有席位统一输出 `core` 层（`route` + `seat_native_verdict` + `hard_blockers` + `peer_disagreements`）+ `must_haves_review` + `must_haves_challenge` + `seat_specific`。主持人阶段 3 机读综合不用翻译席位方言。
-- **must_haves 契约优先于视角**——议题成功的 3-5 条可验证 truth 在阶段 0.5 就锁定，避免席位讨论跑题；席位可通过 `must_haves_challenge` 反向推翻契约，但必须走阶段 1.5 修订 gate、给用户决定。
-- **N ≥ 1 席位合法**——无匹配席位则退回普通对话；只匹配 1 席位（如纯 factor literature 审视→只召 López）仍按完整流程跑，不需特判。
+- **must_haves 契约优先于视角**——议题成功的可验证 truth 在阶段 0.5 就锁定；Quick 默认 1-3 条，full 模式最多 5 条。席位可通过 `must_haves_challenge` 反向推翻契约，但必须走阶段 1.5 修订 gate、给用户决定。
+- **N ≥ 1 席位合法**——无匹配席位则退回普通对话；只匹配 1 席位（如纯 factor literature 审视→只召 López）仍可跑。Quick 默认评议席位不超过 3 个。
 - **硬约束**：
-  1. 绝不转述 agent 原文——席位原文完整呈现给用户
+  1. 绝不篡改 agent 判断——默认短评卡，用户要求时展开完整原文和 YAML
   2. 绝不跳阶段——阶段 3 用户未确认前禁进阶段 4
   3. 实施阶段优先 SendMessage 续跑，不可用则新 spawn + 阶段 2 原文**完整注入**，不得摘要
 

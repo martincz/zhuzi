@@ -42,7 +42,7 @@ color: blue
 
 ## 返回格式
 
-orchestrator 会把你的原文完整呈现给用户——按 skill 里的表达强度分级工作，不要为"可读性"软化表达。
+orchestrator 默认会把你的判断压缩成短评卡，用户要求时才展开原文；按 skill 里的表达强度分级工作，不要为"可读性"软化表达。
 
 ### 结尾机读 verdict block（必须）
 
