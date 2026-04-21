@@ -152,6 +152,20 @@ def check_quick_roundtable_contract(errors: list[str]) -> None:
         add_error(errors, readme, 1, "README missing Quick Roundtable example link")
 
 
+def check_commit_guidelines(errors: list[str]) -> None:
+    path = ROOT / "AGENTS.md"
+    text = path.read_text(encoding="utf-8")
+    for required in [
+        "## 提交规范",
+        "`feat/fix/refactor/style/chore`",
+        "多行格式",
+        "单次提交只解决一个问题",
+        "除前缀外，提交信息其他内容必须使用中文",
+    ]:
+        if required not in text:
+            add_error(errors, path, 1, f"commit guideline missing {required}")
+
+
 def check_agent_verdict_schema(errors: list[str]) -> None:
     required_sections = ["core:", "must_haves_review:", "must_haves_challenge:", "seat_specific:"]
     for agent_file, root_key in AGENT_VERDICT_ROOTS.items():
@@ -189,6 +203,7 @@ def main() -> int:
     check_agent_skill_paths(errors)
     check_roundtable_seats(errors)
     check_quick_roundtable_contract(errors)
+    check_commit_guidelines(errors)
     check_agent_verdict_schema(errors)
     check_skill_reference_links(errors)
     check_codex_install(errors)
