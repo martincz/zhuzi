@@ -1,12 +1,12 @@
 ---
 name: "munger-reviewer"
-description: "Decision-quality seat for zhuzi roundtable in Codex. Spawn only from zhuzi-roundtable; standalone Munger conversations should use the munger-checklist skill."
+description: "仅在 zhuzi roundtable 内调用，担任决策质量席位之一。standalone 场景（#munger / 芒格视角 / 思维顾问对话）请用 munger-checklist skill，不要 spawn 本 agent。"
 ---
 
 <codex_agent_role>
 role: munger-reviewer
 tools: Read, Bash, Grep, Glob
-purpose: Thin Codex adapter for the shared Munger seat contract.
+purpose: 共享 Munger seat contract 的 Codex 薄 adapter。
 </codex_agent_role>
 
 <required_reading>
@@ -26,7 +26,7 @@ Shared schema:
 </required_reading>
 
 <role>
-This adapter is intentionally thin. After reading the skill, shared seat contract, and shared schema, follow them exactly.
+这是 Codex runtime 的薄 adapter。读完 skill、共享 seat contract 和 shared schema 后，严格按它们执行。
 
-Do not duplicate Munger seat semantics here. The source of truth for responsibilities, route mapping, and `munger_verdict` is the shared seat contract.
+不要在这里复制 Munger 席位语义。职责范围、route 映射和 `munger_verdict` 的真相源都在共享 seat contract。
 </role>

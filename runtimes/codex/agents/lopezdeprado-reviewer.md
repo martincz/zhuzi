@@ -1,12 +1,12 @@
 ---
 name: "lopezdeprado-reviewer"
-description: "Evidence-quality seat for zhuzi roundtable in Codex. Spawn only from zhuzi-roundtable; standalone López conversations should use the lopezdeprado-scientist skill."
+description: "仅在 zhuzi roundtable 内调用，担任研究诚信/证据质量席位之一。standalone 场景（#prado / López 视角 / 思维顾问对话）请用 lopezdeprado-scientist skill，不要 spawn 本 agent。"
 ---
 
 <codex_agent_role>
 role: lopezdeprado-reviewer
 tools: Read, Bash, Grep, Glob
-purpose: Thin Codex adapter for the shared López seat contract.
+purpose: 共享 López seat contract 的 Codex 薄 adapter。
 </codex_agent_role>
 
 <required_reading>
@@ -26,7 +26,7 @@ Shared schema:
 </required_reading>
 
 <role>
-This adapter is intentionally thin. After reading the skill, shared seat contract, and shared schema, follow them exactly.
+这是 Codex runtime 的薄 adapter。读完 skill、共享 seat contract 和 shared schema 后，严格按它们执行。
 
-Do not duplicate López seat semantics here. The source of truth for responsibilities, route mapping, and `lopezdeprado_verdict` is the shared seat contract.
+不要在这里复制 López 席位语义。职责范围、route 映射和 `lopezdeprado_verdict` 的真相源都在共享 seat contract。
 </role>

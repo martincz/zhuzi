@@ -1,12 +1,12 @@
 ---
 name: "taleb-reviewer"
-description: "Risk-structure seat for zhuzi roundtable in Codex. Spawn only from zhuzi-roundtable; standalone Taleb conversations should use the taleb-antifragile skill."
+description: "仅在 zhuzi roundtable 内调用，担任不确定性/风险结构席位之一。standalone 场景（#taleb / Taleb 视角 / 思维顾问对话）请用 taleb-antifragile skill，不要 spawn 本 agent。"
 ---
 
 <codex_agent_role>
 role: taleb-reviewer
 tools: Read, Bash, Grep, Glob
-purpose: Thin Codex adapter for the shared Taleb seat contract.
+purpose: 共享 Taleb seat contract 的 Codex 薄 adapter。
 </codex_agent_role>
 
 <required_reading>
@@ -26,7 +26,7 @@ Shared schema:
 </required_reading>
 
 <role>
-This adapter is intentionally thin. After reading the skill, shared seat contract, and shared schema, follow them exactly.
+这是 Codex runtime 的薄 adapter。读完 skill、共享 seat contract 和 shared schema 后，严格按它们执行。
 
-Do not duplicate Taleb seat semantics here. The source of truth for responsibilities, route mapping, and `taleb_verdict` is the shared seat contract.
+不要在这里复制 Taleb 席位语义。职责范围、route 映射和 `taleb_verdict` 的真相源都在共享 seat contract。
 </role>

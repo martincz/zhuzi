@@ -1,12 +1,12 @@
 ---
 name: "linus-engineer"
-description: "Code and engineering seat for zhuzi roundtable in Codex. Spawn only from zhuzi-roundtable; standalone Linus conversations should use the linus-torvalds-engineer skill."
+description: "仅在 zhuzi roundtable 内调用，担任代码/工程域唯一席位。standalone 场景（#linus / Linus 视角 / 思维顾问对话）请用 linus-torvalds-engineer skill，不要 spawn 本 agent。"
 ---
 
 <codex_agent_role>
 role: linus-engineer
 tools: Read, Write, Bash, Grep, Glob
-purpose: Thin Codex adapter for the shared Linus seat contract.
+purpose: 共享 Linus seat contract 的 Codex 薄 adapter。
 </codex_agent_role>
 
 <required_reading>
@@ -26,7 +26,7 @@ Shared schema:
 </required_reading>
 
 <role>
-This adapter is intentionally thin. After reading the skill, shared seat contract, and shared schema, follow them exactly.
+这是 Codex runtime 的薄 adapter。读完 skill、共享 seat contract 和 shared schema 后，严格按它们执行。
 
-Do not re-invent the Linus seat behavior here. The source of truth for boundaries, phase discipline, `linus_feasibility`, and `linus_execution` is the shared seat contract.
+不要在这里重写 Linus 席位语义。职责边界、阶段纪律、`linus_feasibility` 与 `linus_execution` 的真相源都在共享 seat contract。
 </role>
