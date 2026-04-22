@@ -117,6 +117,22 @@ def ensure_codex_cli() -> str:
     return codex
 
 
+def ensure_codex_auth() -> None:
+    # 本脚本把 CODEX_HOME 重定向到临时目录以模拟全新安装，
+    # 所以 `codex login` 写入 ~/.codex/auth.json 的凭证在 probe 里读不到。
+    # 唯一可继承的凭证路径是环境变量 OPENAI_API_KEY。
+    if os.environ.get("OPENAI_API_KEY"):
+        return
+    raise SmokeFailure(
+        "Codex API credentials not found.\n"
+        "This probe invokes `codex exec`, which requires OPENAI_API_KEY in the\n"
+        "environment. Credentials from `codex login` (~/.codex/auth.json) are\n"
+        "NOT usable here because the probe redirects CODEX_HOME to a temp dir\n"
+        "to avoid polluting your real Codex install.\n\n"
+        "Fix: export OPENAI_API_KEY=sk-... before running this probe."
+    )
+
+
 def run_codex_probe(codex_bin: str, *, codex_home: Path, install_env: dict[str, str]) -> None:
     installed_shared_root = codex_home / "zhuzi"
     expected_workflow = str(installed_shared_root / "workflows" / "roundtable.md")
@@ -170,6 +186,7 @@ def run_codex_probe(codex_bin: str, *, codex_home: Path, install_env: dict[str, 
 def main() -> int:
     try:
         codex_bin = ensure_codex_cli()
+        ensure_codex_auth()
         with tempfile.TemporaryDirectory(prefix="zhuzi-codex-install-") as install_dir:
             install_root = Path(install_dir)
             codex_home = install_root / "codex-home"
