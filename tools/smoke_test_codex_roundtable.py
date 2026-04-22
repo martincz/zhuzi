@@ -117,19 +117,43 @@ def ensure_codex_cli() -> str:
     return codex
 
 
-def ensure_codex_auth() -> None:
-    # 本脚本把 CODEX_HOME 重定向到临时目录以模拟全新安装，
-    # 所以 `codex login` 写入 ~/.codex/auth.json 的凭证在 probe 里读不到。
-    # 唯一可继承的凭证路径是环境变量 OPENAI_API_KEY。
+def resolve_source_codex_home() -> Path:
+    raw = os.environ.get("CODEX_HOME")
+    if raw:
+        return Path(raw).expanduser()
+    return Path.home() / ".codex"
+
+
+PROVIDER_CONFIG_FILES = ("config.toml", "auth.json")
+
+
+def inherit_provider_config(*, source: Path, target: Path) -> None:
+    # probe 把 CODEX_HOME 重定向到 tmp 以隔离 shipped 资产安装，但那样会切断
+    # 用户真实的 ~/.codex/config.toml（provider 配置）与 auth.json（凭证）。
+    # 只 copy 这两个文件，不 copy 整个目录——边界明确，不意外继承其他状态。
+    if not source.is_dir():
+        return
+    target.mkdir(parents=True, exist_ok=True)
+    for name in PROVIDER_CONFIG_FILES:
+        src = source / name
+        if src.is_file():
+            shutil.copy2(src, target / name)
+
+
+def ensure_codex_auth(source_codex_home: Path) -> None:
+    # 两条凭证路径命中任一即可：环境变量 OPENAI_API_KEY，
+    # 或源 CODEX_HOME 下的 auth.json（probe 会 copy 到 tmp CODEX_HOME）。
     if os.environ.get("OPENAI_API_KEY"):
         return
+    if (source_codex_home / "auth.json").is_file():
+        return
     raise SmokeFailure(
-        "Codex API credentials not found.\n"
-        "This probe invokes `codex exec`, which requires OPENAI_API_KEY in the\n"
-        "environment. Credentials from `codex login` (~/.codex/auth.json) are\n"
-        "NOT usable here because the probe redirects CODEX_HOME to a temp dir\n"
-        "to avoid polluting your real Codex install.\n\n"
-        "Fix: export OPENAI_API_KEY=sk-... before running this probe."
+        "Codex credentials not found.\n"
+        "This probe invokes `codex exec`, which needs either:\n"
+        "  - OPENAI_API_KEY in the environment, or\n"
+        f"  - {source_codex_home}/auth.json (run `codex login` to create it).\n\n"
+        f"If you use a custom provider, {source_codex_home}/config.toml will\n"
+        "also be inherited into the probe's isolated tmp CODEX_HOME."
     )
 
 
@@ -186,13 +210,15 @@ def run_codex_probe(codex_bin: str, *, codex_home: Path, install_env: dict[str, 
 def main() -> int:
     try:
         codex_bin = ensure_codex_cli()
-        ensure_codex_auth()
+        source_codex_home = resolve_source_codex_home()
+        ensure_codex_auth(source_codex_home)
         with tempfile.TemporaryDirectory(prefix="zhuzi-codex-install-") as install_dir:
             install_root = Path(install_dir)
             codex_home = install_root / "codex-home"
             claude_dir = install_root / "claude-home"
             install_env = build_install_env(codex_home=codex_home, claude_dir=claude_dir)
 
+            inherit_provider_config(source=source_codex_home, target=codex_home)
             refresh_shipped_assets(install_env=install_env)
             install_source_only_adapters(codex_home, render_concrete=True)
             validate_path_references(codex_home=codex_home)
