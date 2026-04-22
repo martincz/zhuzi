@@ -35,6 +35,15 @@
 |---|---|---|
 | `roundtable` | `zhuzi/workflows/roundtable.md` | Roundtable 阶段编排、gate 规则与实施分支 |
 
+## Seats (4 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `linus-engineer` | `zhuzi/seats/linus-engineer.md` | 共享 Linus 代码席契约，定义职责、阶段纪律与输出契约 |
+| `munger-reviewer` | `zhuzi/seats/munger-reviewer.md` | 共享 Munger 决策质量席契约，定义边界、route 与 seat-specific 字段 |
+| `taleb-reviewer` | `zhuzi/seats/taleb-reviewer.md` | 共享 Taleb 风险结构席契约，定义 fragility 审议与输出契约 |
+| `lopezdeprado-reviewer` | `zhuzi/seats/lopezdeprado-reviewer.md` | 共享 López 证据质量席契约，定义方法论边界与输出契约 |
+
 ## References (2 shipped)
 
 | Entry | Path | Role |
@@ -64,5 +73,5 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 manifest、inventory、runtime adapter 路径与 schema 引用 |
+| `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 manifest、inventory、shared seats、runtime adapter 路径与 schema 引用 |
 | `smoke_test_codex_roundtable.py` | `tools/smoke_test_codex_roundtable.py` | 手动 Codex roundtable 烟雾测试：刷新安装、注入 source-only adapter、验证 skill 激活 |

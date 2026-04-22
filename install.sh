@@ -6,7 +6,7 @@
 # 覆盖目标：
 #   runtimes/claude/agents/*.md     → ~/.claude/agents/<name>.md （逐文件拷贝，不影响旁边的 gsd-*.md）
 #   runtimes/claude/commands/zhuzi/ → ~/.claude/commands/zhuzi   （命令入口）
-#   zhuzi/                → ~/.claude/zhuzi / ~/.codex/zhuzi    （项目级共享资产，当前含 references/workflows/templates/manifests）
+#   zhuzi/                → ~/.claude/zhuzi / ~/.codex/zhuzi    （项目级共享资产，当前含 seats/references/workflows/templates/manifests）
 #   skills/<name>/        → ~/.claude/skills/<name>             （Claude-style skills）
 #   skills/<name>/        → $CODEX_HOME/skills/<name>           （Codex skills，默认 ~/.codex）
 # 环境变量 CLAUDE_DIR 可覆盖 ~/.claude，CODEX_HOME 可覆盖 ~/.codex（测试用）。

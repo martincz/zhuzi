@@ -37,15 +37,16 @@ zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位�
 | 类别 | 数量 | 角色 |
 |---|---|---|
 | **Skills** | 5 个 | 单人物的思维操作系统——用户口语触发时，模型直接以该视角说话 |
-| **Seat adapters** | 4 个共享席位；Claude shipped 4 个，Codex source-only 4 个 | 把相应 skill 包装成可 spawn 的 subagent，强制输出共同 verdict schema |
+| **Shared seat contracts** | 4 个 | `zhuzi/seats/*.md`，定义每个席位的职责、越权边界、root key、route 语义与 `seat_specific` 字段 |
+| **Seat adapters** | 4 个共享席位；Claude shipped 4 个，Codex source-only 4 个 | 各 runtime 的薄 wrapper，只负责读取 skill + shared seat contract + shared schema |
 | **Roundtable entry adapters** | Claude 1 条 command；Codex 1 个 orchestrator skill | 只负责装载 workflow 与共享资产，并把流程映射到各 runtime 的编排语义 |
 | **Workflows** | 1 条 | `zhuzi/workflows/roundtable.md`——Roundtable 阶段编排、gate 与实施分支 |
 
 三层关系：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → roundtable adapter（Claude command / Codex orchestrator skill）是让这些席位围坐一桌的议事规则。**
 
-Roundtable 运行时进一步拆成四层：**入口 adapter → workflow → shared references → Quick template / manifest**。入口保持薄，规则和骨架放到 `zhuzi/` 目录下的项目级资产里。
+Roundtable 运行时进一步拆成五层：**入口 adapter → workflow → shared seat contracts → shared references → Quick template / manifest**。入口保持薄，席位语义和流程骨架放到 `zhuzi/` 目录下的项目级资产里。
 
-运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 runtime-agnostic 的 `skills/` 与 `zhuzi/` 共享资产，以及位于 `runtimes/claude/` 的 shipped Claude adapter 源码和位于 `runtimes/codex/` 的 source-only Codex adapter 源码。两边共用同一份 workflow / references / template。
+运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 runtime-agnostic 的 `skills/` 与 `zhuzi/` 共享资产，以及位于 `runtimes/claude/` 的 shipped Claude adapter 源码和位于 `runtimes/codex/` 的 source-only Codex adapter 源码。两边共用同一份 workflow / seats / references / template。
 
 ---
 
@@ -87,14 +88,15 @@ Skill 按用途分两类：
 
 ---
 
-### 二、Agents（Roundtable 席位）
+### 二、Shared Seat Contracts + Runtime Adapters
 
-每个 roundtable 席位现在有两套 runtime adapter 源码：
+每个 roundtable 席位现在拆成一层共享契约 + 两套 runtime adapter 源码：
 
+- `zhuzi/seats/<name>.md`——**共享 seat contract**。席位职责、越权边界、root key、route 语义、`seat_specific` 字段要求都放这里。
 - `runtimes/claude/agents/<name>.md`——**Claude runtime adapter 模板**。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；安装时才渲染成真实路径。
 - `runtimes/codex/agents/<name>.md`——**Codex agent 定义**。当前先以 source-only 形式存在，优先读 `$CODEX_HOME` / `$HOME/.codex` 下的安装产物，找不到时 fallback 到 repo 相对路径。
 
-两边都不复制人物方法论正文，只 pull 对应 skill 与共享 schema。
+两边都不复制人物方法论正文，也不再各自维护一份 seat 语义；adapter 只 pull 对应 skill、shared seat contract 与 shared schema。
 
 | Agent | 对应 skill | 席位性质 | 擅长领域 |
 |---|---|---|---|
@@ -106,9 +108,10 @@ Skill 按用途分两类：
 **设计要点**：
 
 - **agent ≠ skill**。Skill 是直接对用户说话（"我是 Linus……"），agent 是对 orchestrator 返回结构化 verdict（`core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层）。
+- **seat contract 是席位语义真相源**——职责、越权边界、YAML root key、route 映射和 `seat_specific` 约束都进 `zhuzi/seats/`；Claude / Codex adapter 只做薄 wrapper。
 - **非代码席只研究不实施**——Munger / Taleb / López 只产出判断，不动文件；只有代码席位（Linus）在阶段 4 实施。
 - **席位资格路由**——agent 描述里显式列"擅长领域关键词"，orchestrator 在阶段 0.5 按议题关键词匹配决定召开哪些席位，不强制所有席位全开。
-- **持续更新**——skill 正文改了，agent 下次 spawn 自动拉最新，零同步成本。
+- **持续更新**——skill 正文改了，seat contract 改了，runtime adapter 下次 spawn 自动拉最新，零同步成本。
 
 ---
 
@@ -123,7 +126,7 @@ Skill 按用途分两类：
 | Claude | `runtimes/claude/commands/zhuzi/roundtable.md` | command 薄入口，安装后直接提供 `/zhuzi:roundtable` |
 | Codex | `runtimes/codex/skills/zhuzi-roundtable/SKILL.md` | orchestrator skill，把共享 workflow 映射到 `spawn_agent` / `send_input` |
 
-两者都会先装载 workflow、shared references 和 Quick 模板，再按阶段推进。用户默认只读议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
+两者都会先装载 workflow、shared seat contracts、shared references 和 Quick 模板，再按阶段推进。用户默认只读议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
 
 | 阶段 | 动作 | 产物 |
 |---|---|---|
@@ -147,6 +150,7 @@ Skill 按用途分两类：
 `/zhuzi:roundtable` 的项目级核心资产都在 `zhuzi/`，安装后位于 `~/.claude/zhuzi/` 与 `~/.codex/zhuzi/`：
 
 - `workflows/roundtable.md`：阶段编排、gate 规则、实施分支
+- `seats/*.md`：共享席位契约，定义各席位职责、越权边界与输出契约
 - `references/seat-registry.md`：当前席位权威表、默认 `stages` 路由规则
 - `references/verdict-schema.md`：共同 YAML verdict 契约、route 映射和新增席位维护边界
 - `templates/roundtable-quick.md`：Quick Roundtable 输出骨架
@@ -231,7 +235,7 @@ cd zhuzi
 - `skills/*/` → `$CODEX_HOME/skills/<name>/`，默认 `$HOME/.codex/skills/<name>/`（Codex skills）
 - `runtimes/claude/agents/*.md` → `~/.claude/agents/<name>.md`（4 个 agent 逐文件渲染，不影响旁边的 gsd-* 等）
 - `runtimes/claude/commands/zhuzi/` → `~/.claude/commands/zhuzi/`（整目录渲染，`/zhuzi:roundtable` 即时可用）
-- `zhuzi/` → `~/.claude/zhuzi/` 与 `$CODEX_HOME/zhuzi/`（共享 references / workflows / templates / manifests）
+- `zhuzi/` → `~/.claude/zhuzi/` 与 `$CODEX_HOME/zhuzi/`（共享 seats / references / workflows / templates / manifests）
 
 不保留备份。每次修改仓库后重跑。环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`。
 
@@ -278,7 +282,7 @@ zhuzi/
 │   └── luxun-zawen/
 ├── runtimes/
 │   ├── claude/
-│   │   ├── agents/                   # Claude adapter 源码：4 个 roundtable 席位
+│   │   ├── agents/                   # Claude 薄 adapter：读取 shared seat contract
 │   │   │   ├── linus-engineer.md     # 代码席
 │   │   │   ├── munger-reviewer.md    # 决策质量席
 │   │   │   ├── taleb-reviewer.md     # 风险结构席
@@ -286,7 +290,7 @@ zhuzi/
 │   │   └── commands/zhuzi/
 │   │       └── roundtable.md         # /zhuzi:roundtable 薄入口
 │   └── codex/
-│       ├── agents/                   # Codex source-only seat adapters：4 个 roundtable 席位
+│       ├── agents/                   # Codex source-only 薄 adapter：读取 shared seat contract
 │       │   ├── linus-engineer.md
 │       │   ├── munger-reviewer.md
 │       │   ├── taleb-reviewer.md
@@ -294,6 +298,7 @@ zhuzi/
 │       └── skills/zhuzi-roundtable/
 │           └── SKILL.md              # Codex orchestrator skill
 ├── zhuzi/
+│   ├── seats/                        # 共享席位契约：seat 语义真相源
 │   ├── references/                   # 席位表与 schema
 │   ├── workflows/                    # roundtable 流程正文
 │   ├── templates/                    # Quick 输出骨架
@@ -387,7 +392,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 1. 遵循[命名约定](#设计原则)——后缀贴合人物自我身份 / 方法论
 2. 遵循 skill 架构约定（SKILL.md 紧凑 + references 下沉）
 3. 证据链完整（每个观点可追溯到一手 / 二手来源）
-4. 若拟进入 Roundtable 席位：至少同步新建对应 runtime 的 seat adapter（Claude shipped 侧在 `runtimes/claude/agents/`；Codex roundtable 侧在 `runtimes/codex/agents/`），并更新 `zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema.md`；只有纳入 shipped surface 时才更新 `zhuzi/manifests/shipped-surface.json`
+4. 若拟进入 Roundtable 席位：先新建 `zhuzi/seats/<name>.md` 共享 seat contract，再同步新建对应 runtime 的薄 adapter（Claude shipped 侧在 `runtimes/claude/agents/`；Codex roundtable 侧在 `runtimes/codex/agents/`），并更新 `zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema.md`；只有纳入 shipped surface 时才更新 `zhuzi/manifests/shipped-surface.json`
 5. 诚实边界写明"做不到什么"
 
 ---

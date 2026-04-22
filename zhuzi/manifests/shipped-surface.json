@@ -63,6 +63,28 @@
         "role": "Roundtable 阶段编排、gate 规则与实施分支"
       }
     ],
+    "seats": [
+      {
+        "entry": "linus-engineer",
+        "path": "zhuzi/seats/linus-engineer.md",
+        "role": "共享 Linus 代码席契约，定义职责、阶段纪律与输出契约"
+      },
+      {
+        "entry": "munger-reviewer",
+        "path": "zhuzi/seats/munger-reviewer.md",
+        "role": "共享 Munger 决策质量席契约，定义边界、route 与 seat-specific 字段"
+      },
+      {
+        "entry": "taleb-reviewer",
+        "path": "zhuzi/seats/taleb-reviewer.md",
+        "role": "共享 Taleb 风险结构席契约，定义 fragility 审议与输出契约"
+      },
+      {
+        "entry": "lopezdeprado-reviewer",
+        "path": "zhuzi/seats/lopezdeprado-reviewer.md",
+        "role": "共享 López 证据质量席契约，定义方法论边界与输出契约"
+      }
+    ],
     "references": [
       {
         "entry": "seat-registry",
@@ -100,7 +122,7 @@
       {
         "entry": "check_consistency.py",
         "path": "tools/check_consistency.py",
-        "role": "结构一致性检查，覆盖 inventory、manifest、schema 引用和安装路径"
+        "role": "结构一致性检查，覆盖 inventory、manifest、shared seats、schema 引用和安装路径"
       },
       {
         "entry": "smoke_test_codex_roundtable.py",

@@ -95,8 +95,8 @@ must_haves_challenge:
 
 ## 新增席位维护清单
 
-1. 为需要支持的 runtime 新建对应 agent adapter，并定义 `<seat>_verdict` root key。
-2. 在 agent 示例段里填齐 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`。
+1. 先新建共享 seat contract：`zhuzi/seats/<name>-reviewer.md`（或 `-engineer.md`），定义 `<seat>_verdict` root key、native verdict 和 seat-specific 字段要求。
+2. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
 3. 更新 `zhuzi/references/seat-registry.md`。
 4. 更新本文件的 route 映射规则和 seat-specific 字段说明。
-5. 更新 `docs/INVENTORY.md` 与 `tools/check_consistency.py` 的覆盖面。
+5. 更新 `docs/INVENTORY.md`、`zhuzi/manifests/shipped-surface.json` 与 `tools/check_consistency.py` 的覆盖面。

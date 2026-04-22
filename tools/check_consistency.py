@@ -35,6 +35,13 @@ AGENT_SKILLS = {
     "lopezdeprado-reviewer.md": "lopezdeprado-scientist",
 }
 
+AGENT_SEAT_FILES = {
+    "linus-engineer.md": "linus-engineer.md",
+    "munger-reviewer.md": "munger-reviewer.md",
+    "taleb-reviewer.md": "taleb-reviewer.md",
+    "lopezdeprado-reviewer.md": "lopezdeprado-reviewer.md",
+}
+
 AGENT_VERDICT_ROOTS = {
     "linus-engineer.md": "linus_feasibility:",
     "munger-reviewer.md": "munger_verdict:",
@@ -43,6 +50,7 @@ AGENT_VERDICT_ROOTS = {
 }
 
 AGENT_VERDICT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md"
+AGENT_SEAT_REFERENCE_PATH_TEMPLATE = "{{{{ZHUZI_SHARED_ROOT}}}}/seats/{seat_file}"
 ROUNDTABLE_REFERENCE_PATHS = [
     "{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md",
     "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md",
@@ -66,6 +74,45 @@ QUICK_OUTPUT_HEADINGS = [
     "## 决策表",
     "## 下一步",
 ]
+
+ADAPTER_INLINE_SCHEMA_SNIPPETS = [
+    "must_haves_review:",
+    "must_haves_challenge:",
+    "seat_specific:",
+    "Filled-in 示例",
+]
+
+SHARED_SEAT_REQUIRED_SNIPPETS = {
+    "linus-engineer.md": [
+        "## 启动纪律",
+        "## 阶段纪律",
+        "linus_feasibility",
+        "linus_execution",
+        "broken_evidence",
+        "must_haves_coverage_detail",
+    ],
+    "munger-reviewer.md": [
+        "munger_verdict",
+        "anti_patterns_hit",
+        "lollapalooza_stack",
+        "circle_of_competence",
+        "reverse_kill_path",
+    ],
+    "taleb-reviewer.md": [
+        "taleb_verdict",
+        "tail_events_breaking_must_haves",
+        "fragility_checklist_failures",
+        "skin_in_the_game",
+    ],
+    "lopezdeprado-reviewer.md": [
+        "lopezdeprado_verdict",
+        "claim_classification",
+        "causal_graph_missing",
+        "trial_count_disclosed",
+        "workflow_diagnosis",
+        "domain_limit_flag",
+    ],
+}
 
 BANNED_SNIPPETS = [
     "本仓库不再",
@@ -111,6 +158,12 @@ SURFACE_FAMILIES = [
         "Workflows",
         "workflows",
         lambda: sorted((ROOT / "zhuzi" / "workflows").glob("*.md")),
+        lambda path: path.stem,
+    ),
+    (
+        "Seats",
+        "seats",
+        lambda: sorted((ROOT / "zhuzi" / "seats").glob("*.md")),
         lambda path: path.stem,
     ),
     (
@@ -189,18 +242,26 @@ def check_banned_snippets(errors: list[str]) -> None:
                     add_error(errors, path, lineno, f"banned snippet: {snippet}")
 
 
-def check_agent_skill_paths(errors: list[str]) -> None:
+def check_claude_agent_adapters(errors: list[str]) -> None:
     for agent_file, skill_name in AGENT_SKILLS.items():
         path = CLAUDE_RUNTIME_ROOT / "agents" / agent_file
         text = path.read_text(encoding="utf-8")
-        expected = AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name)
-        if expected not in text:
-            add_error(errors, path, 1, f"missing installed skill path {expected}")
+        expected_skill = AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name)
+        expected_seat = AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(
+            seat_file=AGENT_SEAT_FILES[agent_file]
+        )
+        for required in [expected_skill, expected_seat, AGENT_VERDICT_REFERENCE_PATH]:
+            if required not in text:
+                add_error(errors, path, 1, f"missing Claude agent reference {required}")
+        for banned in ADAPTER_INLINE_SCHEMA_SNIPPETS:
+            if banned in text:
+                add_error(errors, path, 1, f"Claude agent should not inline shared schema snippet {banned}")
 
 
 def check_runtime_path_templates(errors: list[str]) -> None:
     template_files = list((ROOT / "runtimes").glob("**/*.md"))
     template_files.extend((ROOT / "zhuzi" / "workflows").glob("*.md"))
+    template_files.extend((ROOT / "zhuzi" / "seats").glob("*.md"))
 
     banned_runtime_literals = ["~/.claude/", "~/.codex/", "@~/.claude/", "@~/.codex/"]
     for path in template_files:
@@ -313,6 +374,24 @@ def check_seat_registry(errors: list[str]) -> None:
             )
 
 
+def check_shared_seat_contracts(errors: list[str]) -> None:
+    seat_dir = ROOT / "zhuzi" / "seats"
+    if not seat_dir.exists():
+        add_error(errors, seat_dir, 1, "missing shared seats directory")
+        return
+
+    for seat_file, snippets in SHARED_SEAT_REQUIRED_SNIPPETS.items():
+        path = seat_dir / seat_file
+        if not path.exists():
+            add_error(errors, path, 1, "missing shared seat contract")
+            continue
+
+        text = path.read_text(encoding="utf-8")
+        for required in ["## 适用范围", "## 职责", "## 越权边界", "## 输出契约", "## 输出底线", *snippets]:
+            if required not in text:
+                add_error(errors, path, 1, f"shared seat contract missing {required}")
+
+
 def check_quick_roundtable_contract(errors: list[str]) -> None:
     template = ROOT / "zhuzi" / "templates" / "roundtable-quick.md"
     if not template.exists():
@@ -335,6 +414,7 @@ def check_quick_roundtable_contract(errors: list[str]) -> None:
         "./docs/INVENTORY.md",
         "./zhuzi/manifests/shipped-surface.json",
         "zhuzi/workflows/roundtable.md",
+        "zhuzi/seats/",
     ]:
         if required not in readme_text:
             add_error(errors, readme, 1, f"README missing {required}")
@@ -354,20 +434,6 @@ def check_commit_guidelines(errors: list[str]) -> None:
             add_error(errors, path, 1, f"commit guideline missing {required}")
 
 
-def check_agent_verdict_schema(errors: list[str]) -> None:
-    required_sections = ["core:", "must_haves_review:", "must_haves_challenge:", "seat_specific:"]
-    for agent_file, root_key in AGENT_VERDICT_ROOTS.items():
-        path = CLAUDE_RUNTIME_ROOT / "agents" / agent_file
-        text = path.read_text(encoding="utf-8")
-        if AGENT_VERDICT_REFERENCE_PATH not in text:
-            add_error(errors, path, 1, f"missing schema reference {AGENT_VERDICT_REFERENCE_PATH}")
-        if root_key not in text:
-            add_error(errors, path, 1, f"missing verdict root {root_key}")
-        for section in required_sections:
-            if section not in text:
-                add_error(errors, path, 1, f"missing verdict schema section {section}")
-
-
 def check_codex_agent_adapters(errors: list[str]) -> None:
     if not CODEX_RUNTIME_ROOT.exists():
         return
@@ -383,7 +449,6 @@ def check_codex_agent_adapters(errors: list[str]) -> None:
             f"Codex agent set mismatch: expected={sorted(expected_files)} actual={sorted(actual_files)}",
         )
 
-    required_sections = ["core:", "must_haves_review:", "must_haves_challenge:", "seat_specific:"]
     for agent_file, skill_name in AGENT_SKILLS.items():
         path = agent_dir / agent_file
         if not path.exists():
@@ -392,16 +457,17 @@ def check_codex_agent_adapters(errors: list[str]) -> None:
         text = path.read_text(encoding="utf-8")
         for required in [
             "<codex_agent_role>",
+            "<required_reading>",
             skill_name,
+            f"zhuzi/seats/{AGENT_SEAT_FILES[agent_file]}",
             "verdict-schema.md",
-            AGENT_VERDICT_ROOTS[agent_file],
-            *required_sections,
         ]:
             if required not in text:
                 add_error(errors, path, 1, f"Codex agent missing {required}")
 
-        if agent_file == "linus-engineer.md" and "linus_execution:" not in text:
-            add_error(errors, path, 1, "Codex agent missing linus_execution block")
+        for banned in ADAPTER_INLINE_SCHEMA_SNIPPETS:
+            if banned in text:
+                add_error(errors, path, 1, f"Codex agent should not inline shared schema snippet {banned}")
 
 
 def check_schema_reference(errors: list[str]) -> None:
@@ -571,7 +637,7 @@ def check_codex_install(errors: list[str]) -> None:
         "shipped-surface.json",
         "runtimes/claude/agents",
         "runtimes/claude/commands/zhuzi",
-        "references/workflows/templates/manifests",
+        "seats/references/workflows/templates/manifests",
     ]:
         if required not in text:
             add_error(errors, path, 1, f"install.sh missing {required}")
@@ -588,15 +654,15 @@ def main() -> int:
     manifest_families = load_manifest(errors)
 
     check_banned_snippets(errors)
-    check_agent_skill_paths(errors)
+    check_claude_agent_adapters(errors)
     check_runtime_path_templates(errors)
     check_roundtable_command_entry(errors)
     check_codex_roundtable_skill(errors)
     check_roundtable_workflow(errors)
     check_seat_registry(errors)
+    check_shared_seat_contracts(errors)
     check_quick_roundtable_contract(errors)
     check_commit_guidelines(errors)
-    check_agent_verdict_schema(errors)
     check_codex_agent_adapters(errors)
     check_schema_reference(errors)
     check_manifest(errors, manifest_families)
