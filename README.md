@@ -222,6 +222,8 @@ cd zhuzi
 
 不保留备份。每次修改仓库后重跑。环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`。
 
+安装源面默认读取 `zhuzi/manifests/shipped-surface.json`，因此新增 / 迁移 Claude adapter 或 skill 时，除了改文件树，也要同步更新 manifest。
+
 注意：仓库里的 `runtimes/claude/agents/*.md` 与 `runtimes/claude/commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...` 或 `~/.codex/...`。这些路径只在安装产物里出现，由 `install.sh` 按目标 runtime 根目录渲染。
 
 ### 方式 B：只装单个 skill

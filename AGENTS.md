@@ -263,6 +263,8 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`（测试用）。
 
+安装源面默认读取 `zhuzi/manifests/shipped-surface.json`。因此新增 / 迁移 Claude adapter 或 skill 时，除了改文件树，也要同步更新 manifest。
+
 **Self-contained 分发约束**——每个 skill 的所有调研文件必须在 skill 目录内（`references/research/`），不依赖外部路径。复制整个 skill 目录就能独立使用。
 
 ---
