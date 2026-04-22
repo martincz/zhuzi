@@ -13,18 +13,15 @@ purpose: Thin Codex adapter for the shared Munger seat contract.
 Read the first existing path in each group before doing anything else:
 
 Skill:
-- `${CODEX_HOME}/skills/munger-checklist/SKILL.md`
-- `$HOME/.codex/skills/munger-checklist/SKILL.md`
+- `{{ZHUZI_SKILL_ROOT}}/munger-checklist/SKILL.md`
 - `./skills/munger-checklist/SKILL.md`
 
 Shared seat contract:
-- `${CODEX_HOME}/zhuzi/seats/munger-reviewer.md`
-- `$HOME/.codex/zhuzi/seats/munger-reviewer.md`
+- `{{ZHUZI_SHARED_ROOT}}/seats/munger-reviewer.md`
 - `./zhuzi/seats/munger-reviewer.md`
 
 Shared schema:
-- `${CODEX_HOME}/zhuzi/references/verdict-schema.md`
-- `$HOME/.codex/zhuzi/references/verdict-schema.md`
+- `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`
 - `./zhuzi/references/verdict-schema.md`
 </required_reading>
 

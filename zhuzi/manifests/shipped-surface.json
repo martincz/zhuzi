@@ -125,6 +125,11 @@
         "role": "结构一致性检查，覆盖 inventory、manifest、shared seats、schema 引用和安装路径"
       },
       {
+        "entry": "install_codex_source_adapters.py",
+        "path": "tools/install_codex_source_adapters.py",
+        "role": "渲染并 side-load Codex source-only roundtable adapters 到 Codex 安装根"
+      },
+      {
         "entry": "smoke_test_codex_roundtable.py",
         "path": "tools/smoke_test_codex_roundtable.py",
         "role": "手动 Codex roundtable 烟雾测试：刷新安装、注入 source-only adapter、验证 skill 激活"

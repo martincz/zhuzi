@@ -102,8 +102,8 @@ runtime 结构拆成五层：
 **路径纪律**：
 
 - Claude adapter 模板只允许出现 `{{ZHUZI_SKILL_ROOT}}`、`{{ZHUZI_SHARED_ROOT}}` 这类占位符，不允许写死 runtime 根目录
-- Codex source-only adapter 不走安装期渲染，因此应优先引用 `$CODEX_HOME` / `$HOME/.codex`，并保留 repo 相对路径 fallback；不允许写死机器专属绝对路径
-- 安装脚本只负责 shipped surface 的渲染与拷贝；当前**不处理** `runtimes/codex/` source-only adapter
+- Codex source-only adapter 在源码层也使用和 Claude 一样的 repo-level placeholder；通过 `tools/install_codex_source_adapters.py` side-load 时再渲染成 Codex 安装路径，并保留 repo 相对路径 fallback
+- 安装脚本只负责 shipped surface 的渲染与拷贝；当前**不处理** `runtimes/codex/` source-only adapter，本地试用走 `tools/install_codex_source_adapters.py`
 - 共享资产（`zhuzi/`）必须保持 runtime-agnostic，不知道自己最终装在哪个 runtime 根目录
 
 共享契约文件：
@@ -271,7 +271,7 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`（测试用）。
 
-安装源面默认读取 `zhuzi/manifests/shipped-surface.json`。因此新增 / 迁移 **shipped surface** 的 Claude adapter 或 skill 时，除了改文件树，也要同步更新 manifest。`runtimes/codex/` 当前是 source-only adapter，**故意不进** manifest / install / INVENTORY，等分发策略单独拍板。
+安装源面默认读取 `zhuzi/manifests/shipped-surface.json`。因此新增 / 迁移 **shipped surface** 的 Claude adapter 或 skill 时，除了改文件树，也要同步更新 manifest。`runtimes/codex/` 当前是 source-only adapter，**故意不进**主 `install.sh`；本地 side-load 用 `python3 tools/install_codex_source_adapters.py`。
 
 **Self-contained 分发约束**——每个 skill 的所有调研文件必须在 skill 目录内（`references/research/`），不依赖外部路径。复制整个 skill 目录就能独立使用。
 

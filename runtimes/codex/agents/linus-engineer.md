@@ -13,18 +13,15 @@ purpose: Thin Codex adapter for the shared Linus seat contract.
 Read the first existing path in each group before doing anything else:
 
 Skill:
-- `${CODEX_HOME}/skills/linus-torvalds-engineer/SKILL.md`
-- `$HOME/.codex/skills/linus-torvalds-engineer/SKILL.md`
+- `{{ZHUZI_SKILL_ROOT}}/linus-torvalds-engineer/SKILL.md`
 - `./skills/linus-torvalds-engineer/SKILL.md`
 
 Shared seat contract:
-- `${CODEX_HOME}/zhuzi/seats/linus-engineer.md`
-- `$HOME/.codex/zhuzi/seats/linus-engineer.md`
+- `{{ZHUZI_SHARED_ROOT}}/seats/linus-engineer.md`
 - `./zhuzi/seats/linus-engineer.md`
 
 Shared schema:
-- `${CODEX_HOME}/zhuzi/references/verdict-schema.md`
-- `$HOME/.codex/zhuzi/references/verdict-schema.md`
+- `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`
 - `./zhuzi/references/verdict-schema.md`
 </required_reading>
 

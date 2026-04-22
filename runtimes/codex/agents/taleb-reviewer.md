@@ -13,18 +13,15 @@ purpose: Thin Codex adapter for the shared Taleb seat contract.
 Read the first existing path in each group before doing anything else:
 
 Skill:
-- `${CODEX_HOME}/skills/taleb-antifragile/SKILL.md`
-- `$HOME/.codex/skills/taleb-antifragile/SKILL.md`
+- `{{ZHUZI_SKILL_ROOT}}/taleb-antifragile/SKILL.md`
 - `./skills/taleb-antifragile/SKILL.md`
 
 Shared seat contract:
-- `${CODEX_HOME}/zhuzi/seats/taleb-reviewer.md`
-- `$HOME/.codex/zhuzi/seats/taleb-reviewer.md`
+- `{{ZHUZI_SHARED_ROOT}}/seats/taleb-reviewer.md`
 - `./zhuzi/seats/taleb-reviewer.md`
 
 Shared schema:
-- `${CODEX_HOME}/zhuzi/references/verdict-schema.md`
-- `$HOME/.codex/zhuzi/references/verdict-schema.md`
+- `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`
 - `./zhuzi/references/verdict-schema.md`
 </required_reading>
 

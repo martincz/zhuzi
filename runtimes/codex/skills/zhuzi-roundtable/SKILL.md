@@ -33,21 +33,17 @@ metadata:
 Read the first existing path in each group before proceeding:
 
 Shared workflow:
-- `${CODEX_HOME}/zhuzi/workflows/roundtable.md`
-- `$HOME/.codex/zhuzi/workflows/roundtable.md`
+- `{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md`
 - `./zhuzi/workflows/roundtable.md`
 
 Shared references:
-- `${CODEX_HOME}/zhuzi/references/seat-registry.md`
-- `$HOME/.codex/zhuzi/references/seat-registry.md`
+- `{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md`
 - `./zhuzi/references/seat-registry.md`
-- `${CODEX_HOME}/zhuzi/references/verdict-schema.md`
-- `$HOME/.codex/zhuzi/references/verdict-schema.md`
+- `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`
 - `./zhuzi/references/verdict-schema.md`
 
 Quick template:
-- `${CODEX_HOME}/zhuzi/templates/roundtable-quick.md`
-- `$HOME/.codex/zhuzi/templates/roundtable-quick.md`
+- `{{ZHUZI_SHARED_ROOT}}/templates/roundtable-quick.md`
 - `./zhuzi/templates/roundtable-quick.md`
 </execution_context>
 

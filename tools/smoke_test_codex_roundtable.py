@@ -4,7 +4,7 @@
 This probe is intentionally heavier than ``check_consistency.py``:
 
 1. Refresh shipped assets via ``./install.sh``
-2. Copy the source-only Codex roundtable adapters into ``$CODEX_HOME``
+2. Render and install the source-only Codex roundtable adapters into ``$CODEX_HOME``
 3. Verify installed adapter path references resolve
 4. Run a minimal ``codex exec`` probe and assert the roundtable skill activates
 """
@@ -19,13 +19,12 @@ import sys
 import tempfile
 from pathlib import Path
 
+from install_codex_source_adapters import install_source_only_adapters
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CODEX_HOME = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
 HOME = Path.home()
-
-SOURCE_ONLY_AGENT_DIR = ROOT / "runtimes" / "codex" / "agents"
-SOURCE_ONLY_SKILL_DIR = ROOT / "runtimes" / "codex" / "skills" / "zhuzi-roundtable"
 
 INSTALLED_AGENT_DIR = CODEX_HOME / "agents"
 INSTALLED_SKILL_DIR = CODEX_HOME / "skills" / "zhuzi-roundtable"
@@ -65,21 +64,6 @@ def refresh_shipped_assets() -> None:
     run_checked(["./install.sh"], cwd=ROOT)
 
 
-def install_source_only_adapters() -> None:
-    INSTALLED_AGENT_DIR.mkdir(parents=True, exist_ok=True)
-    INSTALLED_SKILL_DIR.mkdir(parents=True, exist_ok=True)
-
-    for agent in SOURCE_ONLY_AGENT_DIR.glob("*.md"):
-        shutil.copy2(agent, INSTALLED_AGENT_DIR / agent.name)
-
-    for entry in SOURCE_ONLY_SKILL_DIR.iterdir():
-        target = INSTALLED_SKILL_DIR / entry.name
-        if entry.is_dir():
-            shutil.copytree(entry, target, dirs_exist_ok=True)
-        else:
-            shutil.copy2(entry, target)
-
-
 def collect_installed_files() -> list[Path]:
     return [
         INSTALLED_SKILL_DIR / "SKILL.md",
@@ -92,8 +76,7 @@ def collect_installed_files() -> list[Path]:
 
 def validate_path_references() -> None:
     patterns = [
-        re.compile(r"`\$\{CODEX_HOME\}(/[^`]+)`"),
-        re.compile(r"`\$HOME(/[^`]+)`"),
+        re.compile(r"`(/[^`\n]+\.md)`"),
         re.compile(r"`\./([^`]+)`"),
     ]
 
@@ -103,10 +86,8 @@ def validate_path_references() -> None:
         for pattern in patterns:
             for match in pattern.finditer(text):
                 raw = match.group(0).strip("`")
-                if raw.startswith("${CODEX_HOME}"):
-                    resolved = Path(str(CODEX_HOME) + raw[len("${CODEX_HOME}") :])
-                elif raw.startswith("$HOME"):
-                    resolved = Path(str(HOME) + raw[len("$HOME") :])
+                if raw.startswith("/"):
+                    resolved = Path(raw)
                 elif raw.startswith("./"):
                     resolved = ROOT / raw[2:]
                 else:
@@ -181,7 +162,7 @@ def main() -> int:
     try:
         codex_bin = ensure_codex_cli()
         refresh_shipped_assets()
-        install_source_only_adapters()
+        install_source_only_adapters(CODEX_HOME)
         validate_path_references()
         run_codex_probe(codex_bin)
     except SmokeFailure as exc:

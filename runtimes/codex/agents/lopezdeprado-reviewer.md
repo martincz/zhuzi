@@ -13,18 +13,15 @@ purpose: Thin Codex adapter for the shared López seat contract.
 Read the first existing path in each group before doing anything else:
 
 Skill:
-- `${CODEX_HOME}/skills/lopezdeprado-scientist/SKILL.md`
-- `$HOME/.codex/skills/lopezdeprado-scientist/SKILL.md`
+- `{{ZHUZI_SKILL_ROOT}}/lopezdeprado-scientist/SKILL.md`
 - `./skills/lopezdeprado-scientist/SKILL.md`
 
 Shared seat contract:
-- `${CODEX_HOME}/zhuzi/seats/lopezdeprado-reviewer.md`
-- `$HOME/.codex/zhuzi/seats/lopezdeprado-reviewer.md`
+- `{{ZHUZI_SHARED_ROOT}}/seats/lopezdeprado-reviewer.md`
 - `./zhuzi/seats/lopezdeprado-reviewer.md`
 
 Shared schema:
-- `${CODEX_HOME}/zhuzi/references/verdict-schema.md`
-- `$HOME/.codex/zhuzi/references/verdict-schema.md`
+- `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`
 - `./zhuzi/references/verdict-schema.md`
 </required_reading>
 

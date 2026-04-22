@@ -94,7 +94,7 @@ Skill 按用途分两类：
 
 - `zhuzi/seats/<name>.md`——**共享 seat contract**。席位职责、越权边界、root key、route 语义、`seat_specific` 字段要求都放这里。
 - `runtimes/claude/agents/<name>.md`——**Claude runtime adapter 模板**。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；安装时才渲染成真实路径。
-- `runtimes/codex/agents/<name>.md`——**Codex agent 定义**。当前先以 source-only 形式存在，优先读 `$CODEX_HOME` / `$HOME/.codex` 下的安装产物，找不到时 fallback 到 repo 相对路径。
+- `runtimes/codex/agents/<name>.md`——**Codex agent 定义**。和 Claude 一样保留 repo-level placeholder；side-load 时再渲染成 Codex 安装路径，源码里仍保留 repo 相对路径 fallback。
 
 两边都不复制人物方法论正文，也不再各自维护一份 seat 语义；adapter 只 pull 对应 skill、shared seat contract 与 shared schema。
 
@@ -249,15 +249,12 @@ cd zhuzi
 
 ```bash
 ./install.sh
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/agents"
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills/zhuzi-roundtable"
-cp runtimes/codex/agents/*.md "${CODEX_HOME:-$HOME/.codex}/agents/"
-cp -r runtimes/codex/skills/zhuzi-roundtable/* "${CODEX_HOME:-$HOME/.codex}/skills/zhuzi-roundtable/"
+python3 tools/install_codex_source_adapters.py
 ```
 
 这样装的是：
 - 已 shipped 的 persona skills + shared `zhuzi/` 资产
-- 以及尚未纳入 shipped surface 的 Codex roundtable adapter 源码
+- 以及尚未纳入 shipped surface 的 Codex roundtable adapter 源码（渲染后写入 Codex 安装根）
 
 ### 方式 C：只装单个 skill
 

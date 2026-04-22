@@ -263,7 +263,14 @@ def check_runtime_path_templates(errors: list[str]) -> None:
     template_files.extend((ROOT / "zhuzi" / "workflows").glob("*.md"))
     template_files.extend((ROOT / "zhuzi" / "seats").glob("*.md"))
 
-    banned_runtime_literals = ["~/.claude/", "~/.codex/", "@~/.claude/", "@~/.codex/"]
+    banned_runtime_literals = [
+        "~/.claude/",
+        "~/.codex/",
+        "@~/.claude/",
+        "@~/.codex/",
+        "$HOME/.claude/",
+        "$HOME/.codex/",
+    ]
     for path in template_files:
         text = path.read_text(encoding="utf-8")
         for literal in banned_runtime_literals:
@@ -315,6 +322,10 @@ def check_codex_roundtable_skill(errors: list[str]) -> None:
         "<codex_skill_adapter>",
         'spawn_agent(agent_type="X", message="Y")',
         "send_input(target=linus_id",
+        "{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md",
+        "{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md",
+        "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md",
+        "{{ZHUZI_SHARED_ROOT}}/templates/roundtable-quick.md",
         "zhuzi/workflows/roundtable.md",
         "zhuzi/references/seat-registry.md",
         "zhuzi/references/verdict-schema.md",
@@ -458,9 +469,12 @@ def check_codex_agent_adapters(errors: list[str]) -> None:
         for required in [
             "<codex_agent_role>",
             "<required_reading>",
-            skill_name,
-            f"zhuzi/seats/{AGENT_SEAT_FILES[agent_file]}",
-            "verdict-schema.md",
+            AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name),
+            AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=AGENT_SEAT_FILES[agent_file]),
+            AGENT_VERDICT_REFERENCE_PATH,
+            f"./skills/{skill_name}/SKILL.md",
+            f"./zhuzi/seats/{AGENT_SEAT_FILES[agent_file]}",
+            "./zhuzi/references/verdict-schema.md",
         ]:
             if required not in text:
                 add_error(errors, path, 1, f"Codex agent missing {required}")
@@ -643,6 +657,25 @@ def check_codex_install(errors: list[str]) -> None:
             add_error(errors, path, 1, f"install.sh missing {required}")
 
 
+def check_codex_source_installer(errors: list[str]) -> None:
+    path = ROOT / "tools" / "install_codex_source_adapters.py"
+    if not path.exists():
+        add_error(errors, path, 1, "missing Codex source adapter installer")
+        return
+
+    text = path.read_text(encoding="utf-8")
+    for required in [
+        "render_text",
+        "install_source_only_adapters",
+        "{{ZHUZI_SKILL_ROOT}}",
+        "{{ZHUZI_SHARED_ROOT}}",
+        "runtimes/codex/agents",
+        "runtimes/codex/skills/zhuzi-roundtable",
+    ]:
+        if required not in text:
+            add_error(errors, path, 1, f"Codex source installer missing {required}")
+
+
 def iter_skill_entrypoints() -> list[Path]:
     files = list((ROOT / "skills").glob("*/SKILL.md"))
     files.extend((CODEX_RUNTIME_ROOT / "skills").glob("*/SKILL.md"))
@@ -670,6 +703,7 @@ def main() -> int:
     check_skill_reference_links(errors)
     check_skill_description_lengths(errors)
     check_codex_install(errors)
+    check_codex_source_installer(errors)
 
     if errors:
         print("Consistency check failed:")
