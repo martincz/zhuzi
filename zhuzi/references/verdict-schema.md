@@ -18,7 +18,7 @@
 <!-- GENERATED:verdict_schema_core_table:start -->
 | 字段 | 取值 | 作用 |
 |---|---|---|
-| `seat` | `taleb` / `munger` / `lopezdeprado` / `linus` / 新席位 | 席位标识 |
+| `seat` | `taleb` / `munger` / `lopezdeprado` / `feynman` / `linus` / 新席位 | 席位标识 |
 | `phase` | `1` / `2` / `4` | 当前阶段 |
 | `route` | `go` / `go_with_conditions` / `revise_must_haves` / `kill` / `too_hard` | 主持人机读统一路由空间 |
 | `seat_native_verdict` | 各席位原生 verdict | 保留人物 DNA |
@@ -77,6 +77,7 @@ must_haves_challenge:
 - Taleb: `tail_events_breaking_must_haves` / `fragility_checklist_failures` / `distribution_class` / `payoff_convexity` / `skin_in_the_game`
 - Munger: `anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `incentive_map` / `opportunity_cost_note` / `reverse_kill_path`
 - López: `claim_classification` / `causal_graph_missing` / `trial_count_disclosed` / `integrity_checklist_failures` / `anti_pattern_hits` / `workflow_diagnosis` / `domain_limit_flag`
+- Feynman: `undefined_terms` / `mechanism_gaps` / `missing_examples` / `verification_gaps` / `ai_misread_risk`
 - Linus 阶段 1: `data_structure_risks` / `special_case_pressure` / `anti_patterns_hit` / `interface_risks` / `out_of_scope_for_strategy`
 - Linus 阶段 2: `broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`
 <!-- GENERATED:verdict_schema_seat_specific:end -->
@@ -95,6 +96,9 @@ must_haves_challenge:
 | López | `associational` | `go_with_conditions` |
 | López | `pseudo_scientific` | `kill` / `revise_must_haves` |
 | López | `domain_limit_flag` 非空 | `too_hard` |
+| Feynman | `clear` | `go` |
+| Feynman | `muddy` | `go_with_conditions` / `revise_must_haves` |
+| Feynman | `cargo_cult` | `revise_must_haves` / `kill` |
 | Linus | `sane` | `go` |
 | Linus | `broken` | `kill` |
 | Linus | `needs_refactor_first` | `revise_must_haves` / `go_with_conditions` |
@@ -112,4 +116,4 @@ must_haves_challenge:
 2. 更新 `zhuzi/manifests/roundtable-contract.json`，把 root key、native verdict、route 映射、seat-specific 注册、Quick/stages 与 seat 输出契约机器合同补齐。
 3. 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件、`seat-registry.md` 与 seat 文件里的 `## 输出契约` 生成段。
 4. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
-5. 更新 `docs/INVENTORY.md`、`zhuzi/manifests/shipped-surface.json` 与 `tools/check_consistency.py` 的覆盖面。
+5. 更新 `docs/INVENTORY.md` 与 `zhuzi/manifests/shipped-surface.json`；`tools/check_consistency.py` 与 smoke test 已从 manifest / 文件树动态派生，扩席位时不应再手改脚本。

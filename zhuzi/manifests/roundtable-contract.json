@@ -122,6 +122,21 @@
         "route": "too_hard"
       },
       {
+        "seat": "Feynman",
+        "native": "clear",
+        "route": "go"
+      },
+      {
+        "seat": "Feynman",
+        "native": "muddy",
+        "route": "go_with_conditions / revise_must_haves"
+      },
+      {
+        "seat": "Feynman",
+        "native": "cargo_cult",
+        "route": "revise_must_haves / kill"
+      },
+      {
         "seat": "Linus",
         "native": "sane",
         "route": "go"
@@ -161,6 +176,13 @@
         "anti_pattern_hits",
         "workflow_diagnosis",
         "domain_limit_flag"
+      ],
+      "Feynman": [
+        "undefined_terms",
+        "mechanism_gaps",
+        "missing_examples",
+        "verification_gaps",
+        "ai_misread_risk"
       ],
       "Linus 阶段 1": [
         "data_structure_risks",
@@ -455,6 +477,100 @@
             ],
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
             "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架把 associational claim 伪装成 causal、把 backtest 当理论、把 multiple testing 问题埋起来，或在 protocol 层面就不科学"
+          }
+        ]
+      },
+      "required_contract_snippets": [
+        "## 审议动作"
+      ]
+    },
+    "feynman-reviewer": {
+      "skill": "feynman-explainer",
+      "agent": "feynman-reviewer",
+      "core_seat": "feynman",
+      "generated_block": "feynman_output_contract",
+      "registry_summary": {
+        "seat": "解释清晰度",
+        "role": "术语去魅、命名 vs 机制、例子、可验证解释、cargo cult 检测",
+        "default_stages": "[1]",
+        "domains": "spec / API contract / 指标口径 / 时间语义 / 术语定义 / 文档解释 / 命名是否冒充理解 / AI 易误读表述"
+      },
+      "stage_policy": {
+        "strategy_business_org": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含术语定义 / 决策说明 / 口径解释清晰度"
+        },
+        "research_eval": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含指标口径 / 时间语义 / 方法解释"
+        },
+        "pure_code_implementation": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "仅在 API contract / 命名 / 抽象边界讲不清时"
+        },
+        "engineering_decision": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含接口语义 / 抽象命名 / spec clarity"
+        },
+        "hybrid": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "议题需要先讲清 contract / 术语 / 验证口径"
+        }
+      },
+      "registry_stage_row": {
+        "seat": "Feynman",
+        "strategy_business_org": "含术语定义 / 决策说明 / 口径解释清晰度 → `[1]`",
+        "research_eval": "含指标口径 / 时间语义 / 方法解释 → `[1]`",
+        "pure_code_implementation": "仅在 API contract / 命名 / 抽象边界讲不清时 `[1]`",
+        "engineering_decision": "含接口语义 / 抽象命名 / spec clarity → `[1]`",
+        "hybrid": "议题需要先讲清 contract / 术语 / 验证口径 → `[1]`"
+      },
+      "shared_root_keys": [
+        "feynman_verdict"
+      ],
+      "native_verdict_routes": {
+        "clear": [
+          "go"
+        ],
+        "muddy": [
+          "go_with_conditions",
+          "revise_must_haves"
+        ],
+        "cargo_cult": [
+          "revise_must_haves",
+          "kill"
+        ]
+      },
+      "seat_specific_fields": [
+        "undefined_terms",
+        "mechanism_gaps",
+        "missing_examples",
+        "verification_gaps",
+        "ai_misread_risk"
+      ],
+      "output_contract": {
+        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Feynman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "sections": [
+          {
+            "root_key": "feynman_verdict",
+            "phase": "1",
+            "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，并说明术语是否定义清楚、机制是否讲明白、验证口径是否会被人和 agent 同时误读",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制，或把不可验证的话术伪装成了可执行 contract"
           }
         ]
       },

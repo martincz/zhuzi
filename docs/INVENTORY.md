@@ -2,7 +2,7 @@
 
 > 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json` 与 `zhuzi/manifests/roundtable-contract.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
 
-## Skills (5 shipped)
+## Skills (6 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -10,9 +10,10 @@
 | `munger-checklist` | `skills/munger-checklist/SKILL.md` | 决策质量、偏误、激励结构思维顾问 |
 | `taleb-antifragile` | `skills/taleb-antifragile/SKILL.md` | fragility、tail risk、antifragile 思维顾问 |
 | `lopezdeprado-scientist` | `skills/lopezdeprado-scientist/SKILL.md` | 研究诚信、causal claim、实验纪律思维顾问 |
+| `feynman-explainer` | `skills/feynman-explainer/SKILL.md` | 解释清晰度、cargo cult 检测、概念理解思维顾问 |
 | `luxun-zawen` | `skills/luxun-zawen/SKILL.md` | 杂文口吻与修辞改写工具 |
 
-## Agents (4 shipped)
+## Agents (5 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -20,8 +21,9 @@
 | `munger-reviewer` | `runtimes/claude/agents/munger-reviewer.md` | roundtable 决策质量席 |
 | `taleb-reviewer` | `runtimes/claude/agents/taleb-reviewer.md` | roundtable 风险结构席 |
 | `lopezdeprado-reviewer` | `runtimes/claude/agents/lopezdeprado-reviewer.md` | roundtable 证据质量席 |
+| `feynman-reviewer` | `runtimes/claude/agents/feynman-reviewer.md` | roundtable 解释清晰度席 |
 
-## Codex Agents (4 shipped)
+## Codex Agents (5 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -29,6 +31,7 @@
 | `munger-reviewer` | `runtimes/codex/agents/munger-reviewer.md` | Codex roundtable 决策质量席 adapter |
 | `taleb-reviewer` | `runtimes/codex/agents/taleb-reviewer.md` | Codex roundtable 风险结构席 adapter |
 | `lopezdeprado-reviewer` | `runtimes/codex/agents/lopezdeprado-reviewer.md` | Codex roundtable 证据质量席 adapter |
+| `feynman-reviewer` | `runtimes/codex/agents/feynman-reviewer.md` | Codex roundtable 解释清晰度席 adapter |
 
 ## Codex Skills (1 shipped)
 
@@ -48,7 +51,7 @@
 |---|---|---|
 | `roundtable` | `zhuzi/workflows/roundtable.md` | Roundtable 阶段编排、gate 规则与实施分支 |
 
-## Seats (4 shipped)
+## Seats (5 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -56,6 +59,7 @@
 | `munger-reviewer` | `zhuzi/seats/munger-reviewer.md` | 共享 Munger 决策质量席契约，定义边界、route 与 seat-specific 字段 |
 | `taleb-reviewer` | `zhuzi/seats/taleb-reviewer.md` | 共享 Taleb 风险结构席契约，定义 fragility 审议与输出契约 |
 | `lopezdeprado-reviewer` | `zhuzi/seats/lopezdeprado-reviewer.md` | 共享 López 证据质量席契约，定义方法论边界与输出契约 |
+| `feynman-reviewer` | `zhuzi/seats/feynman-reviewer.md` | 共享 Feynman 解释清晰度席契约，定义清晰度审议与输出契约 |
 
 ## References (2 shipped)
 

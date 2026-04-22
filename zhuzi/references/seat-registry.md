@@ -10,6 +10,7 @@
 | 风险结构 | `taleb-reviewer` | 尾部风险、fragility、凸性、barbell、skin in the game | `[1]` | 不确定性 / 尾部风险 / 脆弱性 / 凸性 / ruin risk / barbell / 冗余 / 选择权 / 依赖链风险 / skin-in-the-game / 厚尾分布 |
 | 决策质量 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈、机会成本 | `[1]` | 投资决策 / 商业判断 / 产品策略 / 组织决策 / 认知偏误审视 / 能力圈边界 / 机会成本 / 安全边际 / 激励结构 / 护城河 / Lollapalooza |
 | 证据质量 | `lopezdeprado-reviewer` | 研究诚信、associational vs causal、实验/评估设计、backtest overfitting、DSR/PBO/CPCV | `[1]` | 研究方法论 / 实验设计 / 因果声明 / benchmark / A-B test / eval / data leakage / backtest overfitting / p-hacking / multiple testing / specification error / Deflated Sharpe / Purged K-Fold / CPCV / 研究流程诊断 |
+| 解释清晰度 | `feynman-reviewer` | 术语去魅、命名 vs 机制、例子、可验证解释、cargo cult 检测 | `[1]` | spec / API contract / 指标口径 / 时间语义 / 术语定义 / 文档解释 / 命名是否冒充理解 / AI 易误读表述 |
 | 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | `[2]` 或 `[1,2]` | 软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
 <!-- GENERATED:seat_registry_current_seats:end -->
 
@@ -27,6 +28,7 @@
 | Taleb | 含不确定性 / 尾部 / 脆弱性 → `[1]` | 仅在评估暴露尾部风险时 `[1]` | 弃权 | 仅在工程方案有系统性脆弱性时 `[1]` | `[1]` |
 | Munger | 含判断质量 / 激励 / 能力圈 / 机会成本 → `[1]` | 仅在指标激励或研究者偏误关键时 `[1]` | 弃权 | 弃权 | `[1]` |
 | López | evidence claim 关键时 `[1]` | 含实验 / 因果 / benchmark / eval / 回测 → `[1]` | 弃权 | 弃权 | `[1]` |
+| Feynman | 含术语定义 / 决策说明 / 口径解释清晰度 → `[1]` | 含指标口径 / 时间语义 / 方法解释 → `[1]` | 仅在 API contract / 命名 / 抽象边界讲不清时 `[1]` | 含接口语义 / 抽象命名 / spec clarity → `[1]` | 议题需要先讲清 contract / 术语 / 验证口径 → `[1]` |
 | Linus | 弃权 | 弃权 | `[2]` | `[1,2]` | `[1,2]` |
 <!-- GENERATED:seat_registry_stage_rules:end -->
 

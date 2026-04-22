@@ -49,6 +49,7 @@
 | `munger-checklist` | 决策质量、偏误、激励结构思维顾问 | `munger-reviewer`，决策质量席 |
 | `taleb-antifragile` | 尾部风险、fragility、antifragile 思维顾问 | `taleb-reviewer`，风险结构席 |
 | `lopezdeprado-scientist` | 研究诚信、causal claim、实验纪律思维顾问 | `lopezdeprado-reviewer`，证据质量席 |
+| `feynman-explainer` | 解释清晰度、cargo cult 检测、概念理解思维顾问 | `feynman-reviewer`，解释清晰度席 |
 | `luxun-zawen` | 聊天娱乐型文体改写工具 | 不进 roundtable |
 
 更具体的人物正文、触发词和研究支撑都在各自的 `SKILL.md` 与 `references/` 内；README 只保留入口级说明，不重复维护这些细节。

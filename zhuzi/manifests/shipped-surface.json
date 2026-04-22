@@ -22,6 +22,11 @@
         "role": "研究诚信、causal claim、实验纪律思维顾问"
       },
       {
+        "entry": "feynman-explainer",
+        "path": "skills/feynman-explainer/SKILL.md",
+        "role": "解释清晰度、cargo cult 检测、概念理解思维顾问"
+      },
+      {
         "entry": "luxun-zawen",
         "path": "skills/luxun-zawen/SKILL.md",
         "role": "杂文口吻与修辞改写工具"
@@ -47,6 +52,11 @@
         "entry": "lopezdeprado-reviewer",
         "path": "runtimes/claude/agents/lopezdeprado-reviewer.md",
         "role": "roundtable 证据质量席"
+      },
+      {
+        "entry": "feynman-reviewer",
+        "path": "runtimes/claude/agents/feynman-reviewer.md",
+        "role": "roundtable 解释清晰度席"
       }
     ],
     "codex_agents": [
@@ -69,6 +79,11 @@
         "entry": "lopezdeprado-reviewer",
         "path": "runtimes/codex/agents/lopezdeprado-reviewer.md",
         "role": "Codex roundtable 证据质量席 adapter"
+      },
+      {
+        "entry": "feynman-reviewer",
+        "path": "runtimes/codex/agents/feynman-reviewer.md",
+        "role": "Codex roundtable 解释清晰度席 adapter"
       }
     ],
     "codex_skills": [
@@ -112,6 +127,11 @@
         "entry": "lopezdeprado-reviewer",
         "path": "zhuzi/seats/lopezdeprado-reviewer.md",
         "role": "共享 López 证据质量席契约，定义方法论边界与输出契约"
+      },
+      {
+        "entry": "feynman-reviewer",
+        "path": "zhuzi/seats/feynman-reviewer.md",
+        "role": "共享 Feynman 解释清晰度席契约，定义清晰度审议与输出契约"
       }
     ],
     "references": [
