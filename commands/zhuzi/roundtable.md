@@ -11,6 +11,15 @@ $ARGUMENTS
 
 ---
 
+## 共享契约文件
+
+执行前先读取并以这两份文件为权威源：
+
+- `~/.claude/zhuzi/references/seat-registry.md`
+- `~/.claude/zhuzi/references/verdict-schema-v2.md`
+
+仓库内对应路径是 `zhuzi/references/seat-registry.md` 和 `zhuzi/references/verdict-schema-v2.md`。当前席位、默认 `stages`、以及共同 YAML verdict schema 若与本文件、README、agent 示例段有出入，以这两份 reference 为准。
+
 ## 流水线性质
 
 本流水线支持 **N 席位召开（N ≥ 1）**——阶段 0.5 扫议题关键词匹配"擅长领域"列，只 spawn 有资格的席位。弃权席位不产出 YAML。无代码席位时阶段 2（代码可行性）dispatch 不触发；N=1 时流水线退化为单席位审议，这是合法状态不需特殊 exit。
@@ -72,14 +81,7 @@ Quick 模式的用户可见输出必须使用下列骨架，除非用户显式�
 
 ## 当前席位
 
-| 席位 | agent | 职责 | 擅长领域（议题匹配关键词） |
-|---|---|---|---|
-| 风险结构 | `taleb-reviewer` | 尾部风险、fragility、凸性、barbell、skin in the game | 不确定性 / 尾部风险 / 脆弱性 / 凸性 / ruin risk / barbell / 冗余 / 选择权 / 依赖链风险 / skin-in-the-game / 厚尾分布 |
-| 决策质量 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈、机会成本 | 投资决策 / 商业判断 / 产品策略 / 组织决策 / 认知偏误审视 / 能力圈边界 / 机会成本 / 安全边际 / 激励结构 / 护城河 / Lollapalooza |
-| 证据质量 | `lopezdeprado-reviewer` | 研究诚信、associational vs causal、实验/评估设计、backtest overfitting、DSR/PBO/CPCV | 研究方法论 / 实验设计 / 因果声明 / benchmark / A-B test / eval / data leakage / backtest overfitting / p-hacking / multiple testing / specification error / Deflated Sharpe / Purged K-Fold / CPCV / 研究流程诊断 |
-| 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | 软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
-
-**扩席位**：新建 `~/.claude/agents/<name>.md`，在本表加一行（填齐"擅长领域"关键词），并在阶段 1 spawn 模板按需加对应 block。不拆新 command——圆桌会议本就是开放席位的隐喻。
+当前席位权威表已抽到 `~/.claude/zhuzi/references/seat-registry.md`。阶段 0.5 的席位资格路由、默认 `stages` 规则，以及扩席位维护边界都以该文件为准；本文件只保留流程本身。
 
 ---
 
@@ -91,7 +93,7 @@ spawn 任何席位**之前**，orchestrator 完成三件事。Quick 模式下不
 
 #### Step 0 · 席位召开判定
 
-扫议题关键词 + 上方"当前席位"表的"擅长领域"列 → 匹配产出召开名单（**含每席位 `stages` 在哪些阶段出场**）+ 弃权名单 + 理由。**orchestrator 主动决定，不为每次召开单独问用户**（用户在 Step 2 一起确认/override）。
+扫议题关键词 + `seat-registry.md` 的"当前席位"表与默认 `stages` 规则 → 匹配产出召开名单（**含每席位 `stages` 在哪些阶段出场**）+ 弃权名单 + 理由。**orchestrator 主动决定，不为每次召开单独问用户**（用户在 Step 2 一起确认/override）。
 
 默认用户可见格式：
 
@@ -111,20 +113,7 @@ spawn 任何席位**之前**，orchestrator 完成三件事。Quick 模式下不
 - N=0 时（无席位匹配）停流水线，建议用户改议题描述或用非 roundtable 流程直接和 orchestrator 对话
 - Quick 模式下评议席位默认不超过 3 个；若语义命中超过 3 个，优先保留最能发现 hard blocker 或真实分歧的席位
 
-**`stages` 字段默认规则**（议题类型 → 每席位 stages 推荐值）：
-
-| 席位 | 策略/投资/商业/组织决策 | 研究/实验/因果评估 | 纯代码实施议题（补选项/修 bug） | 工程决策议题（架构/选型/good taste） | 混合议题 |
-|---|---|---|---|---|---|
-| Taleb | 含不确定性 / 尾部 / 脆弱性 → `[1]` | 只在评估暴露尾部风险时 `[1]` | 弃权 | 只在工程方案有系统性脆弱性时 `[1]` | `[1]` |
-| Munger | 含判断质量 / 激励 / 能力圈 / 机会成本 → `[1]` | 只在指标激励或研究者偏误关键时 `[1]` | 弃权 | 弃权 | `[1]` |
-| López | 只在 evidence claim 关键时 `[1]` | 含实验 / 因果 / benchmark / eval / 回测 → `[1]` | 弃权 | 弃权 | `[1]` |
-| Linus | 弃权 | 弃权 | `[2]` | `[1, 2]` | `[1, 2]` |
-
-**López 席位额外召开规则**（在上表基础上细化）：议题中含"研究方法论 / 实验设计 / benchmark / eval / A-B test / 因果声明 / causal claim / data leakage / selection bias / backtest 审视 / 因子诚信 / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow"任一关键词时**必召开**，即使议题不是量化金融，也即使未命中 Taleb/Munger 的尾部 / 偏误触发词。**López 与 Taleb/Munger 高度互补但不重复**——三席可同时召开，也可单独 López 召开（例：议题是"审这个产品 A/B test 的因果口径"——Taleb 弃权 / Munger 视激励情况可弃权 / López 独呈）。
-
-**判断"工程决策维度"的关键词**：架构 / 重构 / 技术选型 / 设计选择 / good taste / 数据结构 / 模块划分 / API 设计 / 并发 / 性能 / 可靠性 / 安全 / 构建 / 测试链路 / 工程规范。议题描述中含这类词 → Linus `stages` 含 `1`。
-
-**Linus `stages=[1,2]` 时**：阶段 1 和阶段 2 分别 spawn 两次——阶段 1 做"工程视角评议题"（good taste / 数据结构合理性 / anti-pattern 扫描，**不关心当前 codebase 能否承载**），阶段 2 做"可行性 gate"（吸收阶段 1 结论 + 其他席位意见 + must_haves → 能否干净落地）。两次 spawn 的 prompt 内容不同，不是重复。阶段 1 Linus 输出沿用 `linus_feasibility` schema 但 `phase: 1`，`seat_specific.broken_evidence` 和 `must_haves_coverage_detail` 留空（那是阶段 2 才填的字段），重点填 `risk_notes`（工程视角对议题本身的 risk，不是对当前 codebase 的风险）。
+`stages` 的默认路由、López 必召开触发词，以及 Linus `stages=[1,2]` 的双阶段语义都以 `seat-registry.md` 为准。本文件只在真正需要的阶段描述里重复其效果，不在这里复制完整席位表。
 
 #### Step 1 · must_haves 定义
 
@@ -285,7 +274,7 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 4. 用户选"保持 v1" → 阶段 2 进行但显式告知 Linus"非代码评议席位建议修订 must_haves 但用户维持 v1"，Linus 在自己的 verdict 里可选择继续 challenge
 5. 用户选"重开议题" → 流水线终止，回阶段 0.5 重写议题
 
-**禁止**orchestrator 自行合并 challenge / 无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件从临场补 gate 升格成协议内置流程（见附录"共同 verdict schema（v2）"的 `must_haves_challenge` 字段）。
+**禁止**orchestrator 自行合并 challenge / 无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件从临场补 gate 升格成协议内置流程（见 `verdict-schema-v2.md` 的 `must_haves_challenge` 字段）。
 
 #### 阶段 1.5 产物可读性约束
 
@@ -293,7 +282,7 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 
 1. **去 persona 黑话**——席位专业方言（如 Goodhart / Doubt-Avoidance / metric_gaming / premature abstraction / bikeshedding / Lollapalooza / antifragile / fragility / Turkey / skin in the game / good taste）在 v2 对照表**首次出现时必须带 1 句通俗解释**（"指 X"）。席位原文可按需展开；对照表是**决策辅助**不是黑话复读。用户判断"是否同意修订"，不是"是否听懂席位方言"。
 
-2. **尊重席位侧已分层的 `proposed_revision`**——席位 `must_haves_challenge.proposed_revision` 已按 `revised_truth` / `revised_verify_suggestion` / `spawn_sub_topic` 三字段分层（见附录）。orchestrator 合并多席位 v2 时**直接对应字段合并**，不得再次展开或重新混合：
+2. **尊重席位侧已分层的 `proposed_revision`**——席位 `must_haves_challenge.proposed_revision` 已按 `revised_truth` / `revised_verify_suggestion` / `spawn_sub_topic` 三字段分层（见 `verdict-schema-v2.md`）。orchestrator 合并多席位 v2 时**直接对应字段合并**，不得再次展开或重新混合：
    - 多席位对同一 truth 的 `revised_truth` 合并成一条（矛盾时显式标注"A 席位主张 X / B 席位主张 Y"），合并结果仍保持 ≤ 50 字
    - `revised_verify_suggestion` 合并成对应 truth 的 pass_criterion 建议（按阶段 0.5 硬约束第 3 条按 truth 类型分写）
    - `spawn_sub_topic` 收集到"衍生议题"段——**不进 v2 主 truth**，作为阶段 3 `DECISIONS.deferred` 或建议另开 roundtable
@@ -350,7 +339,7 @@ Linus 返回后默认呈现代码席短评：`sane/broken/needs_refactor_first`�
 
 你（orchestrator）做综合，**优先读每个席位原文末尾的 YAML verdict block**（机读），再补文字表达。
 
-**阅读顺序**（所有席位共用 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific` 四层结构，详见文末附录"共同 verdict schema（v2）"）：
+**阅读顺序**（所有席位共用 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific` 四层结构，详见 `verdict-schema-v2.md`）：
 
 1. **先扫 `core.route`**——聚合所有席位的路由（阶段 1.5 已处理过 challenge，这里主要看 `go` / `go_with_conditions` / `kill` / `too_hard` 分布）
 2. **读 `seat_native_verdict`**——角色表达风格（综合表同时列 native 和 route）
@@ -452,6 +441,7 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 |---|---|---|
 | 四个 agent 定义 | `~/.claude/agents/{taleb,munger,lopezdeprado,linus}-*.md` | Claude-style adapter，跨项目可用 |
 | 本 command | `~/.claude/commands/zhuzi/roundtable.md` | 全局 |
+| 共享契约 | `~/.claude/zhuzi/references/{seat-registry,verdict-schema-v2}.md` | 项目级共享资产：席位权威表 + 共同 verdict schema |
 | persona skill 原文 | `~/.claude/skills/{taleb-antifragile,munger-checklist,lopezdeprado-scientist,linus-torvalds-engineer}/SKILL.md` | agent body 引用，skill 更新自动生效 |
 | 项目特定规则 | `<项目根>/AGENTS.md` 或 `<项目根>/CLAUDE.md` | Linus 运行时自动读取 |
 
@@ -459,7 +449,7 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 - skill 正文改了 → **零同步**，agent 下次 spawn 自动拉最新
 - skill 路径/文件名改了 → 改对应 agent md 里的引用路径（1 行）
-- 新增/调整席位 → 新建 agent md + 更新本 command 的席位表和阶段 1 spawn 列表
+- 新增/调整席位 → 新建 agent md + 更新 `seat-registry.md` 和 `verdict-schema-v2.md`
 - skill 方向大改（verdict 档位、核心心智模型换了）→ 跑一次 `/zhuzi:roundtable` 烟雾测试，必要时调 agent md 的硬边界段
 
 ### 项目级覆盖
@@ -475,90 +465,6 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 ---
 
-## 附录 · 共同 verdict schema（v2）
+## 共享 schema
 
-所有席位（Taleb / Munger / López / Linus / 未来扩展）的 verdict block 遵守三层结构 —— `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific`（选填）。设计目的：主持人阶段 3 机读统一（不用翻译三套方言），同时保留各席位人格 DNA。
-
-### core（强制，主持人机读综合用）
-
-| 字段 | 取值 | 作用 |
-|---|---|---|
-| `seat` | taleb / munger / linus / 新席位 | 标识 |
-| `phase` | 1 / 2 / 4 | 阶段 |
-| `route` | `go` / `go_with_conditions` / `revise_must_haves` / `kill` / `too_hard` | **统一路由空间**，阶段 3 机读 |
-| `seat_native_verdict` | Taleb: fragile/robust/antifragile；Munger: keep/kill/too_hard；Linus 阶段 2: sane/broken/needs_refactor_first | 保留人格 DNA |
-| `confidence` | low / medium / high | 信心 |
-| `hard_blockers` | `[]` | 转 go 的必要条件（合并原 blockers / kill reasons / broken evidence） |
-| `peer_disagreements` | `[{peer, point}]` | 跨席位分歧（合并原 push_back_on_X） |
-
-### must_haves_review（强制，点状审视每条 truth）
-
-统一 flag 空间：`none` / `threshold_issue` / `method_issue` / `overfitting_risk` / `metric_gaming` / `coverage_gap` / `lookahead_unchecked` / `multiple_testing` / `incentive_mismatch` / `other`。
-
-席位对 `must_haves.truths` 的每条给出 flag + `proposed_criterion`（非 none 时必填）。主持人阶段 3 合并成 `pass_criterion` 建议 —— 同一 truth 多席位冲突时取最严。
-
-### must_haves_challenge（A1 逃生口）
-
-```yaml
-must_haves_challenge:
-  triggered: yes | no
-  challenged_truths: [1, 3]
-  fundamental_issue: "<为何 must_haves 框架从根本跑偏，不是单条阈值问题>"
-  proposed_revision:                        # list of struct，每 challenged truth 一条；三字段强制分层
-    - truth_id: 1
-      revised_truth: "<修订后的主张本身，≤ 50 字；禁混实施路径 / 验证命令 / 衍生议题>"
-      revised_verify_suggestion: "<如何验证此主张；无则空字符串 '' 让 orchestrator 后定>"
-      spawn_sub_topic: "<建议拆出的新子议题；无则空字符串 ''>"
-```
-
-**`proposed_revision` 三字段分层规则**（席位侧源头保证阶段 1.5 产物可读）：
-
-- `revised_truth`：只放修订后的主张本身——"改为什么"。硬上限 ≤ 50 字、不超过 2 层括号嵌套。禁混：具体文件路径 / grep 命令 / 数值阈值 / 新子议题 / 触发条件。
-- `revised_verify_suggestion`：修订后主张的验证建议——"怎么验证"。具体文件路径 / grep / 阈值放这里。
-- `spawn_sub_topic`：修订触发的新子议题——"需要另开议题的部分"。无则空字符串 `""`。
-
-席位若不分层（把所有内容塞进 `revised_truth`），orchestrator 阶段 1.5 综合时会被迫展开给用户看——这是触发"说的不是人话"事件的源头。从席位侧保证分层，阶段 1.5 才能干净做合并 + 去黑话。**严禁回退为字符串字面量**（旧 schema 的 `proposed_revision: | <多行文本>` 禁用）。
-
-**任一席位 `triggered: yes` → 阶段 1.5 must_haves 修订 gate 强制触发**（见上文阶段 1.5）。orchestrator 不得忽略，也不得自行合并。
-
-`must_haves_review` vs `must_haves_challenge` 区分：前者是点状阈值/方法修订（"改 99%CI"），后者是根本框架推翻（"hit% 做主目标本身就是 Jensen 陷阱 / Goodhart metric"）。两者可并存。
-
-### seat_specific（选填，保留席位 DNA）
-
-各席位自由定义，主持人阶段 3 作为"人读补充"：
-
-- **Taleb**: `tail_events_breaking_must_haves` / `fragility_checklist_failures` / `skin_in_the_game`
-- **Munger**: `anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `reverse_kill_path`
-- **López**: `claim_classification` / `causal_graph_missing` / `trial_count_disclosed` / `integrity_checklist_failures` / `anti_pattern_hits` / `workflow_diagnosis` / `domain_limit_flag`
-- **Linus 阶段 2**: `broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`
-
-### route 映射规则（各席位 native → core.route）
-
-| 席位 | native | → `core.route` |
-|---|---|---|
-| Taleb | fragile | `go_with_conditions` / `revise_must_haves` / `kill` |
-| Taleb | robust / antifragile | `go` |
-| Munger | keep | `go` |
-| Munger | kill | `kill` |
-| Munger | too_hard | `too_hard` |
-| Munger | （对 must_haves 框架本身不满） | `revise_must_haves` |
-| López | scientific | `go` |
-| López | associational | `go_with_conditions`（hard_blockers 列"必须补 causal graph + do-calculus adjustment"） |
-| López | pseudo_scientific | `kill`（命中 AP-1/2/4/7/10/16 等核心 anti-pattern 且不可救）/ `revise_must_haves`（must_haves 本身是 associational 伪装 causal，同时触发 challenge） |
-| López | （domain_limit_flag 非 none） | `too_hard`（议题属 L4 静默清单 / 非方法论 domain） |
-| Linus | sane | `go` |
-| Linus | broken | `kill`（单边否决） |
-| Linus | needs_refactor_first | `revise_must_haves` / `go_with_conditions` |
-
-### 新增席位时的步骤
-
-1. 新建 `~/.claude/agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选——Linus `-engineer`、Munger `-checklist`、Buffett 可能 `-letter`）
-2. verdict block root key 用 `<seat>_verdict`（如 `buffett_verdict`）
-3. `core` 段字段齐全 + `must_haves_review` + `must_haves_challenge` 强制
-4. `seat_specific` 自定义字段
-5. 在本文件"当前席位"表 + 阶段 1 spawn 列表加一行
-6. 在本附录"route 映射规则"表加对应席位的 native → core.route 映射
-
-### 阶段 4 例外
-
-Linus 阶段 4 的 `linus_execution` block **不走**共同 verdict schema —— 它是实施验证状态输出，不是 verdict。保留原 `status` / `decisions_honored` / `verification_attempted` / `self_audit` / `commit_status` / `gaps_to_route_back` 字段结构。
+共同 verdict schema v2、route 映射规则、`seat_specific` 约定和新增席位维护清单，均已抽到 `~/.claude/zhuzi/references/verdict-schema-v2.md`。需要改 schema 时优先改这份 reference，再同步相关 agent 示例段。

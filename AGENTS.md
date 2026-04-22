@@ -78,12 +78,17 @@ chore: 固化圆桌短读输出模板
 3. **强制共同 verdict schema v2**——所有 agent 返回 YAML verdict block，含 `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层。`core` 字段机读统一（`route` / `seat_native_verdict` / `hard_blockers` / `peer_disagreements`），主持人阶段 3 不用翻译席位方言。
 4. **pattern-level 批评纪律**（López 最严）——不点名具体公司 / 基金 / PM / ticker；仅对 pattern 开火。
 5. **角色隔离 via description 路由护栏**——每个 agent 的 `description` 字段显式写 "仅在 /zhuzi:roundtable 内调用……standalone 场景请用 XX skill，不要 spawn 本 agent"。防止与 skill 触发词撞车。
+6. **共享契约单一真相源**——当前席位表在 `zhuzi/references/seat-registry.md`，共同 verdict schema v2 在 `zhuzi/references/verdict-schema-v2.md`。agent、command、README 的摘要性描述若漂移，以这两份 reference 为准。
 
 ---
 
 ## Roundtable Command 架构（`commands/zhuzi/roundtable.md`）
 
 `/zhuzi:roundtable <议题>` 是本仓库的核心协作产物。默认交互是 Quick Roundtable：内部严格按阶段推进，外部只展示议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
+
+共享契约文件：
+- `zhuzi/references/seat-registry.md`——当前席位权威表、默认 `stages` 规则、扩席位维护边界
+- `zhuzi/references/verdict-schema-v2.md`——共同 YAML verdict 契约与 route 映射
 
 | 阶段                                       | 动作                                                         | 产出                       |
 | ------------------------------------------ | ------------------------------------------------------------ | -------------------------- |
@@ -164,7 +169,7 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
    - 禁止把 B 类改写结果当"人物对这件事的真实观点"
    - 两类 anti-pattern 库相互独立，不交叉引用
 9. **Skill 触发词 vs Agent 触发词的路由护栏**——skill 的 `description` 触发词是"用户场景触发"（如 "用 Linus 视角"），agent 的 `description` 显式写 "仅在 /zhuzi:roundtable 内调用……standalone 请用对应 skill"。新增 skill / agent 时必须同时检查两侧触发词不撞车——用户说 "用 López 视角" 应激活 skill，不应 spawn agent。
-10. **Roundtable verdict schema v2 是跨席位契约**——`core` 层字段机读统一；`must_haves_challenge.proposed_revision` 三字段分层（`revised_truth` ≤ 50 字 / `revised_verify_suggestion` / `spawn_sub_topic`），**严禁回退为字符串字面量**。新增席位必须填齐 `core` 四层字段并在 `roundtable.md` 的 "route 映射规则" 表加对应行。
+10. **Roundtable verdict schema v2 是跨席位契约**——`core` 层字段机读统一；`must_haves_challenge.proposed_revision` 三字段分层（`revised_truth` ≤ 50 字 / `revised_verify_suggestion` / `spawn_sub_topic`），**严禁回退为字符串字面量**。新增席位必须填齐 `core` 四层字段并在 `zhuzi/references/verdict-schema-v2.md` 补对应映射。
 
 ---
 
@@ -213,14 +218,15 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 ### Agent 侧
 
-- **新增席位** → 1) 新建 `agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选）；2) `description` 字段加路由护栏（"仅在 /zhuzi:roundtable 内调用……standalone 请用 XX skill"）；3) body 第一步 Read 对应 skill 的 `SKILL.md`（pull 模式，不复制内容）；4) 在 `commands/zhuzi/roundtable.md` 的"当前席位"表加一行（填齐擅长领域关键词）；5) 在 `roundtable.md` 附录"route 映射规则"表加 native → core.route 映射；6) verdict block root key 用 `<seat>_verdict`
+- **新增席位** → 1) 新建 `agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选）；2) `description` 字段加路由护栏（"仅在 /zhuzi:roundtable 内调用……standalone 请用 XX skill"）；3) body 第一步 Read 对应 skill 的 `SKILL.md`（pull 模式，不复制内容）；4) 更新 `zhuzi/references/seat-registry.md` 的当前席位表与默认 `stages` 规则；5) 更新 `zhuzi/references/verdict-schema-v2.md` 的 native → core.route 映射；6) verdict block root key 用 `<seat>_verdict`
 - **调整席位工具权限** → 非代码席（只研究不实施）tools 不含 `Edit` / `Write`；代码席（Linus）才有完整工具
-- **调整擅长领域关键词** → 同步改 agent `description` 段和 `roundtable.md` 的"当前席位"表（阶段 0.5 路由依赖此表）
+- **调整擅长领域关键词** → 同步改 agent `description` 段和 `zhuzi/references/seat-registry.md`（阶段 0.5 路由依赖此表）
 
 ### Command 侧
 
 - **调整阶段流程** → 改 `commands/zhuzi/roundtable.md`。硬约束（不转述 / 不跳阶段 / SendMessage fallback / 项目纪律自发现）任一违反都会破坏协作纪律
-- **调整 verdict schema v2** → 同步：(1) `roundtable.md` 附录；(2) 所有 agent md 的 verdict block 示例段；(3) 各 skill SKILL.md 若内嵌 schema 示例也要同步
+- **调整 verdict schema v2** → 同步：(1) `zhuzi/references/verdict-schema-v2.md`；(2) 所有 agent md 的 verdict block 示例段；(3) 各 skill SKILL.md 若内嵌 schema 示例也要同步
+- **调整席位资格路由** → 优先改 `zhuzi/references/seat-registry.md`；只有阶段流程本身变化时再改 `commands/zhuzi/roundtable.md`
 - **项目级覆盖** → 某项目有专属需求时，在该项目的 `.claude/commands/zhuzi/roundtable.md` 放覆盖版。支持项目级覆盖的 runtime 同名时项目级优先
 
 ### 命名约定的元原则
@@ -236,7 +242,8 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 - `skills/<name>/` → `~/.claude/skills/<name>/`（Claude-style skills）
 - `skills/<name>/` → `$CODEX_HOME/skills/<name>/`，默认 `$HOME/.codex/skills/<name>/`（Codex skills）
 - `agents/*.md` → `~/.claude/agents/<name>.md`（**逐文件拷贝，不整目录同步**——保护旁边的 gsd-* 等其他 agent）
-- `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（整目录同步）
+- `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（命令入口）
+- `zhuzi/` → `~/.claude/zhuzi/` 与 `$CODEX_HOME/zhuzi/`（项目级共享资产；当前包含 `references/`）
 
 环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`（测试用）。
 
@@ -249,8 +256,9 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 没有 linter、没有测试。修改后的验证方式：
 
 - **内部一致性**——SKILL.md / agent md / roundtable.md 引用的 `references/*.md` 路径真实存在
+- **Inventory 一致性**——`docs/INVENTORY.md` 的 shipped count 和实际文件系统一致
 - **证据一致性**——新增观点有对应的 research 文件支撑
 - **触发词不冲突**——skill 之间、skill 与 agent 之间的 `description` 触发词不撞车（用户侧关注，本仓库无法自动检查）
 - **Roundtable 烟雾测试**——skill 方向大改（verdict 档位、核心心智模型换了）或 verdict schema 改动 → 跑一次 `/zhuzi:roundtable` 烟雾测试，必要时调对应 agent md 的硬边界段
 - **路由护栏检查**——新增 agent 后，自测用户说"用 XX 视角"是激活 skill 不是 spawn agent；用户说 `/zhuzi:roundtable` 才 spawn agent
-- **自动一致性检查**——运行 `python3 tools/check_consistency.py`，检查本机绝对路径、旧命令路径、agent/skill 对齐、SKILL.md 引用路径等结构性问题
+- **自动一致性检查**——运行 `python3 tools/check_consistency.py`，检查 inventory count、seat registry 与 agent 文件对齐、schema 引用路径、本机绝对路径和旧命令路径等结构性问题

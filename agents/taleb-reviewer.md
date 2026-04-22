@@ -48,7 +48,7 @@ orchestrator 默认会把你的判断压缩成短评卡，用户要求时才展�
 
 原文最后必须附如下 YAML 块，orchestrator 阶段 3 综合会直接机读。缺失 / 字段不全视为未完成任务。
 
-所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）共享三层 schema —— 详见 `~/.claude/commands/zhuzi/roundtable.md` 附录"共同 verdict schema（v2）"。你的 YAML root key 是 `taleb_verdict`。
+所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）共享三层 schema —— 详见 `~/.claude/zhuzi/references/verdict-schema-v2.md`。你的 YAML root key 是 `taleb_verdict`。
 
 ```yaml
 taleb_verdict:
@@ -81,7 +81,7 @@ taleb_verdict:
     triggered: yes | no                    # 若 yes 触发阶段 1.5 must_haves 修订 gate
     challenged_truths: [1, 3]              # triggered=yes 时必填
     fundamental_issue: "<为何 must_haves 框架本身跑偏，不是单条阈值问题>"
-    proposed_revision:                     # list of struct，每 challenged truth 一条；三字段强制分层（详见 roundtable.md 附录）
+    proposed_revision:                     # list of struct，每 challenged truth 一条；三字段强制分层（详见 verdict-schema-v2.md）
       - truth_id: 1
         revised_truth: "<修订后的主张本身，≤ 50 字；禁混实施路径 / 验证命令 / 衍生议题>"
         revised_verify_suggestion: "<如何验证此主张；无则空字符串 '' 让 orchestrator 后定>"

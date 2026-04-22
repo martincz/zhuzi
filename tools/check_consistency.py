@@ -15,9 +15,11 @@ ACTIVE_TEXT_GLOBS = [
     "AGENTS.md",
     "CLAUDE.md",
     "install.sh",
+    "docs/**/*.md",
     "examples/**/*.md",
     "agents/*.md",
     "commands/**/*.md",
+    "zhuzi/**/*.md",
     "skills/*/SKILL.md",
 ]
 
@@ -34,6 +36,12 @@ AGENT_VERDICT_ROOTS = {
     "taleb-reviewer.md": "taleb_verdict:",
     "lopezdeprado-reviewer.md": "lopezdeprado_verdict:",
 }
+
+AGENT_VERDICT_REFERENCE_PATH = "~/.claude/zhuzi/references/verdict-schema-v2.md"
+ROUNDTABLE_REFERENCE_PATHS = [
+    "~/.claude/zhuzi/references/seat-registry.md",
+    "~/.claude/zhuzi/references/verdict-schema-v2.md",
+]
 
 CODEX_SKILL_DESCRIPTION_BYTES_LIMIT = 1024
 
@@ -64,6 +72,39 @@ BANNED_SNIPPETS = [
     "`.claude/commands/roundtable.md`",
     "commands/roundtable.md",
     "三个 agent",
+]
+
+INVENTORY_FAMILIES = [
+    (
+        "Skills",
+        lambda: sorted((ROOT / "skills").glob("*/SKILL.md")),
+        lambda path: path.parent.name,
+    ),
+    (
+        "Agents",
+        lambda: sorted((ROOT / "agents").glob("*.md")),
+        lambda path: path.stem,
+    ),
+    (
+        "Commands",
+        lambda: sorted((ROOT / "commands" / "zhuzi").glob("*.md")),
+        lambda path: path.stem,
+    ),
+    (
+        "Runtime Assets",
+        lambda: sorted((ROOT / "zhuzi" / "references").glob("*.md")),
+        lambda path: path.stem,
+    ),
+    (
+        "Examples",
+        lambda: sorted((ROOT / "examples").glob("*.md")),
+        lambda path: path.stem,
+    ),
+    (
+        "Tools",
+        lambda: sorted((ROOT / "tools").glob("*.py")),
+        lambda path: path.name,
+    ),
 ]
 
 
@@ -100,25 +141,6 @@ def check_agent_skill_paths(errors: list[str]) -> None:
             add_error(errors, path, 1, f"missing installed skill path {expected}")
 
 
-def check_roundtable_seats(errors: list[str]) -> None:
-    command = ROOT / "commands" / "zhuzi" / "roundtable.md"
-    text = command.read_text(encoding="utf-8")
-    marker = "## 当前席位"
-    if marker not in text:
-        add_error(errors, command, 1, "roundtable missing current seat table")
-        return
-    seat_section = text.split(marker, 1)[1].split("**扩席位**", 1)[0]
-    table_agents = set(re.findall(r"^\|\s*[^|]+\s*\|\s*`([^`]+)`", seat_section, re.MULTILINE))
-    file_agents = {path.stem for path in (ROOT / "agents").glob("*.md")}
-    if table_agents != file_agents:
-        add_error(
-            errors,
-            command,
-            1,
-            f"roundtable seat table mismatch: table={sorted(table_agents)} files={sorted(file_agents)}",
-        )
-
-
 def check_required_order(
     errors: list[str], path: Path, text: str, required: list[str], label: str
 ) -> None:
@@ -131,6 +153,39 @@ def check_required_order(
         if next_position < position:
             add_error(errors, path, 1, f"{label} out of order at {snippet}")
         position = next_position
+
+
+def check_roundtable_shared_references(errors: list[str]) -> None:
+    command = ROOT / "commands" / "zhuzi" / "roundtable.md"
+    text = command.read_text(encoding="utf-8")
+    for required in ["## 共享契约文件", *ROUNDTABLE_REFERENCE_PATHS]:
+        if required not in text:
+            add_error(errors, command, 1, f"roundtable missing shared reference {required}")
+
+
+def check_seat_registry(errors: list[str]) -> None:
+    path = ROOT / "zhuzi" / "references" / "seat-registry.md"
+    if not path.exists():
+        add_error(errors, path, 1, "missing seat registry")
+        return
+
+    text = path.read_text(encoding="utf-8")
+    for required in ["## 当前席位", "## 默认 `stages` 规则", "## 扩席位维护清单"]:
+        if required not in text:
+            add_error(errors, path, 1, f"seat registry missing {required}")
+
+    marker = "## 当前席位"
+    if marker in text and "## 召开纪律" in text:
+        seat_section = text.split(marker, 1)[1].split("## 召开纪律", 1)[0]
+        table_agents = set(re.findall(r"^\|\s*[^|]+\s*\|\s*`([^`]+)`", seat_section, re.MULTILINE))
+        file_agents = {agent.stem for agent in (ROOT / "agents").glob("*.md")}
+        if table_agents != file_agents:
+            add_error(
+                errors,
+                path,
+                1,
+                f"seat registry mismatch: table={sorted(table_agents)} files={sorted(file_agents)}",
+            )
 
 
 def check_quick_roundtable_contract(errors: list[str]) -> None:
@@ -178,11 +233,61 @@ def check_agent_verdict_schema(errors: list[str]) -> None:
     for agent_file, root_key in AGENT_VERDICT_ROOTS.items():
         path = ROOT / "agents" / agent_file
         text = path.read_text(encoding="utf-8")
+        if AGENT_VERDICT_REFERENCE_PATH not in text:
+            add_error(errors, path, 1, f"missing schema reference {AGENT_VERDICT_REFERENCE_PATH}")
         if root_key not in text:
             add_error(errors, path, 1, f"missing verdict root {root_key}")
         for section in required_sections:
             if section not in text:
                 add_error(errors, path, 1, f"missing verdict schema section {section}")
+
+
+def check_schema_reference(errors: list[str]) -> None:
+    path = ROOT / "zhuzi" / "references" / "verdict-schema-v2.md"
+    if not path.exists():
+        add_error(errors, path, 1, "missing verdict schema reference")
+        return
+
+    text = path.read_text(encoding="utf-8")
+    for required in [
+        "## 层级结构",
+        "## `core`",
+        "## `must_haves_review`",
+        "## `must_haves_challenge`",
+        "## route 映射规则",
+        "## 阶段 4 例外",
+    ]:
+        if required not in text:
+            add_error(errors, path, 1, f"schema reference missing {required}")
+
+
+def check_inventory(errors: list[str]) -> None:
+    path = ROOT / "docs" / "INVENTORY.md"
+    if not path.exists():
+        add_error(errors, path, 1, "missing docs/INVENTORY.md")
+        return
+
+    text = path.read_text(encoding="utf-8")
+    for label, finder, namer in INVENTORY_FAMILIES:
+        match = re.search(rf"^## {re.escape(label)} \((\d+) shipped\)", text, re.MULTILINE)
+        if not match:
+            add_error(errors, path, 1, f"inventory missing section header for {label}")
+            continue
+
+        items = finder()
+        documented = int(match.group(1))
+        if documented != len(items):
+            add_error(
+                errors,
+                path,
+                1,
+                f"inventory count mismatch for {label}: documented={documented} actual={len(items)}",
+            )
+
+        for item in items:
+            name = namer(item)
+            if f"`{name}`" not in text:
+                add_error(errors, path, 1, f"inventory missing entry `{name}`")
 
 
 def check_skill_reference_links(errors: list[str]) -> None:
@@ -238,7 +343,7 @@ def check_skill_description_lengths(errors: list[str]) -> None:
 def check_codex_install(errors: list[str]) -> None:
     path = ROOT / "install.sh"
     text = path.read_text(encoding="utf-8")
-    for required in ["CODEX_HOME", "$CODEX/skills", "$CLAUDE/skills"]:
+    for required in ["CODEX_HOME", "$CODEX/skills", "$CLAUDE/skills", "$CLAUDE/zhuzi", "$CODEX/zhuzi"]:
         if required not in text:
             add_error(errors, path, 1, f"install.sh missing {required}")
 
@@ -247,10 +352,13 @@ def main() -> int:
     errors: list[str] = []
     check_banned_snippets(errors)
     check_agent_skill_paths(errors)
-    check_roundtable_seats(errors)
+    check_roundtable_shared_references(errors)
+    check_seat_registry(errors)
     check_quick_roundtable_contract(errors)
     check_commit_guidelines(errors)
     check_agent_verdict_schema(errors)
+    check_schema_reference(errors)
+    check_inventory(errors)
     check_skill_reference_links(errors)
     check_skill_description_lengths(errors)
     check_codex_install(errors)

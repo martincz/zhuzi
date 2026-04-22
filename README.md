@@ -28,6 +28,7 @@ zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位�
 | `/zhuzi:roundtable <议题>` | 议题需要多视角审议、存在策略/工程/方法论冲突 | 默认输出议题卡、席位短评和决策表；完整 YAML 可展开 |
 
 快速了解圆桌输出长相：看 [Quick Roundtable 示例](./examples/roundtable-quick.md)。
+当前 shipped surface 的权威清单：看 [docs/INVENTORY.md](./docs/INVENTORY.md)。
 
 ## 核心组成
 
@@ -125,6 +126,11 @@ Skill 按用途分两类：
   1. 绝不篡改 agent 判断——默认短评卡，用户要求时展开完整原文和 YAML
   2. 绝不跳阶段——阶段 3 用户未确认前禁进阶段 4
   3. 实施阶段优先 SendMessage 续跑，不可用则新 spawn + 阶段 2 原文**完整注入**，不得摘要
+
+`/zhuzi:roundtable` 的共享契约已抽到项目级目录 `zhuzi/references/`，安装后位于 `~/.claude/zhuzi/` 与 `~/.codex/zhuzi/`：
+
+- `seat-registry.md`：当前席位权威表、默认 `stages` 路由规则
+- `verdict-schema-v2.md`：共同 YAML verdict 契约、route 映射和新增席位维护边界
 
 ---
 
@@ -236,6 +242,10 @@ zhuzi/
 │   └── lopezdeprado-reviewer.md      # 证据质量席
 ├── commands/zhuzi/
 │   └── roundtable.md                 # /zhuzi:roundtable
+├── zhuzi/
+│   └── references/                   # 安装到 ~/.claude/zhuzi/ 与 ~/.codex/zhuzi/ 的项目级共享资产
+├── docs/
+│   └── INVENTORY.md                  # 权威 shipped surface 清单
 ├── examples/
 │   └── roundtable-quick.md            # 默认短读圆桌示例
 ├── archive/
@@ -286,7 +296,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 3. **跨类隔离**——A 类（思维顾问）与 B 类（聊天娱乐）不混用；B 类（鲁迅）不进 Roundtable 席位。
 4. **命名约定**——新增 skill 后缀取自人物自己的身份 / 方法论，不照搬 `-engineer`：Linus 用 `-engineer`（自我认同）、Munger 用 `-checklist`（招牌方法）、Taleb 用 `-antifragile`（自造词 + magnum opus）、López 用 `-scientist`（scientist vs charlatan 二元轴）、鲁迅用 `-zawen`（一辈子的招牌文体）。
 5. **通用性约束**——skill / agent / command 对任意项目类型通用。禁止硬编码特定项目（某量化策略 / 某 web app）的场景、truth 形式、verdict 用词；硬约束层必须领域无关，示例层至少一组异领域对照。
-6. **Roundtable verdict schema v2 是契约**——新增席位必须填齐 `core` 四层字段并在 `roundtable.md` 的 "route 映射规则" 表加对应映射。
+6. **Roundtable verdict schema v2 是契约**——新增席位必须填齐 `core` 四层字段，并在 `zhuzi/references/verdict-schema-v2.md` 补 route 映射。
 
 ---
 
@@ -320,7 +330,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 1. 遵循[命名约定](#设计原则)——后缀贴合人物自我身份 / 方法论
 2. 遵循 skill 架构约定（SKILL.md 紧凑 + references 下沉）
 3. 证据链完整（每个观点可追溯到一手 / 二手来源）
-4. 若拟进入 Roundtable 席位：同步新建 `agents/<name>-reviewer.md`（或 `-engineer.md`），在 `commands/zhuzi/roundtable.md` 的 "当前席位" 表和 "route 映射规则" 表加对应行
+4. 若拟进入 Roundtable 席位：同步新建 `agents/<name>-reviewer.md`（或 `-engineer.md`），并更新 `zhuzi/references/seat-registry.md` 与 `zhuzi/references/verdict-schema-v2.md`
 5. 诚实边界写明"做不到什么"
 
 ---
