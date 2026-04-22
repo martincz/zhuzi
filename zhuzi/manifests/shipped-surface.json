@@ -156,12 +156,17 @@
       {
         "entry": "check_consistency.py",
         "path": "tools/check_consistency.py",
-        "role": "结构一致性检查，覆盖 inventory、manifest、shared seats、schema 引用和安装路径"
+        "role": "结构一致性检查，覆盖 manifest、inventory、生成段、shared seats、runtime adapter 路径与安装面"
       },
       {
         "entry": "install_codex_source_adapters.py",
         "path": "tools/install_codex_source_adapters.py",
         "role": "渲染并安装 Codex roundtable adapters 到 Codex 安装根，由 install.sh [5/5] 调用"
+      },
+      {
+        "entry": "render_roundtable_contract_docs.py",
+        "path": "tools/render_roundtable_contract_docs.py",
+        "role": "从 roundtable-contract manifest 生成 seat-registry 与 verdict-schema 的 reference 投影段"
       },
       {
         "entry": "smoke_test_codex_roundtable.py",

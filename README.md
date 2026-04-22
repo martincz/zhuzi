@@ -140,6 +140,7 @@ zhuzi/
 最小验证流程：
 
 ```bash
+python3 tools/render_roundtable_contract_docs.py
 python3 tools/check_consistency.py
 ```
 
@@ -167,6 +168,7 @@ python3 tools/smoke_test_codex_roundtable.py
 - 人物正文、触发词、anti-pattern、研究支撑：改 `skills/<name>/`
 - 席位职责、越权边界、输出 root、seat-specific 字段：改 `zhuzi/seats/*.md`
 - Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册）：改 `zhuzi/manifests/roundtable-contract.json`
+- Roundtable reference 投影段：改 manifest 后跑 `python3 tools/render_roundtable_contract_docs.py`
 - 席位表、默认 `stages`、召开纪律：改 `zhuzi/references/seat-registry.md`
 - 共同 verdict schema：改 `zhuzi/references/verdict-schema.md`
 - Roundtable 流程：先改 `zhuzi/workflows/roundtable.md`

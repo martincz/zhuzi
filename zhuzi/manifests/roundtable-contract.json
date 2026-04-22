@@ -169,8 +169,10 @@
     "phase_4_exception": {
       "root_key": "linus_execution",
       "fields": [
+        "phase",
         "status",
         "decisions_honored",
+        "out_of_scope_touched",
         "verification_attempted",
         "self_audit",
         "commit_status",
@@ -424,7 +426,7 @@
       "registry_summary": {
         "seat": "代码",
         "role": "架构、可行性、review、重构、实施、good taste",
-        "default_stages": "[2]` 或 `[1,2]`",
+        "default_stages": "`[2]` 或 `[1,2]`",
         "domains": "软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视"
       },
       "stage_policy": {

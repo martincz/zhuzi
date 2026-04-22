@@ -4,12 +4,14 @@
 
 ## 当前席位
 
+<!-- GENERATED:seat_registry_current_seats:start -->
 | 席位 | agent | 职责 | 默认 `stages` | 擅长领域（议题匹配关键词） |
 |---|---|---|---|---|
 | 风险结构 | `taleb-reviewer` | 尾部风险、fragility、凸性、barbell、skin in the game | `[1]` | 不确定性 / 尾部风险 / 脆弱性 / 凸性 / ruin risk / barbell / 冗余 / 选择权 / 依赖链风险 / skin-in-the-game / 厚尾分布 |
 | 决策质量 | `munger-reviewer` | 愚蠢清单、认知偏误、激励结构、能力圈、机会成本 | `[1]` | 投资决策 / 商业判断 / 产品策略 / 组织决策 / 认知偏误审视 / 能力圈边界 / 机会成本 / 安全边际 / 激励结构 / 护城河 / Lollapalooza |
 | 证据质量 | `lopezdeprado-reviewer` | 研究诚信、associational vs causal、实验/评估设计、backtest overfitting、DSR/PBO/CPCV | `[1]` | 研究方法论 / 实验设计 / 因果声明 / benchmark / A-B test / eval / data leakage / backtest overfitting / p-hacking / multiple testing / specification error / Deflated Sharpe / Purged K-Fold / CPCV / 研究流程诊断 |
 | 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | `[2]` 或 `[1,2]` | 软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
+<!-- GENERATED:seat_registry_current_seats:end -->
 
 ## 召开纪律
 
@@ -19,23 +21,29 @@
 
 ## 默认 `stages` 规则
 
+<!-- GENERATED:seat_registry_stage_rules:start -->
 | 席位 | 策略/投资/商业/组织决策 | 研究/实验/因果评估 | 纯代码实施议题 | 工程决策议题 | 混合议题 |
 |---|---|---|---|---|---|
 | Taleb | 含不确定性 / 尾部 / 脆弱性 → `[1]` | 仅在评估暴露尾部风险时 `[1]` | 弃权 | 仅在工程方案有系统性脆弱性时 `[1]` | `[1]` |
 | Munger | 含判断质量 / 激励 / 能力圈 / 机会成本 → `[1]` | 仅在指标激励或研究者偏误关键时 `[1]` | 弃权 | 弃权 | `[1]` |
 | López | evidence claim 关键时 `[1]` | 含实验 / 因果 / benchmark / eval / 回测 → `[1]` | 弃权 | 弃权 | `[1]` |
 | Linus | 弃权 | 弃权 | `[2]` | `[1,2]` | `[1,2]` |
+<!-- GENERATED:seat_registry_stage_rules:end -->
 
 ## 补充规则
 
 ### López 必召开触发词
 
+<!-- GENERATED:seat_registry_lopez_must_call:start -->
 议题含 `研究方法论 / 实验设计 / benchmark / eval / A-B test / 因果声明 / causal claim / data leakage / selection bias / backtest 审视 / 因子诚信 / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow` 任一关键词时，López 必召开，即使议题不是量化金融。
+<!-- GENERATED:seat_registry_lopez_must_call:end -->
 
 ### Linus `stages=[1,2]`
 
+<!-- GENERATED:seat_registry_linus_dual_stage:start -->
 - 阶段 1：工程视角评议题，关注 good taste、数据结构、anti-pattern，不评判当前 codebase 是否承载得住。
 - 阶段 2：可行性 gate，吸收阶段 1 和其他席位结论，评估能否干净落地。
+<!-- GENERATED:seat_registry_linus_dual_stage:end -->
 
 ## 扩席位维护清单
 
@@ -75,12 +83,11 @@
 ### Step 4（机械）— 更新注册表
 
 - [ ] `zhuzi/manifests/roundtable-contract.json` 的 `seats`、stage policy、route、Quick 相关字段补齐
-- [ ] 本文件「## 当前席位」表格加一行
-- [ ] 本文件「## 默认 `stages` 规则」表格加一行
-- [ ] 本文件「## 补充规则」如有必召开触发词，加一节
+- [ ] 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件与 `verdict-schema.md` 的生成段
+- [ ] 检查本文件的非生成说明段是否仍成立（例如召开纪律、维护流程、判断/机械边界）
 - [ ] `docs/INVENTORY.md` 的 Skills / Agents / Seats 三节加条目，更新每节顶部计数
 - [ ] `zhuzi/manifests/shipped-surface.json` 的 `skills` / `agents` / `seats` 三个 family 加条目
-- [ ] `tools/check_consistency.py` 的 `SEAT_REGISTRY` 加一项：填 Step 2 决定的 `skill` 和 `required_snippets`（后者至少包含 verdict root key 和全部 seat_specific 字段名）
+- [ ] `tools/check_consistency.py` 会直接读取 manifest 校验 shared seats / adapters / references；确认新字段已被守门覆盖
 - [ ] 若引入新 native verdict 或 route 语义，更新 `zhuzi/references/verdict-schema.md`
 
 ### Step 5（机械）— 跑守门

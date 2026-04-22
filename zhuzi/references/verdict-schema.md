@@ -6,13 +6,16 @@
 
 所有席位（Taleb / Munger / López / Linus / 未来扩展）在 verdict 阶段统一输出四层：
 
+<!-- GENERATED:verdict_schema_layers:start -->
 - `core`
 - `must_haves_review`
 - `must_haves_challenge`
 - `seat_specific`
+<!-- GENERATED:verdict_schema_layers:end -->
 
 ## `core`
 
+<!-- GENERATED:verdict_schema_core_table:start -->
 | 字段 | 取值 | 作用 |
 |---|---|---|
 | `seat` | `taleb` / `munger` / `lopezdeprado` / `linus` / 新席位 | 席位标识 |
@@ -22,11 +25,13 @@
 | `confidence` | `low` / `medium` / `high` | 信心 |
 | `hard_blockers` | `[]` | 转 `go` 的必要条件 |
 | `peer_disagreements` | `[{peer, point}]` | 跨席位分歧，主持人阶段 3 直接呈现 |
+<!-- GENERATED:verdict_schema_core_table:end -->
 
 ## `must_haves_review`
 
 统一 flag 空间：
 
+<!-- GENERATED:verdict_schema_review_flags:start -->
 - `none`
 - `threshold_issue`
 - `method_issue`
@@ -37,6 +42,7 @@
 - `multiple_testing`
 - `incentive_mismatch`
 - `other`
+<!-- GENERATED:verdict_schema_review_flags:end -->
 
 每条 `must_haves.truth` 都必须单独给一条 review 记录。即使 `flag: none` 也不得省略该 truth。
 
@@ -67,13 +73,16 @@ must_haves_challenge:
 
 各席位保留自己的附加字段：
 
+<!-- GENERATED:verdict_schema_seat_specific:start -->
 - Taleb: `tail_events_breaking_must_haves` / `fragility_checklist_failures` / `skin_in_the_game`
 - Munger: `anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `reverse_kill_path`
 - López: `claim_classification` / `causal_graph_missing` / `trial_count_disclosed` / `integrity_checklist_failures` / `anti_pattern_hits` / `workflow_diagnosis` / `domain_limit_flag`
 - Linus 阶段 2: `broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`
+<!-- GENERATED:verdict_schema_seat_specific:end -->
 
 ## route 映射规则
 
+<!-- GENERATED:verdict_schema_route_rules:start -->
 | 席位 | native | → `core.route` |
 |---|---|---|
 | Taleb | `fragile` | `go_with_conditions` / `revise_must_haves` / `kill` |
@@ -88,16 +97,18 @@ must_haves_challenge:
 | Linus | `sane` | `go` |
 | Linus | `broken` | `kill` |
 | Linus | `needs_refactor_first` | `revise_must_haves` / `go_with_conditions` |
+<!-- GENERATED:verdict_schema_route_rules:end -->
 
 ## 阶段 4 例外
 
-`linus_execution` 是实施验证状态输出，不走共同 verdict schema。它保留自己的字段结构：`status` / `decisions_honored` / `verification_attempted` / `self_audit` / `commit_status` / `gaps_to_route_back`。
+<!-- GENERATED:verdict_schema_phase_4_exception:start -->
+`linus_execution` 是实施验证状态输出，不走共同 verdict schema。它保留自己的字段结构：`phase` / `status` / `decisions_honored` / `out_of_scope_touched` / `verification_attempted` / `self_audit` / `commit_status` / `gaps_to_route_back`。
+<!-- GENERATED:verdict_schema_phase_4_exception:end -->
 
 ## 新增席位维护清单
 
 1. 先新建共享 seat contract：`zhuzi/seats/<name>-reviewer.md`（或 `-engineer.md`），定义 `<seat>_verdict` root key、native verdict 和 seat-specific 字段要求。
 2. 更新 `zhuzi/manifests/roundtable-contract.json`，把 route 映射、seat-specific 注册、Quick/stages 机器合同补齐。
-3. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
-4. 更新 `zhuzi/references/seat-registry.md`。
-5. 更新本文件的 route 映射规则和 seat-specific 字段说明。
-6. 更新 `docs/INVENTORY.md`、`zhuzi/manifests/shipped-surface.json` 与 `tools/check_consistency.py` 的覆盖面。
+3. 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件与 `seat-registry.md` 的生成段。
+4. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
+5. 更新 `docs/INVENTORY.md`、`zhuzi/manifests/shipped-surface.json` 与 `tools/check_consistency.py` 的覆盖面。
