@@ -1,2 +1,13 @@
 __pycache__/
 *.py[cod]
+
+# Serena: keep shared project config, ignore local cache/state
+.serena/*
+!.serena/.gitignore
+!.serena/project.yml
+
+# Claude: keep shared config entry points, ignore local-only state
+.claude/*
+!.claude/settings.json
+!.claude/commands/
+!.claude/commands/**
