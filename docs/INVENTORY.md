@@ -60,8 +60,9 @@
 |---|---|---|
 | `roundtable-quick` | `examples/roundtable-quick.md` | 默认短读圆桌输出示例 |
 
-## Tools (1 shipped)
+## Tools (2 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
 | `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 manifest、inventory、runtime adapter 路径与 schema 引用 |
+| `smoke_test_codex_roundtable.py` | `tools/smoke_test_codex_roundtable.py` | 手动 Codex roundtable 烟雾测试：刷新安装、注入 source-only adapter、验证 skill 激活 |

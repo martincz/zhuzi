@@ -307,6 +307,7 @@ zhuzi/
 ├── AGENTS.md                         # 仓库内部协作纪律（Codex / Claude 共用）
 ├── CLAUDE.md                         # Claude Code 兼容 shim，指向 AGENTS.md
 ├── tools/check_consistency.py         # 本仓库 Markdown 运行时一致性检查
+├── tools/smoke_test_codex_roundtable.py # 手动 Codex roundtable 烟雾测试
 ├── install.sh
 └── README.md
 ```
@@ -364,6 +365,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 - **触发词不与其他已安装 skill 冲突**（用户侧关注，本仓库无法自动检查）
 - **Roundtable 烟雾测试**：skill 方向大改（verdict 档位、核心心智模型换了）后跑一次 `/zhuzi:roundtable`，必要时调对应 agent md 的硬边界段
 - **自动一致性检查**：运行 `python3 tools/check_consistency.py`
+- **Codex roundtable 烟雾测试**：运行 `python3 tools/smoke_test_codex_roundtable.py`
 
 ---
 

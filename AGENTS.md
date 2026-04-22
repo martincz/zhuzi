@@ -285,3 +285,4 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 - **Roundtable 烟雾测试**——skill 方向大改（verdict 档位、核心心智模型换了）或 verdict schema 改动 → 跑一次 `/zhuzi:roundtable` 烟雾测试，必要时调对应 agent md 的硬边界段
 - **路由护栏检查**——新增 agent 后，自测用户说"用 XX 视角"是激活 skill 不是 spawn agent；用户说 `/zhuzi:roundtable` 才 spawn agent
 - **自动一致性检查**——运行 `python3 tools/check_consistency.py`，检查 inventory count、seat registry 与 agent 文件对齐、schema 引用路径、本机绝对路径和旧命令路径等结构性问题
+- **Codex roundtable 烟雾测试**——运行 `python3 tools/smoke_test_codex_roundtable.py`，刷新 shipped 安装、注入 `runtimes/codex/` source-only adapter，并验证 `codex exec` 真能读到 roundtable skill 与共享资产

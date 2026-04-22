@@ -101,6 +101,11 @@
         "entry": "check_consistency.py",
         "path": "tools/check_consistency.py",
         "role": "结构一致性检查，覆盖 inventory、manifest、schema 引用和安装路径"
+      },
+      {
+        "entry": "smoke_test_codex_roundtable.py",
+        "path": "tools/smoke_test_codex_roundtable.py",
+        "role": "手动 Codex roundtable 烟雾测试：刷新安装、注入 source-only adapter、验证 skill 激活"
       }
     ]
   }
