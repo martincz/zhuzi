@@ -94,7 +94,7 @@ Skill 按用途分两类：
 
 - `zhuzi/seats/<name>.md`——**共享 seat contract**。席位职责、越权边界、root key、route 语义、`seat_specific` 字段要求都放这里。
 - `runtimes/claude/agents/<name>.md`——**Claude runtime adapter 模板**。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；默认安装渲染为 `$HOME/.claude/...` 风格路径，显式设置 `CLAUDE_DIR` 时改渲染为对应 concrete override path。
-- `runtimes/codex/agents/<name>.md`——**Codex agent 定义**。和 Claude 一样保留 repo-level placeholder；side-load 时默认渲染为 `$HOME/.codex/...` 风格路径，并保留 repo 相对路径 fallback；显式设置 `CODEX_HOME` 时改渲染为对应 concrete override path。
+- `runtimes/codex/agents/<name>.md`——**Codex agent 定义**。源码模板保留 repo-level placeholder + repo 相对路径 fallback，方便在仓库里直接调试；side-load 后的已安装产物会收敛成单一 installed root：默认 `$HOME/.codex/...`，显式设置 `CODEX_HOME` 时改渲染为对应 concrete override path。
 
 两边都不复制人物方法论正文，也不再各自维护一份 seat 语义；adapter 只 pull 对应 skill、shared seat contract 与 shared schema。
 
@@ -243,7 +243,7 @@ cd zhuzi
 
 注意：仓库里的 `runtimes/claude/agents/*.md` 与 `runtimes/claude/commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...`、`~/.codex/...` 或机器专属绝对路径。真正的路径策略只在安装阶段决定。
 
-补充说明：默认安装产物优先写成 `$HOME/.claude/...` / `$HOME/.codex/...` 这种 **symbolic installed path**，目的是保留复制粘贴迁移能力，不把 `/home/<user>/...` 烙进文件里。只有你显式设置 `CLAUDE_DIR` / `CODEX_HOME` 装到非默认根目录时，安装器才渲染 concrete override path；否则 `$HOME/.codex/...` 会指错地方。`./zhuzi/...` 这类 repo 相对路径只能当**开发态 fallback**，不能单独替代 installed root，因为 runtime 的工作目录未必就是仓库根。
+补充说明：默认安装产物优先写成 `$HOME/.claude/...` / `$HOME/.codex/...` 这种 **symbolic installed path**，目的是保留复制粘贴迁移能力，不把 `/home/<user>/...` 烙进文件里。只有你显式设置 `CLAUDE_DIR` / `CODEX_HOME` 装到非默认根目录时，安装器才渲染 concrete override path；否则 `$HOME/.codex/...` 会指错地方。`./zhuzi/...` 这类 repo 相对路径只留在**源码模板**里做仓库直跑 fallback；进入 `.codex/` 的已安装文件后会被折叠掉，不再和 installed root 并存。
 
 ### 方式 B：手动试用 Codex roundtable adapter（当前 source-only）
 

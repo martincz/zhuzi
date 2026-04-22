@@ -31,11 +31,40 @@ def render_root_literal(concrete_root: Path, *, symbolic_root: str, render_concr
     return str(concrete_root) if render_concrete else symbolic_root
 
 
+def collapse_repo_fallbacks(text: str) -> str:
+    lines = text.splitlines()
+    collapsed: list[str] = []
+    skip_prefixes = (
+        "- `./skills/",
+        "- `./zhuzi/",
+    )
+
+    for line in lines:
+        if line.startswith(skip_prefixes):
+            continue
+        collapsed.append(line)
+
+    return (
+        "\n".join(collapsed)
+        .replace(
+            "Read the first existing path in each group before doing anything else:",
+            "Read these installed paths before doing anything else:",
+        )
+        .replace(
+            "Read the first existing path in each group before proceeding:",
+            "Read these installed paths before proceeding:",
+        )
+        + "\n"
+    )
+
+
 def render_file(src: Path, dst: Path, *, skill_root: Path, shared_root: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     text = src.read_text(encoding="utf-8")
     dst.write_text(
-        render_text(text, skill_root=skill_root, shared_root=shared_root),
+        collapse_repo_fallbacks(
+            render_text(text, skill_root=skill_root, shared_root=shared_root)
+        ),
         encoding="utf-8",
     )
 

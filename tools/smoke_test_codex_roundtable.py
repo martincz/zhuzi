@@ -83,19 +83,20 @@ def collect_installed_files(*, codex_home: Path) -> list[Path]:
 def validate_path_references(*, codex_home: Path) -> None:
     patterns = [
         re.compile(r"`(/[^`\n]+\.md)`"),
-        re.compile(r"`\./([^`]+)`"),
     ]
 
     missing: list[tuple[Path, str, Path]] = []
     for file_path in collect_installed_files(codex_home=codex_home):
         text = file_path.read_text(encoding="utf-8")
+        if "./skills/" in text or "./zhuzi/" in text:
+            raise SmokeFailure(
+                f"installed Codex adapter still contains repo fallback path: {file_path}"
+            )
         for pattern in patterns:
             for match in pattern.finditer(text):
                 raw = match.group(0).strip("`")
                 if raw.startswith("/"):
                     resolved = Path(raw)
-                elif raw.startswith("./"):
-                    resolved = ROOT / raw[2:]
                 else:
                     continue
 

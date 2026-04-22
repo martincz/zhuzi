@@ -667,6 +667,7 @@ def check_codex_source_installer(errors: list[str]) -> None:
 
     text = path.read_text(encoding="utf-8")
     for required in [
+        "collapse_repo_fallbacks",
         "render_text",
         "render_root_literal",
         "install_source_only_adapters",

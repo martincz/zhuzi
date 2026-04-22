@@ -102,7 +102,7 @@ runtime 结构拆成五层：
 **路径纪律**：
 
 - Claude adapter 模板只允许出现 `{{ZHUZI_SKILL_ROOT}}`、`{{ZHUZI_SHARED_ROOT}}` 这类占位符，不允许写死 runtime 根目录
-- Codex source-only adapter 在源码层也使用和 Claude 一样的 repo-level placeholder；通过 `tools/install_codex_source_adapters.py` side-load 时默认渲染成 `$HOME/.codex/...` symbolic path，并保留 repo 相对路径 fallback；显式设置 `CODEX_HOME` 时改渲染为对应 concrete override path
+- Codex source-only adapter 在源码层也使用和 Claude 一样的 repo-level placeholder，并保留 repo 相对路径 fallback 供仓库直跑；通过 `tools/install_codex_source_adapters.py` side-load 后，已安装产物会折叠成单一 installed root：默认 `$HOME/.codex/...` symbolic path，显式设置 `CODEX_HOME` 时改渲染为对应 concrete override path
 - 安装脚本只负责 shipped surface 的渲染与拷贝；当前**不处理** `runtimes/codex/` source-only adapter，本地试用走 `tools/install_codex_source_adapters.py`
 - 默认安装产物优先写成 `$HOME/.claude/...` / `$HOME/.codex/...` 这种 symbolic installed path，避免把 `/home/<user>/...` 烙进文件；只有显式设置 `CLAUDE_DIR` / `CODEX_HOME` 装到非默认根目录时，才渲染 concrete override path
 - 共享资产（`zhuzi/`）必须保持 runtime-agnostic，不知道自己最终装在哪个 runtime 根目录
@@ -274,7 +274,7 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 安装源面默认读取 `zhuzi/manifests/shipped-surface.json`。因此新增 / 迁移 **shipped surface** 的 Claude adapter 或 skill 时，除了改文件树，也要同步更新 manifest。`runtimes/codex/` 当前是 source-only adapter，**故意不进**主 `install.sh`；本地 side-load 用 `python3 tools/install_codex_source_adapters.py`。
 
-默认安装时，渲染产物优先使用 `$HOME/.claude/...` / `$HOME/.codex/...` 这种 symbolic installed path，避免把当前机器用户名写死进 markdown。若显式传入 `CLAUDE_DIR` / `CODEX_HOME`，安装器改渲染 concrete override path，因为此时 `$HOME/.codex/...` 不再等于真实安装根。`./zhuzi/...` 这类 repo 相对路径只用于开发态 fallback，不是 installed root 的替代物。
+默认安装时，渲染产物优先使用 `$HOME/.claude/...` / `$HOME/.codex/...` 这种 symbolic installed path，避免把当前机器用户名写死进 markdown。若显式传入 `CLAUDE_DIR` / `CODEX_HOME`，安装器改渲染 concrete override path，因为此时 `$HOME/.codex/...` 不再等于真实安装根。`./zhuzi/...` 这类 repo 相对路径只用于源码模板里的开发态 fallback；进入 `.codex/` 的已安装文件后应被折叠掉，不再和 installed root 并存。
 
 **Self-contained 分发约束**——每个 skill 的所有调研文件必须在 skill 目录内（`references/research/`），不依赖外部路径。复制整个 skill 目录就能独立使用。
 
@@ -286,7 +286,7 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 - **内部一致性**——SKILL.md / agent md / workflow / command 引用的路径真实存在
 - **Manifest / Inventory 一致性**——`zhuzi/manifests/shipped-surface.json`、`docs/INVENTORY.md` 与实际文件系统一致
-- **Codex source-only adapter 一致性**——`runtimes/codex/` 的 skill / agent 入口能回指共享 workflow、schema 与对应 skill；默认安装产物优先用 `$HOME/.codex/...` symbolic path，repo 相对路径只做 fallback，不承担 installed root
+- **Codex source-only adapter 一致性**——`runtimes/codex/` 的 skill / agent 入口能回指共享 workflow、schema 与对应 skill；源码模板允许 repo fallback，但 `.codex/` 下的已安装产物必须折叠为单一路径，不再保留 `./skills/...` / `./zhuzi/...`
 - **证据一致性**——新增观点有对应的 research 文件支撑
 - **触发词不冲突**——skill 之间、skill 与 agent 之间的 `description` 触发词不撞车（用户侧关注，本仓库无法自动检查）
 - **Roundtable 烟雾测试**——skill 方向大改（verdict 档位、核心心智模型换了）或 verdict schema 改动 → 跑一次 `/zhuzi:roundtable` 烟雾测试，必要时调对应 agent md 的硬边界段
