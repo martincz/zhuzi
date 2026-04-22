@@ -28,25 +28,50 @@ CLAUDE_RUNTIME_ROOT = ROOT / "runtimes" / "claude"
 CODEX_RUNTIME_ROOT = ROOT / "runtimes" / "codex"
 CODEX_ROUNDTABLE_SKILL = CODEX_RUNTIME_ROOT / "skills" / "zhuzi-roundtable" / "SKILL.md"
 
-AGENT_SKILLS = {
-    "linus-engineer.md": "linus-torvalds-engineer",
-    "munger-reviewer.md": "munger-checklist",
-    "taleb-reviewer.md": "taleb-antifragile",
-    "lopezdeprado-reviewer.md": "lopezdeprado-scientist",
-}
-
-AGENT_SEAT_FILES = {
-    "linus-engineer.md": "linus-engineer.md",
-    "munger-reviewer.md": "munger-reviewer.md",
-    "taleb-reviewer.md": "taleb-reviewer.md",
-    "lopezdeprado-reviewer.md": "lopezdeprado-reviewer.md",
-}
-
-AGENT_VERDICT_ROOTS = {
-    "linus-engineer.md": "linus_feasibility:",
-    "munger-reviewer.md": "munger_verdict:",
-    "taleb-reviewer.md": "taleb_verdict:",
-    "lopezdeprado-reviewer.md": "lopezdeprado_verdict:",
+# 扩席位入口：加一席只改这一个表。key 是席位名（不含 .md 扩展名）。
+# required_snippets 必须包含该席位的 verdict root key 和全部 seat_specific 字段名。
+SEAT_REGISTRY = {
+    "linus-engineer": {
+        "skill": "linus-torvalds-engineer",
+        "required_snippets": [
+            "## 启动纪律",
+            "## 阶段纪律",
+            "linus_feasibility",
+            "linus_execution",
+            "broken_evidence",
+            "must_haves_coverage_detail",
+        ],
+    },
+    "munger-reviewer": {
+        "skill": "munger-checklist",
+        "required_snippets": [
+            "munger_verdict",
+            "anti_patterns_hit",
+            "lollapalooza_stack",
+            "circle_of_competence",
+            "reverse_kill_path",
+        ],
+    },
+    "taleb-reviewer": {
+        "skill": "taleb-antifragile",
+        "required_snippets": [
+            "taleb_verdict",
+            "tail_events_breaking_must_haves",
+            "fragility_checklist_failures",
+            "skin_in_the_game",
+        ],
+    },
+    "lopezdeprado-reviewer": {
+        "skill": "lopezdeprado-scientist",
+        "required_snippets": [
+            "lopezdeprado_verdict",
+            "claim_classification",
+            "causal_graph_missing",
+            "trial_count_disclosed",
+            "workflow_diagnosis",
+            "domain_limit_flag",
+        ],
+    },
 }
 
 AGENT_VERDICT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md"
@@ -81,38 +106,6 @@ ADAPTER_INLINE_SCHEMA_SNIPPETS = [
     "seat_specific:",
     "Filled-in 示例",
 ]
-
-SHARED_SEAT_REQUIRED_SNIPPETS = {
-    "linus-engineer.md": [
-        "## 启动纪律",
-        "## 阶段纪律",
-        "linus_feasibility",
-        "linus_execution",
-        "broken_evidence",
-        "must_haves_coverage_detail",
-    ],
-    "munger-reviewer.md": [
-        "munger_verdict",
-        "anti_patterns_hit",
-        "lollapalooza_stack",
-        "circle_of_competence",
-        "reverse_kill_path",
-    ],
-    "taleb-reviewer.md": [
-        "taleb_verdict",
-        "tail_events_breaking_must_haves",
-        "fragility_checklist_failures",
-        "skin_in_the_game",
-    ],
-    "lopezdeprado-reviewer.md": [
-        "lopezdeprado_verdict",
-        "claim_classification",
-        "causal_graph_missing",
-        "trial_count_disclosed",
-        "workflow_diagnosis",
-        "domain_limit_flag",
-    ],
-}
 
 BANNED_SNIPPETS = [
     "本仓库不再",
@@ -243,13 +236,11 @@ def check_banned_snippets(errors: list[str]) -> None:
 
 
 def check_claude_agent_adapters(errors: list[str]) -> None:
-    for agent_file, skill_name in AGENT_SKILLS.items():
-        path = CLAUDE_RUNTIME_ROOT / "agents" / agent_file
+    for seat_name, config in SEAT_REGISTRY.items():
+        path = CLAUDE_RUNTIME_ROOT / "agents" / f"{seat_name}.md"
         text = path.read_text(encoding="utf-8")
-        expected_skill = AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name)
-        expected_seat = AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(
-            seat_file=AGENT_SEAT_FILES[agent_file]
-        )
+        expected_skill = AGENT_SKILL_PATH_TEMPLATE.format(skill_name=config["skill"])
+        expected_seat = AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=f"{seat_name}.md")
         for required in [expected_skill, expected_seat, AGENT_VERDICT_REFERENCE_PATH]:
             if required not in text:
                 add_error(errors, path, 1, f"missing Claude agent reference {required}")
@@ -394,14 +385,14 @@ def check_shared_seat_contracts(errors: list[str]) -> None:
         add_error(errors, seat_dir, 1, "missing shared seats directory")
         return
 
-    for seat_file, snippets in SHARED_SEAT_REQUIRED_SNIPPETS.items():
-        path = seat_dir / seat_file
+    for seat_name, config in SEAT_REGISTRY.items():
+        path = seat_dir / f"{seat_name}.md"
         if not path.exists():
             add_error(errors, path, 1, "missing shared seat contract")
             continue
 
         text = path.read_text(encoding="utf-8")
-        for required in ["## 适用范围", "## 职责", "## 越权边界", "## 输出契约", "## 输出底线", *snippets]:
+        for required in ["## 适用范围", "## 职责", "## 越权边界", "## 输出契约", "## 输出底线", *config["required_snippets"]]:
             if required not in text:
                 add_error(errors, path, 1, f"shared seat contract missing {required}")
 
@@ -454,7 +445,7 @@ def check_codex_agent_adapters(errors: list[str]) -> None:
 
     agent_dir = CODEX_RUNTIME_ROOT / "agents"
     actual_files = {path.name for path in agent_dir.glob("*.md")}
-    expected_files = set(AGENT_SKILLS)
+    expected_files = {f"{seat_name}.md" for seat_name in SEAT_REGISTRY}
     if actual_files != expected_files:
         add_error(
             errors,
@@ -463,20 +454,21 @@ def check_codex_agent_adapters(errors: list[str]) -> None:
             f"Codex agent set mismatch: expected={sorted(expected_files)} actual={sorted(actual_files)}",
         )
 
-    for agent_file, skill_name in AGENT_SKILLS.items():
-        path = agent_dir / agent_file
+    for seat_name, config in SEAT_REGISTRY.items():
+        path = agent_dir / f"{seat_name}.md"
         if not path.exists():
             continue
 
         text = path.read_text(encoding="utf-8")
+        skill_name = config["skill"]
         for required in [
             "<codex_agent_role>",
             "<required_reading>",
             AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name),
-            AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=AGENT_SEAT_FILES[agent_file]),
+            AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=f"{seat_name}.md"),
             AGENT_VERDICT_REFERENCE_PATH,
             f"./skills/{skill_name}/SKILL.md",
-            f"./zhuzi/seats/{AGENT_SEAT_FILES[agent_file]}",
+            f"./zhuzi/seats/{seat_name}.md",
             "./zhuzi/references/verdict-schema.md",
         ]:
             if required not in text:
