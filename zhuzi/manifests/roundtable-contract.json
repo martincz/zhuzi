@@ -141,12 +141,16 @@
       "Taleb": [
         "tail_events_breaking_must_haves",
         "fragility_checklist_failures",
+        "distribution_class",
+        "payoff_convexity",
         "skin_in_the_game"
       ],
       "Munger": [
         "anti_patterns_hit",
         "lollapalooza_stack",
         "circle_of_competence",
+        "incentive_map",
+        "opportunity_cost_note",
         "reverse_kill_path"
       ],
       "López": [
@@ -157,6 +161,13 @@
         "anti_pattern_hits",
         "workflow_diagnosis",
         "domain_limit_flag"
+      ],
+      "Linus 阶段 1": [
+        "data_structure_risks",
+        "special_case_pressure",
+        "anti_patterns_hit",
+        "interface_risks",
+        "out_of_scope_for_strategy"
       ],
       "Linus 阶段 2": [
         "broken_evidence",
@@ -251,6 +262,8 @@
       "seat_specific_fields": [
         "tail_events_breaking_must_haves",
         "fragility_checklist_failures",
+        "distribution_class",
+        "payoff_convexity",
         "skin_in_the_game"
       ],
       "output_contract": {
@@ -334,6 +347,8 @@
         "anti_patterns_hit",
         "lollapalooza_stack",
         "circle_of_competence",
+        "incentive_map",
+        "opportunity_cost_note",
         "reverse_kill_path"
       ],
       "output_contract": {
@@ -509,6 +524,13 @@
         ]
       },
       "seat_specific_fields": {
+        "phase_1": [
+          "data_structure_risks",
+          "special_case_pressure",
+          "anti_patterns_hit",
+          "interface_risks",
+          "out_of_scope_for_strategy"
+        ],
         "phase_2": [
           "broken_evidence",
           "must_haves_coverage_detail",
@@ -530,6 +552,20 @@
       "output_contract": {
         "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
+          {
+            "heading": "阶段 1",
+            "root_key": "linus_feasibility",
+            "phase": "1",
+            "seat_specific_field_group": "phase_1",
+            "extra_route_lines": [
+              "`needs_refactor_first` 在阶段 1 代表议题切法需要先拆 scope 或改接口形状，不等同于阶段 2 的代码重构要求"
+            ],
+            "must_haves_review_note": "`must_haves_review` 必须覆盖每条 truth；阶段 1 先看设计形状、特殊情况压力和明显坏味道，不提前替阶段 2 做代码承载评估",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 表示议题本身在数据结构、接口切法或特殊情况数量上就已经坏味道过重，应先回阶段 1.5 修订 must_haves 或拆 scope",
+            "field_rules": [
+              "`special_case_pressure` 需要点出复杂度被谁承担，以及能否通过换切法消掉特殊情况"
+            ]
+          },
           {
             "heading": "阶段 2",
             "root_key": "linus_feasibility",

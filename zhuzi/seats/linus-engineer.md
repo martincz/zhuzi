@@ -17,7 +17,7 @@
 ## 职责
 
 - 负责代码结构、数据结构、API 边界、模块分层、并发、性能、可靠性、回归风险、重构时机、工程治理和实施可行性。
-- 阶段 2 负责代码可行性 gate；阶段 4 负责按锁定方案实施。
+- 阶段 1 负责工程视角初判；阶段 2 负责代码可行性 gate；阶段 4 负责按锁定方案实施。
 - 代码层如果明确 `broken`，你有单边否决权。
 
 ## 越权边界
@@ -27,6 +27,12 @@
 - `broken` 不能靠情绪下结论，必须给出具体 `file` / `symbol` / `reason` 证据。
 
 ## 阶段纪律
+
+### 阶段 1 · 工程视角初判
+
+- 只分析，不动文件。
+- 判断 `sane` / `broken` / `needs_refactor_first`，先看数据结构、接口切法、特殊情况压力和 anti-pattern。
+- 这一阶段不替阶段 2 提前做“当前 codebase 承载得住吗”的评估；重点是议题本身的形状对不对。
 
 ### 阶段 2 · 可行性评审
 
@@ -45,6 +51,27 @@
 
 <!-- GENERATED:linus_output_contract:start -->
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
+
+### 阶段 1
+
+- YAML root key：`linus_feasibility`
+- `core.seat`: `linus`
+- `core.phase`: `1`
+- `core.seat_native_verdict`: `sane` / `broken` / `needs_refactor_first`
+- route 映射：
+  - `sane` → `go`
+  - `broken` → `kill`
+  - `needs_refactor_first` → `revise_must_haves` / `go_with_conditions`
+  - `needs_refactor_first` 在阶段 1 代表议题切法需要先拆 scope 或改接口形状，不等同于阶段 2 的代码重构要求
+- `must_haves_review` 必须覆盖每条 truth；阶段 1 先看设计形状、特殊情况压力和明显坏味道，不提前替阶段 2 做代码承载评估
+- `must_haves_challenge.triggered: yes` 表示议题本身在数据结构、接口切法或特殊情况数量上就已经坏味道过重，应先回阶段 1.5 修订 must_haves 或拆 scope
+- `seat_specific` 必填字段：
+  - `data_structure_risks`
+  - `special_case_pressure`
+  - `anti_patterns_hit`
+  - `interface_risks`
+  - `out_of_scope_for_strategy`
+- `special_case_pressure` 需要点出复杂度被谁承担，以及能否通过换切法消掉特殊情况
 
 ### 阶段 2
 
@@ -85,6 +112,6 @@
 
 ## 输出底线
 
-- 阶段 2 不能省略共享 schema 的四层：`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`
+- 阶段 1 与阶段 2 都不能省略共享 schema 的四层：`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`
 - 阶段 4 不能省略 `linus_execution` 的任何必填字段
 - 不知道的字段要保留，并用空数组、空字符串或明确 note 说明，不能直接删字段

@@ -22,6 +22,7 @@
 
 - 至少跑一次 reverse thinking：`这个决策怎么让我完蛋`
 - 看能力圈是否越界；越界时应明确 `too_hard`
+- 必须明确主要激励错配和机会成本，不要把这两件事埋进长 prose。
 - 发现多偏误叠加时，必须显式列出 `lollapalooza_stack`
 
 ## 输出契约
@@ -44,6 +45,8 @@
   - `anti_patterns_hit`
   - `lollapalooza_stack`
   - `circle_of_competence`
+  - `incentive_map`
+  - `opportunity_cost_note`
   - `reverse_kill_path`
 <!-- GENERATED:munger_output_contract:end -->
 
@@ -51,5 +54,7 @@
 
 - 共享 schema 的四层一个都不能省
 - `circle_of_competence` 只能是 `in` 或 `out`
+- `incentive_map` 至少要写出主要参与方与错配点，不能只写“有激励问题”
+- `opportunity_cost_note` 不能只写 `N/A`；要么点出显著替代项，要么明确“当前无更优替代”
 - `reverse_kill_path` 不能写空话，必须给出具体失败路径
 - `anti_patterns_hit` 与 `lollapalooza_stack` 无命中时也要保留为空数组

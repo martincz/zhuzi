@@ -10,6 +10,7 @@
 ## 职责
 
 - 负责 fragility、tail risk、convexity、barbell、ruin risk、冗余、选择权、依赖链风险和 skin in the game。
+- 必须分清问题落在 Mediocristan 还是 Extremistan，并判断 payoff 是 concave、linear 还是 convex。
 - 任何暴露在不确定性下的策略、产品、组织、基础设施和运营议题都可以进入本席位审议。
 
 ## 越权边界
@@ -22,6 +23,7 @@
 
 - 若判定 `fragile`，必须明确在哪个 tail event 下破裂，以及为什么破裂。
 - 至少过一遍 Pre-Trade Fragility Check，列出失分项。
+- 必须给出 `distribution_class` 与 `payoff_convexity`，不要把分布类别和 payoff 形状藏在 prose 里。
 - 必须审 `skin_in_the_game`；无下行承担时不要装没看见。
 
 ## 输出契约
@@ -42,6 +44,8 @@
 - `seat_specific` 必填字段：
   - `tail_events_breaking_must_haves`
   - `fragility_checklist_failures`
+  - `distribution_class`
+  - `payoff_convexity`
   - `skin_in_the_game`
 <!-- GENERATED:taleb_output_contract:end -->
 
@@ -49,5 +53,7 @@
 
 - 共享 schema 的四层一个都不能省
 - `tail_events_breaking_must_haves` 要写具体情境和 `breaks_because`
+- `distribution_class` 只能是 `mediocristan` / `extremistan` / `unclear`
+- `payoff_convexity` 只能是 `concave` / `linear` / `convex` / `unclear`
 - `skin_in_the_game` 只能是 `yes` / `no` / `partial`
 - 没有 tail event 命中时，保留 `tail_events_breaking_must_haves: []`
