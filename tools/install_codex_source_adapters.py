@@ -34,13 +34,9 @@ def render_root_literal(concrete_root: Path, *, symbolic_root: str, render_concr
 def collapse_repo_fallbacks(text: str) -> str:
     lines = text.splitlines()
     collapsed: list[str] = []
-    skip_prefixes = (
-        "- `./skills/",
-        "- `./zhuzi/",
-    )
 
     for line in lines:
-        if line.startswith(skip_prefixes):
+        if "`./skills" in line or "`./zhuzi" in line:
             continue
         collapsed.append(line)
 
@@ -53,6 +49,18 @@ def collapse_repo_fallbacks(text: str) -> str:
         .replace(
             "Read the first existing path in each group before proceeding:",
             "Read these installed paths before proceeding:",
+        )
+        .replace(
+            "先确定共享根目录，只能选一个：",
+            "使用以下已安装共享根目录：",
+        )
+        .replace(
+            "- 已安装共享根目录：`",
+            "- `",
+        )
+        .replace(
+            "然后从选定根目录读取：",
+            "然后从该已安装根目录读取：",
         )
         + "\n"
     )
