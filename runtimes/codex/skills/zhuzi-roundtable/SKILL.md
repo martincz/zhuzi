@@ -17,11 +17,11 @@ metadata:
 - 如果 `request_user_input` 不可用，就退回纯文本编号列表并等待用户回复。
 - 不要因为 runtime 缺少更丰富的交互 UI，就跳过阶段 0.5 或阶段 1.5 的用户 gate。
 
-## C. Agent() / SendMessage 映射
+## C. 抽象 orchestration 动作映射
 - `Agent(subagent_type="X", prompt="Y")` → `spawn_agent(agent_type="X", message="Y")`
-- 保留返回的 agent ID，方便阶段 4 在 runtime 支持时继续复用同一个 `linus_id`。
-- Claude `SendMessage(to=linus_id, "...")` → Codex `send_input(target=linus_id, message="...")`
-- 如果同一 agent 续跑不可用，就 fallback 到新的 `spawn_agent`，并完整注入阶段 2 的 Linus 原文。
+- 保留返回的 agent ID，方便阶段 4 在 runtime 支持时继续复用同一个 `linus_id`
+- `continue_existing_agent(agent_id, message)` → `send_input(target=agent_id, message="Y")`
+- 如果 `continue_existing_agent(...)` 不可用，就 fallback 到新的 `spawn_agent`，并完整注入阶段 2 的 Linus 原文
 - 用 `wait_agent(...)` 收集席位输出，整合完成后再 `close_agent(...)`。
 </codex_skill_adapter>
 
@@ -59,5 +59,5 @@ Codex 侧没有 Claude-style slash command。本 skill 充当 Codex 的 roundtab
 
 <process>
 在 Codex 中端到端执行已装载的 roundtable workflow。
-遵守所有共享 gate 和硬约束；凡 workflow 里出现 Claude 风格 orchestration primitive 时，都按上面的 Codex adapter 映射去翻译执行。
+遵守所有共享 gate 和硬约束；把 workflow 里的 `Agent(...)` / `continue_existing_agent(...)` 翻译为上面的 Codex tool 调用。
 </process>

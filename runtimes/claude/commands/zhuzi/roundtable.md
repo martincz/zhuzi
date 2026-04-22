@@ -14,6 +14,14 @@ $ARGUMENTS
 默认走 Quick Roundtable：对用户只展示主持人结论、议题卡、席位短评、决策表和下一步；完整原文/YAML 仅在用户要求时展开。
 </objective>
 
+<claude_command_adapter>
+共享 workflow 里的抽象 orchestration 动作用 Claude runtime 这样落地：
+
+- `Agent(subagent_type="X", prompt="Y")`：直接使用 Claude 的 `Agent(...)`
+- `continue_existing_agent(agent_id, message)`：若 runtime 支持，就用 `SendMessage(to=agent_id, message="Y")`
+- 若 `continue_existing_agent(...)` 不可用，就 fallback 到新的 `Agent(...)`，并完整注入阶段 2 的 Linus 原文
+</claude_command_adapter>
+
 <execution_context>
 @{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md
 @{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md

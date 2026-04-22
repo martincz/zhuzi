@@ -12,13 +12,8 @@
 
 ### Quick 输出模板（默认必须使用）
 
-默认骨架来自同时装载的 `templates/roundtable-quick.md`：
-
-- `## 主持人结论`
-- `## 议题卡`
-- `## 席位短评`
-- `## 决策表`
-- `## 下一步`
+默认骨架只认同时装载的 `templates/roundtable-quick.md`。
+顶级标题名称、顺序和表格骨架都以 template 为准；本 workflow 只定义阅读纪律和阶段语义，不再复制另一份 heading 列表。
 
 **模板纪律**：
 
@@ -299,58 +294,42 @@ full 模式可额外展示非代码评议表、代码层表、候选方案表和
 
 ### 阶段 4 — 实施
 
-用户确认后，**按运行时条件分支**推进——优先尝试续跑同一个 `linus_id`，不可用则 fallback 到新 spawn + 完整上下文注入。
+用户确认后，**按运行时条件分支**推进。共享 workflow 只定义抽象 orchestration 动作，不写死 Claude / Codex 的具体调用语法。
 
-#### 路径 A · 续跑同一 agent（首选）
+- `continue_existing_agent(agent_id, message)`：向已有实现席位续跑，保留阶段 2 的内部状态
+- fallback：新起同 seat agent，并完整注入阶段 2 原文与锁定方案
 
-orchestrator 在阶段 4 先检查当前 runtime 是否支持向已有子 agent 继续发消息。**如果有**，用它续跑同一个 `linus_id`：
+#### 路径 A · 续跑同一实现席位（首选）
 
-```text
-# Claude
-SendMessage(to=linus_id, """
-方案已锁定：<细到文件/函数级别>
+orchestrator 在阶段 4 先检查当前 runtime 是否支持 `continue_existing_agent(agent_id, message)`。**如果支持**，优先续跑同一个 `linus_id`。
 
-按你阶段 2 的可行性建议实施。完成后按当前项目 AGENTS.md/CLAUDE.md 定义的自审清单执行。
-实施后不要 commit——等用户验证通过。
-""")
+续跑消息最少包含：
 
-# Codex
-send_input(target=linus_id, message="""
-方案已锁定：<细到文件/函数级别>
-
-按你阶段 2 的可行性建议实施。完成后按当前项目 AGENTS.md/CLAUDE.md 定义的自审清单执行。
-实施后不要 commit——等用户验证通过。
-""")
-```
+- 方案已锁定：`<细到文件/函数级别>`
+- 按阶段 2 的可行性建议实施
+- 完成后按当前项目 `AGENTS.md` / `CLAUDE.md` 定义的自审清单执行
+- 实施后不要 commit，等用户验证通过
 
 优点：保留 Linus 阶段 2 的完整内部状态 + 对话历史，prompt 最短。
 
-#### 路径 B · 新 spawn + 完整上下文注入（fallback）
+#### 路径 B · 新起同 seat agent + 完整上下文注入（fallback）
 
-**同 agent 续跑不可用**时（当前 runtime 未暴露对应工具或不支持续跑同一 subagent），走新 spawn：
+**同 agent 续跑不可用**时，改为新起同一个实现席位，并完整注入上下文。
 
-```text
-Agent(subagent_type="linus-engineer", prompt="""
-议题：<议题原文>
-方案已锁定：<细到文件/函数级别>
+注入内容最少包含：
 
-=== 你在阶段 2 的可行性评审原文（作为自己上一轮判断对待）===
-<完整粘贴阶段 2 Linus 输出，不要摘要>
-
-=== 非代码评议席位结论摘要 ===
-Taleb verdict: <fragile/robust/antifragile + 关键理由>
-Munger verdict: <keep/kill/too-hard + 关键理由>
-
-按上述锁定方案实施。完成后按当前项目 AGENTS.md/CLAUDE.md 自审。
-实施后不要 commit——等用户验证通过。
-""")
-```
+- 议题原文
+- 已锁定方案：`<细到文件/函数级别>`
+- 阶段 2 Linus 可行性评审原文
+- 非代码评议席位结论摘要
+- 完成后按当前项目 `AGENTS.md` / `CLAUDE.md` 自审
+- 实施后不要 commit，等用户验证通过
 
 **关键**：阶段 2 Linus 原文必须**完整粘贴**，不得摘要——他需要自己上一轮的具体判断才能延续可行性结论。
 
 #### 路径自动切换
 
-两路径语义等价。runtime 支持同 agent 续跑后，orchestrator 自动走路径 A，**本 workflow 无需改动**。
+两路径语义等价。入口 adapter 负责把抽象动作翻译成各 runtime 的 primitive；共享 workflow 不再为运行时差异单独改文案。
 
 Linus 返回实施报告后默认给用户短报告：改了什么、验证结果、是否有缺口、是否需要回流圆桌。完整实施原文和 `linus_execution` block 只在用户要求展开时显示。
 
@@ -358,7 +337,7 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 | 冲突类型 | 处理 |
 |---|---|
-| 非代码评议席位之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：用当前 runtime 的同 agent 续跑工具让他们互相 push back 一轮（Claude: `SendMessage`；Codex: `send_input`）；或 orchestrator 呈分歧表给用户拍板。典型 Taleb vs López 分歧：Taleb 认为金融不能科学化，López 认为应当科学化——路径相反，不强行合并。 |
+| 非代码评议席位之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：若当前 runtime 支持 `continue_existing_agent(agent_id, message)`，让他们互相 push back 一轮；不支持就由 orchestrator 呈分歧表给用户拍板。典型 Taleb vs López 分歧：Taleb 认为金融不能科学化，López 认为应当科学化——路径相反，不强行合并。 |
 | Linus 说“代码层 broken” | 回阶段 1 问相关评议席位：是否有等价路径可绕开该 broken 点。 |
 | 非工程要求 × 代码无法干净落地 | orchestrator + 用户拍板：重构承载 / 降级需求 / 放弃本次改动。 |
 | Linus 阶段 2 建议与非代码结论矛盾 | orchestrator 明确呈现给用户，不擅自取舍。 |
@@ -367,5 +346,5 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 1. **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker；用户要求展开时必须提供完整原文和 YAML。
 2. **绝不跳阶段**：阶段 3 用户未确认前不得进阶段 4。
-3. **实施阶段优先续跑同一 agent**：runtime 若支持已有 agent 继续收消息（Claude: `SendMessage`；Codex: `send_input`）就走阶段 4 路径 A；没有则走路径 B（新 spawn + 阶段 2 原文**完整注入**，不得摘要）。
+3. **实施阶段优先续跑同一 agent**：runtime 若支持 `continue_existing_agent(agent_id, message)` 就走阶段 4 路径 A；没有则走路径 B（新起同 seat agent + 阶段 2 原文**完整注入**，不得摘要）。
 4. **项目纪律由 agent 自己发现**：不在 workflow 里硬编码项目特定规则。Linus 启动时会自动 Read 当前项目的 `AGENTS.md` / `CLAUDE.md`。

@@ -92,14 +92,6 @@ ROUNDTABLE_EXECUTION_CONTEXTS = [
 
 CODEX_SKILL_DESCRIPTION_BYTES_LIMIT = 1024
 
-QUICK_OUTPUT_HEADINGS = [
-    "## 主持人结论",
-    "## 议题卡",
-    "## 席位短评",
-    "## 决策表",
-    "## 下一步",
-]
-
 ADAPTER_INLINE_SCHEMA_SNIPPETS = [
     "must_haves_review:",
     "must_haves_challenge:",
@@ -281,28 +273,23 @@ def check_runtime_path_templates(errors: list[str]) -> None:
                 add_error(errors, path, 1, f"runtime template leaked hardcoded path {literal}")
 
 
-def check_required_order(
-    errors: list[str], path: Path, text: str, required: list[str], label: str
-) -> None:
-    position = -1
-    for snippet in required:
-        next_position = text.find(snippet)
-        if next_position == -1:
-            add_error(errors, path, 1, f"{label} missing {snippet}")
-            continue
-        if next_position < position:
-            add_error(errors, path, 1, f"{label} out of order at {snippet}")
-        position = next_position
+def extract_markdown_headings(text: str, *, level: int) -> list[str]:
+    prefix = "#" * level
+    return re.findall(rf"^{re.escape(prefix)} .+$", text, re.MULTILINE)
 
 
 def check_roundtable_command_entry(errors: list[str]) -> None:
     path = CLAUDE_RUNTIME_ROOT / "commands" / "zhuzi" / "roundtable.md"
     text = path.read_text(encoding="utf-8")
     for required in [
+        "<claude_command_adapter>",
         "<objective>",
         "<execution_context>",
         "<context>",
         "<process>",
+        'Agent(subagent_type="X", prompt="Y")',
+        "continue_existing_agent(agent_id, message)",
+        'SendMessage(to=agent_id, message="Y")',
         *ROUNDTABLE_EXECUTION_CONTEXTS,
         "zhuzi/workflows/roundtable.md",
         "zhuzi/templates/roundtable-quick.md",
@@ -324,7 +311,8 @@ def check_codex_roundtable_skill(errors: list[str]) -> None:
     for required in [
         "<codex_skill_adapter>",
         'spawn_agent(agent_type="X", message="Y")',
-        "send_input(target=linus_id",
+        "continue_existing_agent(agent_id, message)",
+        'send_input(target=agent_id, message="Y")',
         "先确定共享根目录，只能选一个：",
         "{{ZHUZI_SHARED_ROOT}}",
         "./zhuzi",
@@ -361,9 +349,22 @@ def check_roundtable_workflow(errors: list[str]) -> None:
         "## 冲突裁决规则",
         "## 硬约束（任何情况不得违反）",
         "N 席位召开（N ≥ 1）",
+        "continue_existing_agent(agent_id, message)",
     ]:
         if required not in text:
             add_error(errors, path, 1, f"roundtable workflow missing {required}")
+
+    for forbidden in [
+        "SendMessage(",
+        "send_input(",
+        "spawn_agent(",
+        "wait_agent(",
+        "close_agent(",
+        "# Claude",
+        "# Codex",
+    ]:
+        if forbidden in text:
+            add_error(errors, path, 1, f"roundtable workflow leaked runtime-specific primitive {forbidden}")
 
 
 def check_seat_registry(errors: list[str]) -> None:
@@ -411,23 +412,34 @@ def check_shared_seat_contracts(errors: list[str]) -> None:
 
 def check_quick_roundtable_contract(errors: list[str]) -> None:
     template = ROOT / "zhuzi" / "templates" / "roundtable-quick.md"
+    template_headings: list[str] = []
     if not template.exists():
         add_error(errors, template, 1, "missing Quick Roundtable template")
     else:
         template_text = template.read_text(encoding="utf-8")
-        check_required_order(errors, template, template_text, QUICK_OUTPUT_HEADINGS, "quick template")
+        template_headings = extract_markdown_headings(template_text, level=2)
+        if not template_headings:
+            add_error(errors, template, 1, "quick template missing level-2 headings")
 
     example = ROOT / "examples" / "roundtable-quick.md"
     if not example.exists():
         add_error(errors, example, 1, "missing Quick Roundtable example")
     else:
         example_text = example.read_text(encoding="utf-8")
-        check_required_order(errors, example, example_text, QUICK_OUTPUT_HEADINGS, "quick example")
+        example_headings = extract_markdown_headings(example_text, level=2)
+        if template_headings and example_headings != template_headings:
+            add_error(
+                errors,
+                example,
+                1,
+                f"quick example headings mismatch: template={template_headings} example={example_headings}",
+            )
 
     readme = ROOT / "README.md"
     readme_text = readme.read_text(encoding="utf-8")
     for required in [
         "./examples/roundtable-quick.md",
+        "./zhuzi/templates/roundtable-quick.md",
         "./docs/INVENTORY.md",
         "./zhuzi/manifests/shipped-surface.json",
         "zhuzi/workflows/roundtable.md",
@@ -673,6 +685,9 @@ def check_codex_source_installer(errors: list[str]) -> None:
 
     text = path.read_text(encoding="utf-8")
     for required in [
+        "MANIFEST_PATH",
+        "load_manifest_families",
+        "manifest_family_paths",
         "collapse_repo_fallbacks",
         "render_text",
         "render_root_literal",
@@ -682,8 +697,8 @@ def check_codex_source_installer(errors: list[str]) -> None:
         "$HOME/.codex/zhuzi",
         "{{ZHUZI_SKILL_ROOT}}",
         "{{ZHUZI_SHARED_ROOT}}",
-        "runtimes/codex/agents",
-        "runtimes/codex/skills/zhuzi-roundtable",
+        "codex_agents",
+        "codex_skills",
     ]:
         if required not in text:
             add_error(errors, path, 1, f"Codex source installer missing {required}")

@@ -63,7 +63,7 @@ cd zhuzi
 ./install.sh
 ```
 
-`install.sh` 会把全部 shipped surface 安装到 Claude 和 Codex 的默认根目录，包括 Codex roundtable agents 与 `zhuzi-roundtable` skill；具体渲染与拷贝行为以脚本本身和 manifest 为准。
+`install.sh` 会按 `zhuzi/manifests/shipped-surface.json` 安装全部 shipped surface 到 Claude 和 Codex 的默认根目录，包括 Codex roundtable agents 与 `zhuzi-roundtable` skill；具体渲染与拷贝行为以脚本本身和 manifest 为准。
 
 ### 方式 B：只刷新 Codex adapter
 
@@ -129,7 +129,7 @@ zhuzi/
 /zhuzi:roundtable 这个 API 设计该不该先重构再扩功能
 ```
 
-默认输出是短读格式：`主持人结论 → 议题卡 → 席位短评 → 决策表 → 下一步`。  
+默认输出遵循 [Quick Roundtable 模板](./zhuzi/templates/roundtable-quick.md)；想看实际长相就看 [Quick Roundtable 示例](./examples/roundtable-quick.md)。  
 完整原文和 YAML 只在你要求 `展开原文 / 展开 YAML / full / strict` 时展示。
 
 ## 协作与验证

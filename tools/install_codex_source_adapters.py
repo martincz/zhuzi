@@ -11,6 +11,7 @@ Explicit ``CODEX_HOME`` overrides render concrete paths so alternate roots stay 
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import sys
@@ -18,10 +19,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_ONLY_AGENT_REL = "runtimes/codex/agents"
-SOURCE_ONLY_SKILL_REL = "runtimes/codex/skills/zhuzi-roundtable"
-SOURCE_ONLY_AGENT_DIR = ROOT / SOURCE_ONLY_AGENT_REL
-SOURCE_ONLY_SKILL_DIR = ROOT / SOURCE_ONLY_SKILL_REL
+MANIFEST_PATH = ROOT / "zhuzi" / "manifests" / "shipped-surface.json"
+CODEX_AGENT_FAMILY = "codex_agents"
+CODEX_SKILL_FAMILY = "codex_skills"
 
 
 def render_text(text: str, *, skill_root: Path, shared_root: Path) -> str:
@@ -98,12 +98,46 @@ def copy_tree_with_render(src: Path, dst: Path, *, skill_root: Path, shared_root
         shutil.copy2(path, target)
 
 
+def load_manifest_families() -> dict[str, list[dict[str, str]]]:
+    payload = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    families = payload.get("families")
+    if not isinstance(families, dict):
+        raise ValueError(f"invalid manifest families object: {MANIFEST_PATH}")
+    return families
+
+
+def manifest_family_paths(
+    families: dict[str, list[dict[str, str]]], family: str
+) -> list[Path]:
+    entries = families.get(family)
+    if not isinstance(entries, list):
+        raise ValueError(f"manifest missing family {family}: {MANIFEST_PATH}")
+
+    resolved: list[Path] = []
+    for index, entry in enumerate(entries, 1):
+        if not isinstance(entry, dict):
+            raise ValueError(f"manifest family {family} entry {index} is not an object")
+
+        raw_path = entry.get("path")
+        if not isinstance(raw_path, str):
+            raise ValueError(f"manifest family {family} entry {index} missing path")
+
+        resolved_path = ROOT / raw_path
+        if not resolved_path.exists():
+            raise FileNotFoundError(
+                f"manifest family {family} entry {index} points to missing path: {raw_path}"
+            )
+        resolved.append(resolved_path)
+
+    return resolved
+
+
 def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | None = None) -> list[Path]:
     if render_concrete is None:
         render_concrete = os.environ.get("CODEX_HOME") is not None
 
+    families = load_manifest_families()
     installed_agent_dir = codex_home / "agents"
-    installed_skill_dir = codex_home / "skills" / "zhuzi-roundtable"
     installed_skill_root = codex_home / "skills"
     installed_shared_root = codex_home / "zhuzi"
     rendered_skill_root = Path(
@@ -125,7 +159,9 @@ def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | No
 
     installed_paths: list[Path] = []
 
-    for agent in sorted(SOURCE_ONLY_AGENT_DIR.glob("*.md")):
+    for agent in manifest_family_paths(families, CODEX_AGENT_FAMILY):
+        if agent.suffix != ".md":
+            raise ValueError(f"Codex agent manifest entry must be a markdown file: {agent}")
         dst = installed_agent_dir / agent.name
         render_file(
             agent,
@@ -135,13 +171,19 @@ def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | No
         )
         installed_paths.append(dst)
 
-    copy_tree_with_render(
-        SOURCE_ONLY_SKILL_DIR,
-        installed_skill_dir,
-        skill_root=rendered_skill_root,
-        shared_root=rendered_shared_root,
-    )
-    installed_paths.append(installed_skill_dir)
+    installed_skill_dirs: dict[str, Path] = {}
+    for skill_entry in manifest_family_paths(families, CODEX_SKILL_FAMILY):
+        installed_skill_dirs[skill_entry.parent.name] = skill_entry.parent
+
+    for skill_dir in installed_skill_dirs.values():
+        installed_skill_dir = installed_skill_root / skill_dir.name
+        copy_tree_with_render(
+            skill_dir,
+            installed_skill_dir,
+            skill_root=rendered_skill_root,
+            shared_root=rendered_shared_root,
+        )
+        installed_paths.append(installed_skill_dir)
 
     return installed_paths
 
