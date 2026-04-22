@@ -299,14 +299,23 @@ full 模式可额外展示非代码评议表、代码层表、候选方案表和
 
 ### 阶段 4 — 实施
 
-用户确认后，**按运行时条件分支**推进——优先尝试 SendMessage 续跑，不可用则 fallback 到新 spawn + 完整上下文注入。
+用户确认后，**按运行时条件分支**推进——优先尝试续跑同一个 `linus_id`，不可用则 fallback 到新 spawn + 完整上下文注入。
 
-#### 路径 A · SendMessage 续跑（首选）
+#### 路径 A · 续跑同一 agent（首选）
 
-orchestrator 在阶段 4 先检查自己的 tool schema 是否包含 `SendMessage` 工具。**如果有**，用它续跑同一个 `linus_id`：
+orchestrator 在阶段 4 先检查当前 runtime 是否支持向已有子 agent 继续发消息。**如果有**，用它续跑同一个 `linus_id`：
 
 ```text
+# Claude
 SendMessage(to=linus_id, """
+方案已锁定：<细到文件/函数级别>
+
+按你阶段 2 的可行性建议实施。完成后按当前项目 AGENTS.md/CLAUDE.md 定义的自审清单执行。
+实施后不要 commit——等用户验证通过。
+""")
+
+# Codex
+send_input(target=linus_id, message="""
 方案已锁定：<细到文件/函数级别>
 
 按你阶段 2 的可行性建议实施。完成后按当前项目 AGENTS.md/CLAUDE.md 定义的自审清单执行。
@@ -318,7 +327,7 @@ SendMessage(to=linus_id, """
 
 #### 路径 B · 新 spawn + 完整上下文注入（fallback）
 
-**SendMessage 不可用**时（当前 runtime 未暴露该工具或不支持续跑同一 subagent），走新 spawn：
+**同 agent 续跑不可用**时（当前 runtime 未暴露对应工具或不支持续跑同一 subagent），走新 spawn：
 
 ```text
 Agent(subagent_type="linus-engineer", prompt="""
@@ -341,7 +350,7 @@ Munger verdict: <keep/kill/too-hard + 关键理由>
 
 #### 路径自动切换
 
-两路径语义等价。runtime 支持 `SendMessage` 后，orchestrator 自动走路径 A，**本 workflow 无需改动**。
+两路径语义等价。runtime 支持同 agent 续跑后，orchestrator 自动走路径 A，**本 workflow 无需改动**。
 
 Linus 返回实施报告后默认给用户短报告：改了什么、验证结果、是否有缺口、是否需要回流圆桌。完整实施原文和 `linus_execution` block 只在用户要求展开时显示。
 
@@ -349,7 +358,7 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 | 冲突类型 | 处理 |
 |---|---|
-| 非代码评议席位之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：SendMessage 让他们互相 push back 一轮；或 orchestrator 呈分歧表给用户拍板。典型 Taleb vs López 分歧：Taleb 认为金融不能科学化，López 认为应当科学化——路径相反，不强行合并。 |
+| 非代码评议席位之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：用当前 runtime 的同 agent 续跑工具让他们互相 push back 一轮（Claude: `SendMessage`；Codex: `send_input`）；或 orchestrator 呈分歧表给用户拍板。典型 Taleb vs López 分歧：Taleb 认为金融不能科学化，López 认为应当科学化——路径相反，不强行合并。 |
 | Linus 说“代码层 broken” | 回阶段 1 问相关评议席位：是否有等价路径可绕开该 broken 点。 |
 | 非工程要求 × 代码无法干净落地 | orchestrator + 用户拍板：重构承载 / 降级需求 / 放弃本次改动。 |
 | Linus 阶段 2 建议与非代码结论矛盾 | orchestrator 明确呈现给用户，不擅自取舍。 |
@@ -358,5 +367,5 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 1. **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker；用户要求展开时必须提供完整原文和 YAML。
 2. **绝不跳阶段**：阶段 3 用户未确认前不得进阶段 4。
-3. **实施阶段优先 SendMessage 续跑**：tool schema 里有 `SendMessage` 就走阶段 4 路径 A；没有则走路径 B（新 spawn + 阶段 2 原文**完整注入**，不得摘要）。
+3. **实施阶段优先续跑同一 agent**：runtime 若支持已有 agent 继续收消息（Claude: `SendMessage`；Codex: `send_input`）就走阶段 4 路径 A；没有则走路径 B（新 spawn + 阶段 2 原文**完整注入**，不得摘要）。
 4. **项目纪律由 agent 自己发现**：不在 workflow 里硬编码项目特定规则。Linus 启动时会自动 Read 当前项目的 `AGENTS.md` / `CLAUDE.md`。

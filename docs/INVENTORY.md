@@ -1,6 +1,8 @@
 # zhuzi Shipped Surface Inventory
 
 > 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
+>
+> 注意：`runtimes/codex/` 当前是 source-only adapter 源码，尚未接入 shipped surface / manifest / install，因此**故意不计入**本清单。
 
 ## Skills (5 shipped)
 

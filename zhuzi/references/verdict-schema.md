@@ -95,7 +95,7 @@ must_haves_challenge:
 
 ## 新增席位维护清单
 
-1. 新建 agent 文件并定义 `<seat>_verdict` root key。
+1. 为需要支持的 runtime 新建对应 agent adapter，并定义 `<seat>_verdict` root key。
 2. 在 agent 示例段里填齐 `core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`。
 3. 更新 `zhuzi/references/seat-registry.md`。
 4. 更新本文件的 route 映射规则和 seat-specific 字段说明。

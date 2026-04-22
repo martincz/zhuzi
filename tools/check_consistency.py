@@ -25,6 +25,8 @@ ACTIVE_TEXT_GLOBS = [
 ]
 
 CLAUDE_RUNTIME_ROOT = ROOT / "runtimes" / "claude"
+CODEX_RUNTIME_ROOT = ROOT / "runtimes" / "codex"
+CODEX_ROUNDTABLE_SKILL = CODEX_RUNTIME_ROOT / "skills" / "zhuzi-roundtable" / "SKILL.md"
 
 AGENT_SKILLS = {
     "linus-engineer.md": "linus-torvalds-engineer",
@@ -197,7 +199,7 @@ def check_agent_skill_paths(errors: list[str]) -> None:
 
 
 def check_runtime_path_templates(errors: list[str]) -> None:
-    template_files = list(CLAUDE_RUNTIME_ROOT.glob("**/*.md"))
+    template_files = list((ROOT / "runtimes").glob("**/*.md"))
     template_files.extend((ROOT / "zhuzi" / "workflows").glob("*.md"))
 
     banned_runtime_literals = ["~/.claude/", "~/.codex/", "@~/.claude/", "@~/.codex/"]
@@ -236,6 +238,29 @@ def check_roundtable_command_entry(errors: list[str]) -> None:
     ]:
         if required not in text:
             add_error(errors, path, 1, f"roundtable command missing {required}")
+
+
+def check_codex_roundtable_skill(errors: list[str]) -> None:
+    if not CODEX_RUNTIME_ROOT.exists():
+        return
+
+    path = CODEX_ROUNDTABLE_SKILL
+    if not path.exists():
+        add_error(errors, path, 1, "missing Codex roundtable skill")
+        return
+
+    text = path.read_text(encoding="utf-8")
+    for required in [
+        "<codex_skill_adapter>",
+        'spawn_agent(agent_type="X", message="Y")',
+        "send_input(target=linus_id",
+        "zhuzi/workflows/roundtable.md",
+        "zhuzi/references/seat-registry.md",
+        "zhuzi/references/verdict-schema.md",
+        "zhuzi/templates/roundtable-quick.md",
+    ]:
+        if required not in text:
+            add_error(errors, path, 1, f"Codex roundtable skill missing {required}")
 
 
 def check_roundtable_workflow(errors: list[str]) -> None:
@@ -343,6 +368,42 @@ def check_agent_verdict_schema(errors: list[str]) -> None:
                 add_error(errors, path, 1, f"missing verdict schema section {section}")
 
 
+def check_codex_agent_adapters(errors: list[str]) -> None:
+    if not CODEX_RUNTIME_ROOT.exists():
+        return
+
+    agent_dir = CODEX_RUNTIME_ROOT / "agents"
+    actual_files = {path.name for path in agent_dir.glob("*.md")}
+    expected_files = set(AGENT_SKILLS)
+    if actual_files != expected_files:
+        add_error(
+            errors,
+            agent_dir,
+            1,
+            f"Codex agent set mismatch: expected={sorted(expected_files)} actual={sorted(actual_files)}",
+        )
+
+    required_sections = ["core:", "must_haves_review:", "must_haves_challenge:", "seat_specific:"]
+    for agent_file, skill_name in AGENT_SKILLS.items():
+        path = agent_dir / agent_file
+        if not path.exists():
+            continue
+
+        text = path.read_text(encoding="utf-8")
+        for required in [
+            "<codex_agent_role>",
+            skill_name,
+            "verdict-schema.md",
+            AGENT_VERDICT_ROOTS[agent_file],
+            *required_sections,
+        ]:
+            if required not in text:
+                add_error(errors, path, 1, f"Codex agent missing {required}")
+
+        if agent_file == "linus-engineer.md" and "linus_execution:" not in text:
+            add_error(errors, path, 1, "Codex agent missing linus_execution block")
+
+
 def check_schema_reference(errors: list[str]) -> None:
     path = ROOT / "zhuzi" / "references" / "verdict-schema.md"
     if not path.exists():
@@ -440,10 +501,15 @@ def check_inventory(errors: list[str], manifest_families: dict[str, list[dict[st
             if isinstance(entry_path, str) and f"`{entry_path}`" not in text:
                 add_error(errors, path, 1, f"inventory missing path `{entry_path}`")
 
+    if "runtimes/codex/" not in text:
+        add_error(errors, path, 1, "inventory missing note that runtimes/codex is source-only")
+
 
 def check_skill_reference_links(errors: list[str]) -> None:
     link_pattern = re.compile(r"references/[A-Za-z0-9_./-]+\.md")
-    for skill in (ROOT / "skills").glob("*/SKILL.md"):
+    for skill in iter_skill_entrypoints():
+        if CODEX_RUNTIME_ROOT in skill.parents:
+            continue
         text = skill.read_text(encoding="utf-8")
         for match in link_pattern.finditer(text):
             target = skill.parent / match.group(0)
@@ -453,7 +519,7 @@ def check_skill_reference_links(errors: list[str]) -> None:
 
 
 def check_skill_description_lengths(errors: list[str]) -> None:
-    for skill in (ROOT / "skills").glob("*/SKILL.md"):
+    for skill in iter_skill_entrypoints():
         text = skill.read_text(encoding="utf-8")
         frontmatter = re.match(r"\A---\n(.*?)\n---", text, re.DOTALL)
         if not frontmatter:
@@ -511,6 +577,12 @@ def check_codex_install(errors: list[str]) -> None:
             add_error(errors, path, 1, f"install.sh missing {required}")
 
 
+def iter_skill_entrypoints() -> list[Path]:
+    files = list((ROOT / "skills").glob("*/SKILL.md"))
+    files.extend((CODEX_RUNTIME_ROOT / "skills").glob("*/SKILL.md"))
+    return sorted({path for path in files if path.is_file()})
+
+
 def main() -> int:
     errors: list[str] = []
     manifest_families = load_manifest(errors)
@@ -519,11 +591,13 @@ def main() -> int:
     check_agent_skill_paths(errors)
     check_runtime_path_templates(errors)
     check_roundtable_command_entry(errors)
+    check_codex_roundtable_skill(errors)
     check_roundtable_workflow(errors)
     check_seat_registry(errors)
     check_quick_roundtable_contract(errors)
     check_commit_guidelines(errors)
     check_agent_verdict_schema(errors)
+    check_codex_agent_adapters(errors)
     check_schema_reference(errors)
     check_manifest(errors, manifest_families)
     check_inventory(errors, manifest_families)
