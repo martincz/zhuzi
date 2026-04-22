@@ -20,6 +20,7 @@ This file provides guidance to agent runtimes (Codex, Claude Code, and compatibl
 
 - `README.md`：仓库概览、目录结构、安装方式
 - `zhuzi/workflows/roundtable.md`：Roundtable 权威流程与 gate 规则
+- `zhuzi/manifests/roundtable-contract.json`：Quick headings、seat/stages/route、seat_specific 机器合同
 - `zhuzi/references/seat-registry.md`：当前席位、默认 `stages`、召开纪律
 - `zhuzi/references/verdict-schema.md`：共同 YAML verdict 契约
 - `zhuzi/templates/roundtable-quick.md`：Quick Roundtable 默认骨架
@@ -45,7 +46,7 @@ chore: 固化圆桌短读输出模板
 ## 关键设计原则
 
 1. **共享真相源优先**  
-   席位职责、越权边界、root key、route 语义、`seat_specific` 字段要求放在 `zhuzi/seats/` 与 `zhuzi/references/`。不要在 Claude/Codex adapter 里再各写一份。
+   席位职责、越权边界放在 `zhuzi/seats/`；Quick headings、seat/stages/route、`seat_specific` 机器合同放在 `zhuzi/manifests/roundtable-contract.json`；人读解释放在 `zhuzi/references/`。不要在 Claude/Codex adapter 里再各写一份。
 
 2. **adapter 保持薄**  
    runtime adapter 只负责装载对应 skill、seat contract、shared schema 和 workflow，不复制人物正文，不内嵌大段 schema，不承载维护手册。
@@ -84,6 +85,7 @@ chore: 固化圆桌短读输出模板
 
 - 改人物正文、触发词、研究引用、anti-pattern：去对应 `skills/<name>/`
 - 改席位职责、越权边界、输出 root、seat-specific 字段：去 `zhuzi/seats/*.md`
+- 改 Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册）：去 `zhuzi/manifests/roundtable-contract.json`
 - 改当前席位、默认 `stages`、召开纪律：去 `zhuzi/references/seat-registry.md`
 - 改共同 verdict schema：去 `zhuzi/references/verdict-schema.md`
 - 改 Roundtable 阶段、gate、Quick 行为：先改 `zhuzi/workflows/roundtable.md`，再看是否需要改入口 adapter

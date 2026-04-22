@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "zhuzi" / "manifests" / "shipped-surface.json"
+ROUNDTABLE_CONTRACT_PATH = ROOT / "zhuzi" / "manifests" / "roundtable-contract.json"
 
 ACTIVE_TEXT_GLOBS = [
     "README.md",
@@ -28,52 +29,6 @@ CLAUDE_RUNTIME_ROOT = ROOT / "runtimes" / "claude"
 CODEX_RUNTIME_ROOT = ROOT / "runtimes" / "codex"
 CODEX_ROUNDTABLE_SKILL = CODEX_RUNTIME_ROOT / "skills" / "zhuzi-roundtable" / "SKILL.md"
 
-# 扩席位入口：加一席只改这一个表。key 是席位名（不含 .md 扩展名）。
-# required_snippets 必须包含该席位的 verdict root key 和全部 seat_specific 字段名。
-SEAT_REGISTRY = {
-    "linus-engineer": {
-        "skill": "linus-torvalds-engineer",
-        "required_snippets": [
-            "## 启动纪律",
-            "## 阶段纪律",
-            "linus_feasibility",
-            "linus_execution",
-            "broken_evidence",
-            "must_haves_coverage_detail",
-        ],
-    },
-    "munger-reviewer": {
-        "skill": "munger-checklist",
-        "required_snippets": [
-            "munger_verdict",
-            "anti_patterns_hit",
-            "lollapalooza_stack",
-            "circle_of_competence",
-            "reverse_kill_path",
-        ],
-    },
-    "taleb-reviewer": {
-        "skill": "taleb-antifragile",
-        "required_snippets": [
-            "taleb_verdict",
-            "tail_events_breaking_must_haves",
-            "fragility_checklist_failures",
-            "skin_in_the_game",
-        ],
-    },
-    "lopezdeprado-reviewer": {
-        "skill": "lopezdeprado-scientist",
-        "required_snippets": [
-            "lopezdeprado_verdict",
-            "claim_classification",
-            "causal_graph_missing",
-            "trial_count_disclosed",
-            "workflow_diagnosis",
-            "domain_limit_flag",
-        ],
-    },
-}
-
 AGENT_VERDICT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md"
 AGENT_SEAT_REFERENCE_PATH_TEMPLATE = "{{{{ZHUZI_SHARED_ROOT}}}}/seats/{seat_file}"
 ROUNDTABLE_REFERENCE_PATHS = [
@@ -82,12 +37,22 @@ ROUNDTABLE_REFERENCE_PATHS = [
 ]
 ROUNDTABLE_WORKFLOW_PATH = "{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md"
 ROUNDTABLE_TEMPLATE_PATH = "{{ZHUZI_SHARED_ROOT}}/templates/roundtable-quick.md"
+ROUNDTABLE_CONTRACT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/manifests/roundtable-contract.json"
 AGENT_SKILL_PATH_TEMPLATE = "{{{{ZHUZI_SKILL_ROOT}}}}/{skill_name}/SKILL.md"
 ROUNDTABLE_EXECUTION_CONTEXTS = [
     f"@{ROUNDTABLE_WORKFLOW_PATH}",
     f"@{ROUNDTABLE_REFERENCE_PATHS[0]}",
     f"@{ROUNDTABLE_REFERENCE_PATHS[1]}",
     f"@{ROUNDTABLE_TEMPLATE_PATH}",
+    f"@{ROUNDTABLE_CONTRACT_REFERENCE_PATH}",
+]
+
+SEAT_REGISTRY_SCENE_COLUMNS = [
+    ("strategy_business_org", "策略/投资/商业/组织决策"),
+    ("research_eval", "研究/实验/因果评估"),
+    ("pure_code_implementation", "纯代码实施议题"),
+    ("engineering_decision", "工程决策议题"),
+    ("hybrid", "混合议题"),
 ]
 
 CODEX_SKILL_DESCRIPTION_BYTES_LIMIT = 1024
@@ -230,6 +195,89 @@ def load_manifest(errors: list[str]) -> dict[str, list[dict[str, str]]] | None:
     return families
 
 
+def load_roundtable_contract(errors: list[str]) -> dict[str, object] | None:
+    if not ROUNDTABLE_CONTRACT_PATH.exists():
+        add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, "missing roundtable contract manifest")
+        return None
+
+    try:
+        payload = json.loads(ROUNDTABLE_CONTRACT_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        add_error(  # pragma: no cover - exercised through runtime validation
+            errors,
+            ROUNDTABLE_CONTRACT_PATH,
+            exc.lineno or 1,
+            f"invalid JSON: {exc.msg}",
+        )
+        return None
+
+    if not isinstance(payload, dict):
+        add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, "roundtable contract must be a JSON object")
+        return None
+
+    for key in ["references", "quick_output", "dispatch_rules", "verdict_schema", "seats"]:
+        if key not in payload:
+            add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"roundtable contract missing {key}")
+
+    seats = payload.get("seats")
+    if not isinstance(seats, dict) or not seats:
+        add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, "roundtable contract seats must be a non-empty object")
+        return None
+
+    for seat_name, config in seats.items():
+        if not isinstance(config, dict):
+            add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} must be an object")
+            continue
+        for field in ["skill", "agent", "registry_summary", "registry_stage_row", "required_contract_snippets"]:
+            if field not in config:
+                add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing {field}")
+
+    return payload
+
+
+def iter_roundtable_seats(roundtable_contract: dict[str, object] | None) -> list[tuple[str, dict[str, object]]]:
+    if not roundtable_contract:
+        return []
+    seats = roundtable_contract.get("seats")
+    if not isinstance(seats, dict):
+        return []
+
+    result: list[tuple[str, dict[str, object]]] = []
+    for seat_name, config in seats.items():
+        if isinstance(seat_name, str) and isinstance(config, dict):
+            result.append((seat_name, config))
+    return result
+
+
+def normalize_markdown_text(value: str) -> str:
+    return re.sub(r"\s+", " ", value.replace("`", "").strip())
+
+
+def extract_section(text: str, heading: str) -> str | None:
+    level = len(heading.split(" ", 1)[0])
+    pattern = re.compile(
+        rf"^{re.escape(heading)}\n(?P<body>.*?)(?=^#{{1,{level}}} .+|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    match = pattern.search(text)
+    return match.group("body") if match else None
+
+
+def parse_markdown_table(section_text: str) -> list[dict[str, str]]:
+    table_lines = [line.strip() for line in section_text.splitlines() if line.strip().startswith("|")]
+    if len(table_lines) < 2:
+        return []
+
+    headers = [cell.strip() for cell in table_lines[0].strip("|").split("|")]
+    rows: list[dict[str, str]] = []
+    for line in table_lines[2:]:
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) != len(headers):
+            continue
+        rows.append(dict(zip(headers, cells)))
+    return rows
+
+
 def check_banned_snippets(errors: list[str]) -> None:
     for path in iter_files(ACTIVE_TEXT_GLOBS):
         text = path.read_text(encoding="utf-8")
@@ -239,11 +287,28 @@ def check_banned_snippets(errors: list[str]) -> None:
                     add_error(errors, path, lineno, f"banned snippet: {snippet}")
 
 
-def check_claude_agent_adapters(errors: list[str]) -> None:
-    for seat_name, config in SEAT_REGISTRY.items():
+def check_claude_agent_adapters(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
+    actual_files = {path.name for path in (CLAUDE_RUNTIME_ROOT / "agents").glob("*.md")}
+    expected_files = {f"{seat_name}.md" for seat_name, _ in iter_roundtable_seats(roundtable_contract)}
+    if actual_files != expected_files:
+        add_error(
+            errors,
+            CLAUDE_RUNTIME_ROOT / "agents",
+            1,
+            f"Claude agent set mismatch: expected={sorted(expected_files)} actual={sorted(actual_files)}",
+        )
+
+    for seat_name, config in iter_roundtable_seats(roundtable_contract):
         path = CLAUDE_RUNTIME_ROOT / "agents" / f"{seat_name}.md"
+        if not path.exists():
+            continue
         text = path.read_text(encoding="utf-8")
-        expected_skill = AGENT_SKILL_PATH_TEMPLATE.format(skill_name=config["skill"])
+        skill_name = config.get("skill")
+        if not isinstance(skill_name, str):
+            add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing string skill")
+            continue
+
+        expected_skill = AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name)
         expected_seat = AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=f"{seat_name}.md")
         for required in [expected_skill, expected_seat, AGENT_VERDICT_REFERENCE_PATH]:
             if required not in text:
@@ -293,6 +358,7 @@ def check_roundtable_command_entry(errors: list[str]) -> None:
         *ROUNDTABLE_EXECUTION_CONTEXTS,
         "zhuzi/workflows/roundtable.md",
         "zhuzi/templates/roundtable-quick.md",
+        "zhuzi/manifests/roundtable-contract.json",
     ]:
         if required not in text:
             add_error(errors, path, 1, f"roundtable command missing {required}")
@@ -320,10 +386,12 @@ def check_codex_roundtable_skill(errors: list[str]) -> None:
         "references/seat-registry.md",
         "references/verdict-schema.md",
         "templates/roundtable-quick.md",
+        "manifests/roundtable-contract.json",
         "zhuzi/workflows/roundtable.md",
         "zhuzi/references/seat-registry.md",
         "zhuzi/references/verdict-schema.md",
         "zhuzi/templates/roundtable-quick.md",
+        "zhuzi/manifests/roundtable-contract.json",
     ]:
         if required not in text:
             add_error(errors, path, 1, f"Codex roundtable skill missing {required}")
@@ -350,6 +418,7 @@ def check_roundtable_workflow(errors: list[str]) -> None:
         "## 硬约束（任何情况不得违反）",
         "N 席位召开（N ≥ 1）",
         "continue_existing_agent(agent_id, message)",
+        "roundtable-contract.json",
     ]:
         if required not in text:
             add_error(errors, path, 1, f"roundtable workflow missing {required}")
@@ -367,7 +436,7 @@ def check_roundtable_workflow(errors: list[str]) -> None:
             add_error(errors, path, 1, f"roundtable workflow leaked runtime-specific primitive {forbidden}")
 
 
-def check_seat_registry(errors: list[str]) -> None:
+def check_seat_registry(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
     path = ROOT / "zhuzi" / "references" / "seat-registry.md"
     if not path.exists():
         add_error(errors, path, 1, "missing seat registry")
@@ -378,40 +447,122 @@ def check_seat_registry(errors: list[str]) -> None:
         if required not in text:
             add_error(errors, path, 1, f"seat registry missing {required}")
 
-    marker = "## 当前席位"
-    if marker in text and "## 召开纪律" in text:
-        seat_section = text.split(marker, 1)[1].split("## 召开纪律", 1)[0]
-        table_agents = set(re.findall(r"^\|\s*[^|]+\s*\|\s*`([^`]+)`", seat_section, re.MULTILINE))
-        file_agents = {agent.stem for agent in (CLAUDE_RUNTIME_ROOT / "agents").glob("*.md")}
-        if table_agents != file_agents:
-            add_error(
-                errors,
-                path,
-                1,
-                f"seat registry mismatch: table={sorted(table_agents)} files={sorted(file_agents)}",
+    current_section = extract_section(text, "## 当前席位")
+    if current_section is not None:
+        rows = parse_markdown_table(current_section)
+        actual_rows = [
+            (
+                normalize_markdown_text(row.get("席位", "")),
+                normalize_markdown_text(row.get("agent", "")),
+                normalize_markdown_text(row.get("职责", "")),
+                normalize_markdown_text(row.get("默认 `stages`", "")),
+                normalize_markdown_text(row.get("擅长领域（议题匹配关键词）", "")),
             )
+            for row in rows
+        ]
+        expected_rows: list[tuple[str, str, str, str, str]] = []
+        for seat_name, config in iter_roundtable_seats(roundtable_contract):
+            summary = config.get("registry_summary")
+            if not isinstance(summary, dict):
+                add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing registry_summary object")
+                continue
+            expected_rows.append(
+                (
+                    normalize_markdown_text(str(summary.get("seat", ""))),
+                    normalize_markdown_text(seat_name),
+                    normalize_markdown_text(str(summary.get("role", ""))),
+                    normalize_markdown_text(str(summary.get("default_stages", ""))),
+                    normalize_markdown_text(str(summary.get("domains", ""))),
+                )
+            )
+        if actual_rows != expected_rows:
+            add_error(errors, path, 1, f"seat registry current table mismatch: actual={actual_rows} expected={expected_rows}")
+
+    stage_section = extract_section(text, "## 默认 `stages` 规则")
+    if stage_section is not None:
+        rows = parse_markdown_table(stage_section)
+        actual_stage_rows = [
+            tuple(
+                normalize_markdown_text(row.get(column, ""))
+                for column in ["席位", *[label for _, label in SEAT_REGISTRY_SCENE_COLUMNS]]
+            )
+            for row in rows
+        ]
+        expected_stage_rows: list[tuple[str, ...]] = []
+        for seat_name, config in iter_roundtable_seats(roundtable_contract):
+            registry_stage_row = config.get("registry_stage_row")
+            if not isinstance(registry_stage_row, dict):
+                add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing registry_stage_row object")
+                continue
+            expected_stage_rows.append(
+                tuple(
+                    normalize_markdown_text(str(registry_stage_row.get(key, "")))
+                    for key in ["seat", *[scene_key for scene_key, _ in SEAT_REGISTRY_SCENE_COLUMNS]]
+                )
+            )
+        if actual_stage_rows != expected_stage_rows:
+            add_error(errors, path, 1, f"seat registry stage table mismatch: actual={actual_stage_rows} expected={expected_stage_rows}")
+
+    dispatch_rules = roundtable_contract.get("dispatch_rules") if isinstance(roundtable_contract, dict) else None
+    if isinstance(dispatch_rules, dict):
+        lopez_section = extract_section(text, "### López 必召开触发词")
+        if lopez_section is None:
+            add_error(errors, path, 1, "seat registry missing López 必召开触发词 section")
+        else:
+            for keyword in dispatch_rules.get("lopez_must_call_keywords", []):
+                if isinstance(keyword, str) and keyword not in lopez_section:
+                    add_error(errors, path, 1, f"seat registry missing López must-call keyword {keyword}")
+
+        linus_section = extract_section(text, "### Linus `stages=[1,2]`")
+        if linus_section is None:
+            add_error(errors, path, 1, "seat registry missing Linus `stages=[1,2]` section")
+        else:
+            for note in dispatch_rules.get("linus_dual_stage_notes", []):
+                if isinstance(note, str) and note not in linus_section:
+                    add_error(errors, path, 1, f"seat registry missing Linus dual-stage note {note}")
 
 
-def check_shared_seat_contracts(errors: list[str]) -> None:
+def check_shared_seat_contracts(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
     seat_dir = ROOT / "zhuzi" / "seats"
     if not seat_dir.exists():
         add_error(errors, seat_dir, 1, "missing shared seats directory")
         return
 
-    for seat_name, config in SEAT_REGISTRY.items():
+    actual_files = {path.name for path in seat_dir.glob("*.md")}
+    expected_files = {f"{seat_name}.md" for seat_name, _ in iter_roundtable_seats(roundtable_contract)}
+    if actual_files != expected_files:
+        add_error(
+            errors,
+            seat_dir,
+            1,
+            f"shared seat set mismatch: expected={sorted(expected_files)} actual={sorted(actual_files)}",
+        )
+
+    for seat_name, config in iter_roundtable_seats(roundtable_contract):
         path = seat_dir / f"{seat_name}.md"
         if not path.exists():
             add_error(errors, path, 1, "missing shared seat contract")
             continue
 
         text = path.read_text(encoding="utf-8")
-        for required in ["## 适用范围", "## 职责", "## 越权边界", "## 输出契约", "## 输出底线", *config["required_snippets"]]:
+        required_snippets = config.get("required_contract_snippets")
+        if not isinstance(required_snippets, list):
+            add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing required_contract_snippets list")
+            continue
+        for required in ["## 适用范围", "## 职责", "## 越权边界", "## 输出契约", "## 输出底线", *required_snippets]:
             if required not in text:
                 add_error(errors, path, 1, f"shared seat contract missing {required}")
 
 
-def check_quick_roundtable_contract(errors: list[str]) -> None:
+def check_quick_roundtable_contract(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
     template = ROOT / "zhuzi" / "templates" / "roundtable-quick.md"
+    expected_headings: list[str] = []
+    quick_output = roundtable_contract.get("quick_output") if isinstance(roundtable_contract, dict) else None
+    if isinstance(quick_output, dict):
+        headings = quick_output.get("headings")
+        if isinstance(headings, list):
+            expected_headings = [heading for heading in headings if isinstance(heading, str)]
+
     template_headings: list[str] = []
     if not template.exists():
         add_error(errors, template, 1, "missing Quick Roundtable template")
@@ -420,6 +571,11 @@ def check_quick_roundtable_contract(errors: list[str]) -> None:
         template_headings = extract_markdown_headings(template_text, level=2)
         if not template_headings:
             add_error(errors, template, 1, "quick template missing level-2 headings")
+        elif expected_headings and template_headings != expected_headings:
+            add_error(errors, template, 1, f"quick template headings mismatch: template={template_headings} contract={expected_headings}")
+        for category in (quick_output or {}).get("decision_categories", []):
+            if isinstance(category, str) and f"| {category} |" not in template_text:
+                add_error(errors, template, 1, f"quick template missing decision category {category}")
 
     example = ROOT / "examples" / "roundtable-quick.md"
     if not example.exists():
@@ -427,12 +583,13 @@ def check_quick_roundtable_contract(errors: list[str]) -> None:
     else:
         example_text = example.read_text(encoding="utf-8")
         example_headings = extract_markdown_headings(example_text, level=2)
-        if template_headings and example_headings != template_headings:
+        expected_example_headings = expected_headings or template_headings
+        if expected_example_headings and example_headings != expected_example_headings:
             add_error(
                 errors,
                 example,
                 1,
-                f"quick example headings mismatch: template={template_headings} example={example_headings}",
+                f"quick example headings mismatch: contract={expected_example_headings} example={example_headings}",
             )
 
     readme = ROOT / "README.md"
@@ -442,6 +599,7 @@ def check_quick_roundtable_contract(errors: list[str]) -> None:
         "./zhuzi/templates/roundtable-quick.md",
         "./docs/INVENTORY.md",
         "./zhuzi/manifests/shipped-surface.json",
+        "./zhuzi/manifests/roundtable-contract.json",
         "zhuzi/workflows/roundtable.md",
         "zhuzi/seats/",
     ]:
@@ -463,13 +621,13 @@ def check_commit_guidelines(errors: list[str]) -> None:
             add_error(errors, path, 1, f"commit guideline missing {required}")
 
 
-def check_codex_agent_adapters(errors: list[str]) -> None:
+def check_codex_agent_adapters(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
     if not CODEX_RUNTIME_ROOT.exists():
         return
 
     agent_dir = CODEX_RUNTIME_ROOT / "agents"
     actual_files = {path.name for path in agent_dir.glob("*.md")}
-    expected_files = {f"{seat_name}.md" for seat_name in SEAT_REGISTRY}
+    expected_files = {f"{seat_name}.md" for seat_name, _ in iter_roundtable_seats(roundtable_contract)}
     if actual_files != expected_files:
         add_error(
             errors,
@@ -478,13 +636,16 @@ def check_codex_agent_adapters(errors: list[str]) -> None:
             f"Codex agent set mismatch: expected={sorted(expected_files)} actual={sorted(actual_files)}",
         )
 
-    for seat_name, config in SEAT_REGISTRY.items():
+    for seat_name, config in iter_roundtable_seats(roundtable_contract):
         path = agent_dir / f"{seat_name}.md"
         if not path.exists():
             continue
 
         text = path.read_text(encoding="utf-8")
-        skill_name = config["skill"]
+        skill_name = config.get("skill")
+        if not isinstance(skill_name, str):
+            add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing string skill")
+            continue
         for required in [
             "<codex_agent_role>",
             "<required_reading>",
@@ -503,7 +664,7 @@ def check_codex_agent_adapters(errors: list[str]) -> None:
                 add_error(errors, path, 1, f"Codex agent should not inline shared schema snippet {banned}")
 
 
-def check_schema_reference(errors: list[str]) -> None:
+def check_schema_reference(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
     path = ROOT / "zhuzi" / "references" / "verdict-schema.md"
     if not path.exists():
         add_error(errors, path, 1, "missing verdict schema reference")
@@ -520,6 +681,60 @@ def check_schema_reference(errors: list[str]) -> None:
     ]:
         if required not in text:
             add_error(errors, path, 1, f"schema reference missing {required}")
+
+    verdict_schema = roundtable_contract.get("verdict_schema") if isinstance(roundtable_contract, dict) else None
+    if not isinstance(verdict_schema, dict):
+        return
+
+    for layer in verdict_schema.get("layers", []):
+        if isinstance(layer, str) and layer not in text:
+            add_error(errors, path, 1, f"schema reference missing layer {layer}")
+
+    for route in verdict_schema.get("route_space", []):
+        if isinstance(route, str) and route not in text:
+            add_error(errors, path, 1, f"schema reference missing route {route}")
+
+    route_section = extract_section(text, "## route 映射规则")
+    if route_section is not None:
+        route_rows = parse_markdown_table(route_section)
+        actual_route_rows = [
+            (
+                normalize_markdown_text(row.get("席位", "")),
+                normalize_markdown_text(row.get("native", "")),
+                normalize_markdown_text(row.get("→ `core.route`", "")),
+            )
+            for row in route_rows
+        ]
+        expected_route_rows = [
+            (
+                normalize_markdown_text(str(row.get("seat", ""))),
+                normalize_markdown_text(str(row.get("native", ""))),
+                normalize_markdown_text(str(row.get("route", ""))),
+            )
+            for row in verdict_schema.get("route_mappings", [])
+            if isinstance(row, dict)
+        ]
+        if actual_route_rows != expected_route_rows:
+            add_error(errors, path, 1, f"schema route table mismatch: actual={actual_route_rows} expected={expected_route_rows}")
+
+    seat_specific_fields = verdict_schema.get("seat_specific_fields")
+    if isinstance(seat_specific_fields, dict):
+        for seat_label, fields in seat_specific_fields.items():
+            if isinstance(seat_label, str) and f"- {seat_label}:" not in text:
+                add_error(errors, path, 1, f"schema reference missing seat-specific label {seat_label}")
+            if isinstance(fields, list):
+                for field in fields:
+                    if isinstance(field, str) and field not in text:
+                        add_error(errors, path, 1, f"schema reference missing seat-specific field {field}")
+
+    phase_4_exception = verdict_schema.get("phase_4_exception")
+    if isinstance(phase_4_exception, dict):
+        root_key = phase_4_exception.get("root_key")
+        if isinstance(root_key, str) and root_key not in text:
+            add_error(errors, path, 1, f"schema reference missing phase 4 exception root {root_key}")
+        for field in phase_4_exception.get("fields", []):
+            if isinstance(field, str) and field not in text:
+                add_error(errors, path, 1, f"schema reference missing phase 4 exception field {field}")
 
 
 def check_manifest(errors: list[str], manifest_families: dict[str, list[dict[str, str]]] | None) -> None:
@@ -713,19 +928,20 @@ def iter_skill_entrypoints() -> list[Path]:
 def main() -> int:
     errors: list[str] = []
     manifest_families = load_manifest(errors)
+    roundtable_contract = load_roundtable_contract(errors)
 
     check_banned_snippets(errors)
-    check_claude_agent_adapters(errors)
+    check_claude_agent_adapters(errors, roundtable_contract)
     check_runtime_path_templates(errors)
     check_roundtable_command_entry(errors)
     check_codex_roundtable_skill(errors)
     check_roundtable_workflow(errors)
-    check_seat_registry(errors)
-    check_shared_seat_contracts(errors)
-    check_quick_roundtable_contract(errors)
+    check_seat_registry(errors, roundtable_contract)
+    check_shared_seat_contracts(errors, roundtable_contract)
+    check_quick_roundtable_contract(errors, roundtable_contract)
     check_commit_guidelines(errors)
-    check_codex_agent_adapters(errors)
-    check_schema_reference(errors)
+    check_codex_agent_adapters(errors, roundtable_contract)
+    check_schema_reference(errors, roundtable_contract)
     check_manifest(errors, manifest_families)
     check_inventory(errors, manifest_families)
     check_skill_reference_links(errors)

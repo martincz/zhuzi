@@ -1,6 +1,6 @@
 # Shared Verdict Schema
 
-> 这是 `/zhuzi:roundtable` 所有席位共享的 YAML verdict 契约权威源。若 `roundtable.md`、agent 示例段或 README 的说法漂移，以本文件为准。
+> 这是 `/zhuzi:roundtable` 所有席位共享的 YAML verdict 契约人读权威源。route 映射、seat-specific 注册和 Quick/seat/stages 机器合同以 `zhuzi/manifests/roundtable-contract.json` 为准；若 `roundtable.md`、agent 示例段或 README 漂移，以 manifest 与本文件交叉校验结果为准。
 
 ## 层级结构
 
@@ -96,7 +96,8 @@ must_haves_challenge:
 ## 新增席位维护清单
 
 1. 先新建共享 seat contract：`zhuzi/seats/<name>-reviewer.md`（或 `-engineer.md`），定义 `<seat>_verdict` root key、native verdict 和 seat-specific 字段要求。
-2. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
-3. 更新 `zhuzi/references/seat-registry.md`。
-4. 更新本文件的 route 映射规则和 seat-specific 字段说明。
-5. 更新 `docs/INVENTORY.md`、`zhuzi/manifests/shipped-surface.json` 与 `tools/check_consistency.py` 的覆盖面。
+2. 更新 `zhuzi/manifests/roundtable-contract.json`，把 route 映射、seat-specific 注册、Quick/stages 机器合同补齐。
+3. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
+4. 更新 `zhuzi/references/seat-registry.md`。
+5. 更新本文件的 route 映射规则和 seat-specific 字段说明。
+6. 更新 `docs/INVENTORY.md`、`zhuzi/manifests/shipped-surface.json` 与 `tools/check_consistency.py` 的覆盖面。

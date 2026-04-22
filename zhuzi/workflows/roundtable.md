@@ -1,6 +1,6 @@
 # Roundtable Workflow
 
-> 这是 `/zhuzi:roundtable` 的权威 workflow。命令入口负责装载，本文件只负责流程本身。当前席位、route 映射和 Quick 输出骨架若与本文件摘要性描述有出入，以同时装载的 reference / template 为准。
+> 这是 `/zhuzi:roundtable` 的权威 workflow。命令入口负责装载，本文件只负责流程本身。Quick headings、seat/stages/route、seat-specific 机器合同以 `zhuzi/manifests/roundtable-contract.json` 为准；人读解释以同时装载的 reference / template 为准。
 
 ## 流水线性质
 
@@ -58,7 +58,7 @@ spawn 任何席位**之前**，orchestrator 完成三件事。Quick 模式下不
 - N=0 时（无席位匹配）停流水线，建议用户改议题描述或用非 roundtable 流程直接和 orchestrator 对话。
 - Quick 模式下评议席位默认不超过 3 个；若语义命中超过 3 个，优先保留最能发现 hard blocker 或真实分歧的席位。
 
-`stages` 的默认路由、López 必召开触发词，以及 Linus `stages=[1,2]` 的双阶段语义都以 `seat-registry.md` 为准。本文件只在真正需要的阶段描述里重复其效果，不复制完整席位表。
+`stages` 的默认路由、López 必召开触发词，以及 Linus `stages=[1,2]` 的双阶段语义都以 `roundtable-contract.json` 为机读真相源，并以 `seat-registry.md` 作为人读解释层。本文件只在真正需要的阶段描述里重复其效果，不复制完整席位表。
 
 #### Step 1 · must_haves 定义
 

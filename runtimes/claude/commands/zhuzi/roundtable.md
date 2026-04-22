@@ -27,6 +27,7 @@ $ARGUMENTS
 @{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md
 @{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md
 @{{ZHUZI_SHARED_ROOT}}/templates/roundtable-quick.md
+@{{ZHUZI_SHARED_ROOT}}/manifests/roundtable-contract.json
 </execution_context>
 
 <context>
@@ -35,6 +36,7 @@ $ARGUMENTS
 - `zhuzi/references/seat-registry.md`
 - `zhuzi/references/verdict-schema.md`
 - `zhuzi/templates/roundtable-quick.md`
+- `zhuzi/manifests/roundtable-contract.json`
 
 若 workflow、references、template 与 README、agent 示例段有出入，以本命令装载的执行上下文为准。
 </context>

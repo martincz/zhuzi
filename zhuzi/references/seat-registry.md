@@ -1,6 +1,6 @@
 # Roundtable Seat Registry
 
-> 这是 `/zhuzi:roundtable` 的席位权威表。若 `roundtable.md`、README、AGENTS、agent 描述段对当前席位或默认 `stages` 的说法不一致，以本文件为准。
+> 这是 `/zhuzi:roundtable` 的人读席位权威表。Quick headings、seat/stages/route、seat-specific 机器合同以 `zhuzi/manifests/roundtable-contract.json` 为准；若 `roundtable.md`、README、AGENTS、agent 描述段漂移，以 manifest 与本文件交叉校验结果为准。
 
 ## 当前席位
 
@@ -74,6 +74,7 @@
 
 ### Step 4（机械）— 更新注册表
 
+- [ ] `zhuzi/manifests/roundtable-contract.json` 的 `seats`、stage policy、route、Quick 相关字段补齐
 - [ ] 本文件「## 当前席位」表格加一行
 - [ ] 本文件「## 默认 `stages` 规则」表格加一行
 - [ ] 本文件「## 补充规则」如有必召开触发词，加一节

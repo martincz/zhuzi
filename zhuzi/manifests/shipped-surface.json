@@ -135,6 +135,11 @@
     ],
     "manifests": [
       {
+        "entry": "roundtable-contract",
+        "path": "zhuzi/manifests/roundtable-contract.json",
+        "role": "roundtable 机器执行合同，覆盖 Quick headings、seat/stages/route 与 seat-specific 字段"
+      },
+      {
         "entry": "shipped-surface",
         "path": "zhuzi/manifests/shipped-surface.json",
         "role": "机器可读 shipped surface 真相源"

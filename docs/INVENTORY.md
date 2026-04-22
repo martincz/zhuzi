@@ -1,6 +1,6 @@
 # zhuzi Shipped Surface Inventory
 
-> 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
+> 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json` 与 `zhuzi/manifests/roundtable-contract.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
 
 ## Skills (5 shipped)
 
@@ -70,10 +70,11 @@
 |---|---|---|
 | `roundtable-quick` | `zhuzi/templates/roundtable-quick.md` | Quick Roundtable 输出骨架 |
 
-## Manifests (1 shipped)
+## Manifests (2 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
+| `roundtable-contract` | `zhuzi/manifests/roundtable-contract.json` | roundtable 机器执行合同，覆盖 Quick headings、seat/stages/route 与 seat-specific 字段 |
 | `shipped-surface` | `zhuzi/manifests/shipped-surface.json` | 机器可读 shipped surface 真相源 |
 
 ## Examples (1 shipped)

@@ -40,6 +40,7 @@ metadata:
 - `references/seat-registry.md`
 - `references/verdict-schema.md`
 - `templates/roundtable-quick.md`
+- `manifests/roundtable-contract.json`
 </execution_context>
 
 <context>
@@ -48,6 +49,7 @@ Roundtable 的共享真相源仍然只认：
 - `zhuzi/references/seat-registry.md`
 - `zhuzi/references/verdict-schema.md`
 - `zhuzi/templates/roundtable-quick.md`
+- `zhuzi/manifests/roundtable-contract.json`
 
 Codex 侧没有 Claude-style slash command。本 skill 充当 Codex 的 roundtable 协调层适配器。
 

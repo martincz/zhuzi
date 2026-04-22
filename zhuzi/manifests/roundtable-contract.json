@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "references": {
+    "workflow": "zhuzi/workflows/roundtable.md",
+    "seat_registry": "zhuzi/references/seat-registry.md",
+    "verdict_schema": "zhuzi/references/verdict-schema.md",
+    "quick_template": "zhuzi/templates/roundtable-quick.md",
+    "quick_example": "examples/roundtable-quick.md"
+  },
+  "quick_output": {
+    "headings": [
+      "## 主持人结论",
+      "## 议题卡",
+      "## 席位短评",
+      "## 决策表",
+      "## 下一步"
+    ],
+    "decision_categories": [
+      "locked",
+      "deferred",
+      "discretion"
+    ],
+    "max_review_seats": 3
+  },
+  "dispatch_rules": {
+    "min_invoked_seats": 1,
+    "lopez_must_call_keywords": [
+      "研究方法论",
+      "实验设计",
+      "benchmark",
+      "eval",
+      "A-B test",
+      "因果声明",
+      "causal claim",
+      "data leakage",
+      "selection bias",
+      "backtest 审视",
+      "因子诚信",
+      "过拟合诊断",
+      "trial 披露",
+      "CV 方法",
+      "Sharpe deflation",
+      "factor zoo",
+      "specification",
+      "Sisyphus workflow"
+    ],
+    "linus_dual_stage_notes": [
+      "阶段 1：工程视角评议题，关注 good taste、数据结构、anti-pattern，不评判当前 codebase 是否承载得住。",
+      "阶段 2：可行性 gate，吸收阶段 1 和其他席位结论，评估能否干净落地。"
+    ]
+  },
+  "verdict_schema": {
+    "layers": [
+      "core",
+      "must_haves_review",
+      "must_haves_challenge",
+      "seat_specific"
+    ],
+    "route_space": [
+      "go",
+      "go_with_conditions",
+      "revise_must_haves",
+      "kill",
+      "too_hard"
+    ],
+    "review_flags": [
+      "none",
+      "threshold_issue",
+      "method_issue",
+      "overfitting_risk",
+      "metric_gaming",
+      "coverage_gap",
+      "lookahead_unchecked",
+      "multiple_testing",
+      "incentive_mismatch",
+      "other"
+    ],
+    "route_mappings": [
+      {
+        "seat": "Taleb",
+        "native": "fragile",
+        "route": "go_with_conditions / revise_must_haves / kill"
+      },
+      {
+        "seat": "Taleb",
+        "native": "robust / antifragile",
+        "route": "go"
+      },
+      {
+        "seat": "Munger",
+        "native": "keep",
+        "route": "go"
+      },
+      {
+        "seat": "Munger",
+        "native": "kill",
+        "route": "kill"
+      },
+      {
+        "seat": "Munger",
+        "native": "too_hard",
+        "route": "too_hard"
+      },
+      {
+        "seat": "López",
+        "native": "scientific",
+        "route": "go"
+      },
+      {
+        "seat": "López",
+        "native": "associational",
+        "route": "go_with_conditions"
+      },
+      {
+        "seat": "López",
+        "native": "pseudo_scientific",
+        "route": "kill / revise_must_haves"
+      },
+      {
+        "seat": "López",
+        "native": "domain_limit_flag 非空",
+        "route": "too_hard"
+      },
+      {
+        "seat": "Linus",
+        "native": "sane",
+        "route": "go"
+      },
+      {
+        "seat": "Linus",
+        "native": "broken",
+        "route": "kill"
+      },
+      {
+        "seat": "Linus",
+        "native": "needs_refactor_first",
+        "route": "revise_must_haves / go_with_conditions"
+      }
+    ],
+    "seat_specific_fields": {
+      "Taleb": [
+        "tail_events_breaking_must_haves",
+        "fragility_checklist_failures",
+        "skin_in_the_game"
+      ],
+      "Munger": [
+        "anti_patterns_hit",
+        "lollapalooza_stack",
+        "circle_of_competence",
+        "reverse_kill_path"
+      ],
+      "López": [
+        "claim_classification",
+        "causal_graph_missing",
+        "trial_count_disclosed",
+        "integrity_checklist_failures",
+        "anti_pattern_hits",
+        "workflow_diagnosis",
+        "domain_limit_flag"
+      ],
+      "Linus 阶段 2": [
+        "broken_evidence",
+        "must_haves_coverage_detail",
+        "refactor_prerequisites",
+        "risk_notes",
+        "out_of_scope_for_strategy"
+      ]
+    },
+    "phase_4_exception": {
+      "root_key": "linus_execution",
+      "fields": [
+        "status",
+        "decisions_honored",
+        "verification_attempted",
+        "self_audit",
+        "commit_status",
+        "gaps_to_route_back"
+      ]
+    }
+  },
+  "seats": {
+    "taleb-reviewer": {
+      "skill": "taleb-antifragile",
+      "agent": "taleb-reviewer",
+      "core_seat": "taleb",
+      "registry_summary": {
+        "seat": "风险结构",
+        "role": "尾部风险、fragility、凸性、barbell、skin in the game",
+        "default_stages": "[1]",
+        "domains": "不确定性 / 尾部风险 / 脆弱性 / 凸性 / ruin risk / barbell / 冗余 / 选择权 / 依赖链风险 / skin-in-the-game / 厚尾分布"
+      },
+      "stage_policy": {
+        "strategy_business_org": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含不确定性 / 尾部 / 脆弱性"
+        },
+        "research_eval": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "仅在评估暴露尾部风险时"
+        },
+        "pure_code_implementation": {
+          "mode": "never",
+          "stages": []
+        },
+        "engineering_decision": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "仅在工程方案有系统性脆弱性时"
+        },
+        "hybrid": {
+          "mode": "always",
+          "stages": [
+            1
+          ]
+        }
+      },
+      "registry_stage_row": {
+        "seat": "Taleb",
+        "strategy_business_org": "含不确定性 / 尾部 / 脆弱性 → `[1]`",
+        "research_eval": "仅在评估暴露尾部风险时 `[1]`",
+        "pure_code_implementation": "弃权",
+        "engineering_decision": "仅在工程方案有系统性脆弱性时 `[1]`",
+        "hybrid": "[1]"
+      },
+      "shared_root_keys": [
+        "taleb_verdict"
+      ],
+      "native_verdict_routes": {
+        "fragile": [
+          "go_with_conditions",
+          "revise_must_haves",
+          "kill"
+        ],
+        "robust": [
+          "go"
+        ],
+        "antifragile": [
+          "go"
+        ]
+      },
+      "seat_specific_fields": [
+        "tail_events_breaking_must_haves",
+        "fragility_checklist_failures",
+        "skin_in_the_game"
+      ],
+      "required_contract_snippets": [
+        "taleb_verdict",
+        "tail_events_breaking_must_haves",
+        "fragility_checklist_failures",
+        "skin_in_the_game"
+      ]
+    },
+    "munger-reviewer": {
+      "skill": "munger-checklist",
+      "agent": "munger-reviewer",
+      "core_seat": "munger",
+      "registry_summary": {
+        "seat": "决策质量",
+        "role": "愚蠢清单、认知偏误、激励结构、能力圈、机会成本",
+        "default_stages": "[1]",
+        "domains": "投资决策 / 商业判断 / 产品策略 / 组织决策 / 认知偏误审视 / 能力圈边界 / 机会成本 / 安全边际 / 激励结构 / 护城河 / Lollapalooza"
+      },
+      "stage_policy": {
+        "strategy_business_org": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含判断质量 / 激励 / 能力圈 / 机会成本"
+        },
+        "research_eval": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "仅在指标激励或研究者偏误关键时"
+        },
+        "pure_code_implementation": {
+          "mode": "never",
+          "stages": []
+        },
+        "engineering_decision": {
+          "mode": "never",
+          "stages": []
+        },
+        "hybrid": {
+          "mode": "always",
+          "stages": [
+            1
+          ]
+        }
+      },
+      "registry_stage_row": {
+        "seat": "Munger",
+        "strategy_business_org": "含判断质量 / 激励 / 能力圈 / 机会成本 → `[1]`",
+        "research_eval": "仅在指标激励或研究者偏误关键时 `[1]`",
+        "pure_code_implementation": "弃权",
+        "engineering_decision": "弃权",
+        "hybrid": "[1]"
+      },
+      "shared_root_keys": [
+        "munger_verdict"
+      ],
+      "native_verdict_routes": {
+        "keep": [
+          "go"
+        ],
+        "kill": [
+          "kill"
+        ],
+        "too_hard": [
+          "too_hard"
+        ]
+      },
+      "seat_specific_fields": [
+        "anti_patterns_hit",
+        "lollapalooza_stack",
+        "circle_of_competence",
+        "reverse_kill_path"
+      ],
+      "required_contract_snippets": [
+        "munger_verdict",
+        "anti_patterns_hit",
+        "lollapalooza_stack",
+        "circle_of_competence",
+        "reverse_kill_path"
+      ]
+    },
+    "lopezdeprado-reviewer": {
+      "skill": "lopezdeprado-scientist",
+      "agent": "lopezdeprado-reviewer",
+      "core_seat": "lopezdeprado",
+      "registry_summary": {
+        "seat": "证据质量",
+        "role": "研究诚信、associational vs causal、实验/评估设计、backtest overfitting、DSR/PBO/CPCV",
+        "default_stages": "[1]",
+        "domains": "研究方法论 / 实验设计 / 因果声明 / benchmark / A-B test / eval / data leakage / backtest overfitting / p-hacking / multiple testing / specification error / Deflated Sharpe / Purged K-Fold / CPCV / 研究流程诊断"
+      },
+      "stage_policy": {
+        "strategy_business_org": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "evidence claim 关键时"
+        },
+        "research_eval": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含实验 / 因果 / benchmark / eval / 回测"
+        },
+        "pure_code_implementation": {
+          "mode": "never",
+          "stages": []
+        },
+        "engineering_decision": {
+          "mode": "never",
+          "stages": []
+        },
+        "hybrid": {
+          "mode": "always",
+          "stages": [
+            1
+          ]
+        }
+      },
+      "registry_stage_row": {
+        "seat": "López",
+        "strategy_business_org": "evidence claim 关键时 `[1]`",
+        "research_eval": "含实验 / 因果 / benchmark / eval / 回测 → `[1]`",
+        "pure_code_implementation": "弃权",
+        "engineering_decision": "弃权",
+        "hybrid": "[1]"
+      },
+      "shared_root_keys": [
+        "lopezdeprado_verdict"
+      ],
+      "native_verdict_routes": {
+        "scientific": [
+          "go"
+        ],
+        "associational": [
+          "go_with_conditions"
+        ],
+        "pseudo_scientific": [
+          "kill",
+          "revise_must_haves"
+        ]
+      },
+      "seat_specific_fields": [
+        "claim_classification",
+        "causal_graph_missing",
+        "trial_count_disclosed",
+        "integrity_checklist_failures",
+        "anti_pattern_hits",
+        "workflow_diagnosis",
+        "domain_limit_flag"
+      ],
+      "required_contract_snippets": [
+        "lopezdeprado_verdict",
+        "claim_classification",
+        "causal_graph_missing",
+        "trial_count_disclosed",
+        "integrity_checklist_failures",
+        "anti_pattern_hits",
+        "workflow_diagnosis",
+        "domain_limit_flag"
+      ]
+    },
+    "linus-engineer": {
+      "skill": "linus-torvalds-engineer",
+      "agent": "linus-engineer",
+      "core_seat": "linus",
+      "registry_summary": {
+        "seat": "代码",
+        "role": "架构、可行性、review、重构、实施、good taste",
+        "default_stages": "[2]` 或 `[1,2]`",
+        "domains": "软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视"
+      },
+      "stage_policy": {
+        "strategy_business_org": {
+          "mode": "never",
+          "stages": []
+        },
+        "research_eval": {
+          "mode": "never",
+          "stages": []
+        },
+        "pure_code_implementation": {
+          "mode": "always",
+          "stages": [
+            2
+          ]
+        },
+        "engineering_decision": {
+          "mode": "always",
+          "stages": [
+            1,
+            2
+          ]
+        },
+        "hybrid": {
+          "mode": "always",
+          "stages": [
+            1,
+            2
+          ]
+        }
+      },
+      "registry_stage_row": {
+        "seat": "Linus",
+        "strategy_business_org": "弃权",
+        "research_eval": "弃权",
+        "pure_code_implementation": "[2]",
+        "engineering_decision": "[1,2]",
+        "hybrid": "[1,2]"
+      },
+      "shared_root_keys": [
+        "linus_feasibility",
+        "linus_execution"
+      ],
+      "native_verdict_routes": {
+        "sane": [
+          "go"
+        ],
+        "broken": [
+          "kill"
+        ],
+        "needs_refactor_first": [
+          "revise_must_haves",
+          "go_with_conditions"
+        ]
+      },
+      "seat_specific_fields": {
+        "phase_2": [
+          "broken_evidence",
+          "must_haves_coverage_detail",
+          "refactor_prerequisites",
+          "risk_notes",
+          "out_of_scope_for_strategy"
+        ],
+        "phase_4": [
+          "phase",
+          "status",
+          "decisions_honored",
+          "out_of_scope_touched",
+          "verification_attempted",
+          "self_audit",
+          "commit_status",
+          "gaps_to_route_back"
+        ]
+      },
+      "required_contract_snippets": [
+        "## 启动纪律",
+        "## 阶段纪律",
+        "linus_feasibility",
+        "linus_execution",
+        "broken_evidence",
+        "must_haves_coverage_detail",
+        "refactor_prerequisites",
+        "risk_notes",
+        "out_of_scope_for_strategy",
+        "verification_attempted",
+        "commit_status",
+        "gaps_to_route_back"
+      ]
+    }
+  }
+}

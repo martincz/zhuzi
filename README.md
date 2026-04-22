@@ -26,7 +26,7 @@
 
 快速了解默认输出长相：看 [Quick Roundtable 示例](./examples/roundtable-quick.md)。  
 当前 shipped surface 的人读清单：看 [docs/INVENTORY.md](./docs/INVENTORY.md)。  
-机器可读真相源：看 [zhuzi/manifests/shipped-surface.json](./zhuzi/manifests/shipped-surface.json)。
+机器可读真相源：看 [zhuzi/manifests/shipped-surface.json](./zhuzi/manifests/shipped-surface.json) 和 [zhuzi/manifests/roundtable-contract.json](./zhuzi/manifests/roundtable-contract.json)。
 
 ## 核心组成
 
@@ -37,7 +37,7 @@
 | Runtime adapters | `runtimes/claude/`、`runtimes/codex/` | 薄 wrapper，负责装载 shared assets |
 | Workflow | `zhuzi/workflows/roundtable.md` | roundtable 权威流程 |
 | Shared references | `zhuzi/references/` | 席位表、schema、路由规则 |
-| Templates / manifests | `zhuzi/templates/`、`zhuzi/manifests/` | Quick 输出骨架与 shipped surface 真相源 |
+| Templates / manifests | `zhuzi/templates/`、`zhuzi/manifests/` | Quick 输出骨架、roundtable 执行合同与 shipped surface 真相源 |
 
 一句话关系：**skill 是思想内核，agent 是协作席位，roundtable 是议事规则。**
 
@@ -95,7 +95,7 @@ zhuzi/
 │   ├── references/             # seat-registry / verdict-schema
 │   ├── workflows/              # 权威流程正文
 │   ├── templates/              # Quick 输出骨架
-│   └── manifests/              # shipped surface 真相源
+│   └── manifests/              # roundtable / shipped surface 机器真相源
 ├── docs/INVENTORY.md           # shipped surface 的人读清单
 ├── examples/roundtable-quick.md
 ├── AGENTS.md                   # 仓库协作总规约
@@ -107,6 +107,7 @@ zhuzi/
 如果你要找 roundtable 的权威文件，先看这些路径：
 
 - `zhuzi/workflows/roundtable.md`
+- `zhuzi/manifests/roundtable-contract.json`
 - `zhuzi/seats/`
 - `zhuzi/references/seat-registry.md`
 - `zhuzi/references/verdict-schema.md`
@@ -165,6 +166,7 @@ python3 tools/smoke_test_codex_roundtable.py
 
 - 人物正文、触发词、anti-pattern、研究支撑：改 `skills/<name>/`
 - 席位职责、越权边界、输出 root、seat-specific 字段：改 `zhuzi/seats/*.md`
+- Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册）：改 `zhuzi/manifests/roundtable-contract.json`
 - 席位表、默认 `stages`、召开纪律：改 `zhuzi/references/seat-registry.md`
 - 共同 verdict schema：改 `zhuzi/references/verdict-schema.md`
 - Roundtable 流程：先改 `zhuzi/workflows/roundtable.md`
