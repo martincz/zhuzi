@@ -253,11 +253,19 @@
         "fragility_checklist_failures",
         "skin_in_the_game"
       ],
+      "output_contract": {
+        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Taleb 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "sections": [
+          {
+            "root_key": "taleb_verdict",
+            "phase": "1",
+            "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身把 Mediocristan 指标拿去审 Extremistan 问题，或根本忽视了 ruin / Jensen / time-average 约束"
+          }
+        ]
+      },
       "required_contract_snippets": [
-        "taleb_verdict",
-        "tail_events_breaking_must_haves",
-        "fragility_checklist_failures",
-        "skin_in_the_game"
+        "## 审议动作"
       ]
     },
     "munger-reviewer": {
@@ -328,12 +336,22 @@
         "circle_of_competence",
         "reverse_kill_path"
       ],
+      "output_contract": {
+        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Munger 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "sections": [
+          {
+            "root_key": "munger_verdict",
+            "phase": "1",
+            "extra_route_lines": [
+              "若 must_haves 本身是 Goodhart / 激励扭曲 / 样本污染，应走 `revise_must_haves`"
+            ],
+            "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表你认为 must_haves 框架本身在激励或判断结构上跑偏，不是单条阈值小修"
+          }
+        ]
+      },
       "required_contract_snippets": [
-        "munger_verdict",
-        "anti_patterns_hit",
-        "lollapalooza_stack",
-        "circle_of_competence",
-        "reverse_kill_path"
+        "## 审议动作"
       ]
     },
     "lopezdeprado-reviewer": {
@@ -408,15 +426,22 @@
         "workflow_diagnosis",
         "domain_limit_flag"
       ],
+      "output_contract": {
+        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；López 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "sections": [
+          {
+            "root_key": "lopezdeprado_verdict",
+            "phase": "1",
+            "extra_route_lines": [
+              "`domain_limit_flag != none` → `too_hard`"
+            ],
+            "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架把 associational claim 伪装成 causal、把 backtest 当理论、把 multiple testing 问题埋起来，或在 protocol 层面就不科学"
+          }
+        ]
+      },
       "required_contract_snippets": [
-        "lopezdeprado_verdict",
-        "claim_classification",
-        "causal_graph_missing",
-        "trial_count_disclosed",
-        "integrity_checklist_failures",
-        "anti_pattern_hits",
-        "workflow_diagnosis",
-        "domain_limit_flag"
+        "## 审议动作"
       ]
     },
     "linus-engineer": {
@@ -502,19 +527,37 @@
           "gaps_to_route_back"
         ]
       },
+      "output_contract": {
+        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "sections": [
+          {
+            "heading": "阶段 2",
+            "root_key": "linus_feasibility",
+            "phase": "2",
+            "seat_specific_field_group": "phase_2",
+            "must_haves_review_note": "`must_haves_review` 必须覆盖每条 truth；Linus 视角最常用的 flag 是 `coverage_gap`",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 表示代码层认为 must_haves 本身要求了现架构无法干净承载的能力，应回到阶段 1.5 修订",
+            "field_rules": [
+              "`broken_evidence` 必须具体到 `file` / `symbol` / `reason`"
+            ]
+          },
+          {
+            "heading": "阶段 4",
+            "schema_mode": "phase_4_exception",
+            "root_key": "linus_execution",
+            "seat_specific_field_group": "phase_4",
+            "intro_note": "这是实施验证状态输出，不走共同四层 schema",
+            "field_list_label": "必填字段",
+            "field_rules": [
+              "`verification_attempted` 必须逐条记录实际执行的 `cmd`、`result`、`evidence`",
+              "任一 verify 失败或跳过，都不能报 `done`；必须把缺口写进 `gaps_to_route_back`"
+            ]
+          }
+        ]
+      },
       "required_contract_snippets": [
         "## 启动纪律",
-        "## 阶段纪律",
-        "linus_feasibility",
-        "linus_execution",
-        "broken_evidence",
-        "must_haves_coverage_detail",
-        "refactor_prerequisites",
-        "risk_notes",
-        "out_of_scope_for_strategy",
-        "verification_attempted",
-        "commit_status",
-        "gaps_to_route_back"
+        "## 阶段纪律"
       ]
     }
   }

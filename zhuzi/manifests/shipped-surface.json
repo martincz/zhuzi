@@ -166,7 +166,7 @@
       {
         "entry": "render_roundtable_contract_docs.py",
         "path": "tools/render_roundtable_contract_docs.py",
-        "role": "从 roundtable-contract manifest 生成 seat-registry 与 verdict-schema 的 reference 投影段"
+        "role": "从 roundtable-contract manifest 生成 seat-registry、verdict-schema 与 seat 输出契约的投影段"
       },
       {
         "entry": "smoke_test_codex_roundtable.py",

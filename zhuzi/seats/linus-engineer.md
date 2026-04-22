@@ -43,6 +43,7 @@
 
 ## 输出契约
 
+<!-- GENERATED:linus_output_contract:start -->
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 ### 阶段 2
@@ -54,7 +55,7 @@
 - route 映射：
   - `sane` → `go`
   - `broken` → `kill`
-  - `needs_refactor_first` → `revise_must_haves` 或 `go_with_conditions`
+  - `needs_refactor_first` → `revise_must_haves` / `go_with_conditions`
 - `must_haves_review` 必须覆盖每条 truth；Linus 视角最常用的 flag 是 `coverage_gap`
 - `must_haves_challenge.triggered: yes` 表示代码层认为 must_haves 本身要求了现架构无法干净承载的能力，应回到阶段 1.5 修订
 - `seat_specific` 必填字段：
@@ -80,6 +81,7 @@
   - `gaps_to_route_back`
 - `verification_attempted` 必须逐条记录实际执行的 `cmd`、`result`、`evidence`
 - 任一 verify 失败或跳过，都不能报 `done`；必须把缺口写进 `gaps_to_route_back`
+<!-- GENERATED:linus_output_contract:end -->
 
 ## 输出底线
 

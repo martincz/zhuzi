@@ -26,6 +26,7 @@
 
 ## 输出契约
 
+<!-- GENERATED:taleb_output_contract:start -->
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Taleb 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 - YAML root key：`taleb_verdict`
@@ -42,6 +43,7 @@
   - `tail_events_breaking_must_haves`
   - `fragility_checklist_failures`
   - `skin_in_the_game`
+<!-- GENERATED:taleb_output_contract:end -->
 
 ## 输出底线
 

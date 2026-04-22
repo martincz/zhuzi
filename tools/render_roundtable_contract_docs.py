@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render roundtable reference docs from the structured contract manifest."""
+"""Render roundtable contract docs from the structured contract manifest."""
 
 from __future__ import annotations
 
@@ -15,6 +15,10 @@ ROUNDTABLE_CONTRACT_PATH = ROOT / "zhuzi" / "manifests" / "roundtable-contract.j
 
 SEAT_REGISTRY_PATH = "zhuzi/references/seat-registry.md"
 VERDICT_SCHEMA_PATH = "zhuzi/references/verdict-schema.md"
+TALEB_SEAT_PATH = "zhuzi/seats/taleb-reviewer.md"
+MUNGER_SEAT_PATH = "zhuzi/seats/munger-reviewer.md"
+LOPEZ_SEAT_PATH = "zhuzi/seats/lopezdeprado-reviewer.md"
+LINUS_SEAT_PATH = "zhuzi/seats/linus-engineer.md"
 
 GENERATED_DOCS = {
     SEAT_REGISTRY_PATH: [
@@ -30,6 +34,18 @@ GENERATED_DOCS = {
         "verdict_schema_seat_specific",
         "verdict_schema_route_rules",
         "verdict_schema_phase_4_exception",
+    ],
+    TALEB_SEAT_PATH: [
+        "taleb_output_contract",
+    ],
+    MUNGER_SEAT_PATH: [
+        "munger_output_contract",
+    ],
+    LOPEZ_SEAT_PATH: [
+        "lopez_output_contract",
+    ],
+    LINUS_SEAT_PATH: [
+        "linus_output_contract",
     ],
 }
 
@@ -52,6 +68,29 @@ def iter_seats(contract: dict[str, object]) -> list[tuple[str, dict[str, object]
             raise ValueError("roundtable contract seats must map string names to objects")
         result.append((seat_name, config))
     return result
+
+
+def get_seat_config(contract: dict[str, object], seat_name: str) -> dict[str, object]:
+    seats = contract.get("seats")
+    if not isinstance(seats, dict):
+        raise ValueError("roundtable contract missing seats object")
+
+    config = seats.get(seat_name)
+    if not isinstance(config, dict):
+        raise ValueError(f"roundtable contract missing seat config: {seat_name}")
+    return config
+
+
+def expect_string(value: object, label: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{label} must be a non-empty string")
+    return value
+
+
+def expect_string_list(value: object, label: str) -> list[str]:
+    if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
+        raise ValueError(f"{label} must be a non-empty string list")
+    return [str(item) for item in value]
 
 
 def render_markdown_table(headers: list[str], rows: list[list[str]]) -> str:
@@ -240,6 +279,171 @@ def render_verdict_schema_phase_4_exception(contract: dict[str, object]) -> str:
     return f"`{root_key}` 是实施验证状态输出，不走共同 verdict schema。它保留自己的字段结构：{joined}。"
 
 
+def resolve_seat_specific_fields(
+    config: dict[str, object],
+    *,
+    seat_name: str,
+    field_group: str | None,
+) -> list[str]:
+    seat_specific_fields = config.get("seat_specific_fields")
+    if isinstance(seat_specific_fields, list):
+        if field_group not in (None, "default"):
+            raise ValueError(f"{seat_name} does not support seat_specific field group {field_group}")
+        return expect_string_list(seat_specific_fields, f"{seat_name}.seat_specific_fields")
+
+    if isinstance(seat_specific_fields, dict):
+        selected_group = expect_string(field_group or "default", f"{seat_name}.output_contract.field_group")
+        fields = seat_specific_fields.get(selected_group)
+        return expect_string_list(fields, f"{seat_name}.seat_specific_fields.{selected_group}")
+
+    raise ValueError(f"{seat_name}.seat_specific_fields must be a string list or grouped object")
+
+
+def render_route_targets(routes: list[str]) -> str:
+    return " / ".join(f"`{route}`" for route in routes)
+
+
+def render_shared_output_contract_section(
+    seat_name: str,
+    config: dict[str, object],
+    section: dict[str, object],
+) -> str:
+    root_key = expect_string(section.get("root_key"), f"{seat_name}.output_contract.root_key")
+    phase = expect_string(section.get("phase"), f"{seat_name}.output_contract.phase")
+    core_seat = expect_string(config.get("core_seat"), f"{seat_name}.core_seat")
+
+    native_verdict_routes = config.get("native_verdict_routes")
+    if not isinstance(native_verdict_routes, dict) or not native_verdict_routes:
+        raise ValueError(f"{seat_name}.native_verdict_routes must be a non-empty object")
+
+    verdict_order = section.get("native_verdicts")
+    if verdict_order is None:
+        ordered_verdicts = [expect_string(key, f"{seat_name}.native_verdict") for key in native_verdict_routes]
+    else:
+        ordered_verdicts = expect_string_list(verdict_order, f"{seat_name}.output_contract.native_verdicts")
+
+    lines: list[str] = []
+    heading = section.get("heading")
+    if isinstance(heading, str) and heading:
+        lines.extend([f"### {heading}", ""])
+
+    lines.append(f"- YAML root key：`{root_key}`")
+    lines.append(f"- `core.seat`: `{core_seat}`")
+    lines.append(f"- `core.phase`: `{phase}`")
+    lines.append("- `core.seat_native_verdict`: " + " / ".join(f"`{verdict}`" for verdict in ordered_verdicts))
+    lines.append("- route 映射：")
+
+    for verdict in ordered_verdicts:
+        routes = native_verdict_routes.get(verdict)
+        lines.append(f"  - `{verdict}` → {render_route_targets(expect_string_list(routes, f'{seat_name}.native_verdict_routes.{verdict}'))}")
+
+    extra_route_lines = section.get("extra_route_lines")
+    if extra_route_lines is not None:
+        for route_line in expect_string_list(extra_route_lines, f"{seat_name}.output_contract.extra_route_lines"):
+            lines.append(f"  - {route_line}")
+
+    for note_key in ["must_haves_review_note", "must_haves_challenge_note"]:
+        note = section.get(note_key)
+        if note is not None:
+            lines.append(f"- {expect_string(note, f'{seat_name}.output_contract.{note_key}')}")
+
+    field_group = section.get("seat_specific_field_group")
+    lines.append("- `seat_specific` 必填字段：")
+    for field in resolve_seat_specific_fields(
+        config,
+        seat_name=seat_name,
+        field_group=field_group if isinstance(field_group, str) else None,
+    ):
+        lines.append(f"  - `{field}`")
+
+    field_rules = section.get("field_rules")
+    if field_rules is not None:
+        for field_rule in expect_string_list(field_rules, f"{seat_name}.output_contract.field_rules"):
+            lines.append(f"- {field_rule}")
+
+    return "\n".join(lines)
+
+
+def render_exception_output_contract_section(
+    seat_name: str,
+    config: dict[str, object],
+    section: dict[str, object],
+) -> str:
+    root_key = expect_string(section.get("root_key"), f"{seat_name}.output_contract.root_key")
+    field_group = expect_string(
+        section.get("seat_specific_field_group"),
+        f"{seat_name}.output_contract.seat_specific_field_group",
+    )
+
+    lines: list[str] = []
+    heading = section.get("heading")
+    if isinstance(heading, str) and heading:
+        lines.extend([f"### {heading}", ""])
+
+    lines.append(f"- YAML root key：`{root_key}`")
+    intro_note = section.get("intro_note")
+    if intro_note is not None:
+        lines.append(f"- {expect_string(intro_note, f'{seat_name}.output_contract.intro_note')}")
+
+    field_list_label = expect_string(
+        section.get("field_list_label", "必填字段"),
+        f"{seat_name}.output_contract.field_list_label",
+    )
+    lines.append(f"- {field_list_label}：")
+    for field in resolve_seat_specific_fields(config, seat_name=seat_name, field_group=field_group):
+        lines.append(f"  - `{field}`")
+
+    field_rules = section.get("field_rules")
+    if field_rules is not None:
+        for field_rule in expect_string_list(field_rules, f"{seat_name}.output_contract.field_rules"):
+            lines.append(f"- {field_rule}")
+
+    return "\n".join(lines)
+
+
+def render_seat_output_contract(contract: dict[str, object], seat_name: str) -> str:
+    config = get_seat_config(contract, seat_name)
+    output_contract = config.get("output_contract")
+    if not isinstance(output_contract, dict):
+        raise ValueError(f"{seat_name}.output_contract must be an object")
+
+    shared_intro = expect_string(output_contract.get("shared_intro"), f"{seat_name}.output_contract.shared_intro")
+    sections = output_contract.get("sections")
+    if not isinstance(sections, list) or not sections:
+        raise ValueError(f"{seat_name}.output_contract.sections must be a non-empty list")
+
+    blocks = [shared_intro]
+    for section in sections:
+        if not isinstance(section, dict):
+            raise ValueError(f"{seat_name}.output_contract.sections must contain objects")
+        schema_mode = section.get("schema_mode", "shared")
+        if schema_mode == "shared":
+            blocks.append(render_shared_output_contract_section(seat_name, config, section))
+            continue
+        if schema_mode == "phase_4_exception":
+            blocks.append(render_exception_output_contract_section(seat_name, config, section))
+            continue
+        raise ValueError(f"{seat_name}.output_contract has unsupported schema_mode {schema_mode}")
+
+    return "\n\n".join(blocks)
+
+
+def render_taleb_output_contract(contract: dict[str, object]) -> str:
+    return render_seat_output_contract(contract, "taleb-reviewer")
+
+
+def render_munger_output_contract(contract: dict[str, object]) -> str:
+    return render_seat_output_contract(contract, "munger-reviewer")
+
+
+def render_lopez_output_contract(contract: dict[str, object]) -> str:
+    return render_seat_output_contract(contract, "lopezdeprado-reviewer")
+
+
+def render_linus_output_contract(contract: dict[str, object]) -> str:
+    return render_seat_output_contract(contract, "linus-engineer")
+
+
 BLOCK_RENDERERS = {
     "seat_registry_current_seats": render_seat_registry_current_seats,
     "seat_registry_stage_rules": render_seat_registry_stage_rules,
@@ -251,6 +455,10 @@ BLOCK_RENDERERS = {
     "verdict_schema_seat_specific": render_verdict_schema_seat_specific,
     "verdict_schema_route_rules": render_verdict_schema_route_rules,
     "verdict_schema_phase_4_exception": render_verdict_schema_phase_4_exception,
+    "taleb_output_contract": render_taleb_output_contract,
+    "munger_output_contract": render_munger_output_contract,
+    "lopez_output_contract": render_lopez_output_contract,
+    "linus_output_contract": render_linus_output_contract,
 }
 
 

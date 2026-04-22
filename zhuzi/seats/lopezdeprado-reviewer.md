@@ -27,6 +27,7 @@
 
 ## 输出契约
 
+<!-- GENERATED:lopez_output_contract:start -->
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；López 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 - YAML root key：`lopezdeprado_verdict`
@@ -48,6 +49,7 @@
   - `anti_pattern_hits`
   - `workflow_diagnosis`
   - `domain_limit_flag`
+<!-- GENERATED:lopez_output_contract:end -->
 
 ## 输出底线
 

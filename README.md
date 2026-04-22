@@ -166,11 +166,10 @@ python3 tools/smoke_test_codex_roundtable.py
 欢迎 PR。改动前先分清你碰的是哪一层：
 
 - 人物正文、触发词、anti-pattern、研究支撑：改 `skills/<name>/`
-- 席位职责、越权边界、输出 root、seat-specific 字段：改 `zhuzi/seats/*.md`
-- Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册）：改 `zhuzi/manifests/roundtable-contract.json`
-- Roundtable reference 投影段：改 manifest 后跑 `python3 tools/render_roundtable_contract_docs.py`
-- 席位表、默认 `stages`、召开纪律：改 `zhuzi/references/seat-registry.md`
-- 共同 verdict schema：改 `zhuzi/references/verdict-schema.md`
+- 席位职责、越权边界、启动/阶段纪律等手写合同：改 `zhuzi/seats/*.md`
+- Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册、seat 输出契约机器段）：改 `zhuzi/manifests/roundtable-contract.json`
+- Roundtable reference / seat 输出契约投影段：先改 manifest，再跑 `python3 tools/render_roundtable_contract_docs.py`
+- `zhuzi/references/seat-registry.md` 与 `zhuzi/references/verdict-schema.md` 默认只改非生成说明段；生成块不要手改
 - Roundtable 流程：先改 `zhuzi/workflows/roundtable.md`
 - shipped surface：同步 `docs/INVENTORY.md` 与 `zhuzi/manifests/shipped-surface.json`
 - 安装或 side-load 行为：改 `install.sh` 与 `tools/install_codex_source_adapters.py`

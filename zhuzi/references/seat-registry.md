@@ -76,19 +76,19 @@
 
 从最接近的现有席位 copy-modify 并替换 family-specific 内容：
 
-- [ ] `zhuzi/seats/<seat>.md` — 评议型参考 `zhuzi/seats/taleb-reviewer.md`，实施型参考 `zhuzi/seats/linus-engineer.md`
+- [ ] `zhuzi/seats/<seat>.md` — 评议型参考 `zhuzi/seats/taleb-reviewer.md`，实施型参考 `zhuzi/seats/linus-engineer.md`；手写职责/边界/纪律，保留 `## 输出契约` 生成块 marker
 - [ ] `runtimes/claude/agents/<seat>.md` — 参考同人物的 Claude adapter（薄；只装载 skill + seat contract + schema）
 - [ ] `runtimes/codex/agents/<seat>.md` — 参考同人物的 Codex adapter（薄；必须含 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 模板路径和 `./skills/...` / `./zhuzi/...` 仓库 fallback 两组路径）
 
 ### Step 4（机械）— 更新注册表
 
-- [ ] `zhuzi/manifests/roundtable-contract.json` 的 `seats`、stage policy、route、Quick 相关字段补齐
-- [ ] 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件与 `verdict-schema.md` 的生成段
+- [ ] `zhuzi/manifests/roundtable-contract.json` 的 `seats`、stage policy、route、Quick 相关字段与 seat 输出契约补齐
+- [ ] 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件、`verdict-schema.md` 与 seat 文件里的 `## 输出契约` 生成段
 - [ ] 检查本文件的非生成说明段是否仍成立（例如召开纪律、维护流程、判断/机械边界）
 - [ ] `docs/INVENTORY.md` 的 Skills / Agents / Seats 三节加条目，更新每节顶部计数
 - [ ] `zhuzi/manifests/shipped-surface.json` 的 `skills` / `agents` / `seats` 三个 family 加条目
 - [ ] `tools/check_consistency.py` 会直接读取 manifest 校验 shared seats / adapters / references；确认新字段已被守门覆盖
-- [ ] 若引入新 native verdict 或 route 语义，更新 `zhuzi/references/verdict-schema.md`
+- [ ] 若引入新 native verdict 或 route 语义，先改 manifest 并 rerender；只有 shared schema 的非生成说明变化时才手改 `zhuzi/references/verdict-schema.md`
 
 ### Step 5（机械）— 跑守门
 

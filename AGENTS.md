@@ -20,7 +20,7 @@ This file provides guidance to agent runtimes (Codex, Claude Code, and compatibl
 
 - `README.md`：仓库概览、目录结构、安装方式
 - `zhuzi/workflows/roundtable.md`：Roundtable 权威流程与 gate 规则
-- `zhuzi/manifests/roundtable-contract.json`：Quick headings、seat/stages/route、seat_specific 机器合同
+- `zhuzi/manifests/roundtable-contract.json`：Quick headings、seat/stages/route、seat_specific 与 seat 输出契约机器合同
 - `zhuzi/references/seat-registry.md`：当前席位、默认 `stages`、召开纪律
 - `zhuzi/references/verdict-schema.md`：共同 YAML verdict 契约
 - `zhuzi/templates/roundtable-quick.md`：Quick Roundtable 默认骨架
@@ -84,11 +84,10 @@ chore: 固化圆桌短读输出模板
 ## 修改指针
 
 - 改人物正文、触发词、研究引用、anti-pattern：去对应 `skills/<name>/`
-- 改席位职责、越权边界、输出 root、seat-specific 字段：去 `zhuzi/seats/*.md`
-- 改 Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册）：去 `zhuzi/manifests/roundtable-contract.json`
-- 改 Roundtable reference 投影段：先改 manifest，再跑 `python3 tools/render_roundtable_contract_docs.py`
-- 改当前席位、默认 `stages`、召开纪律：去 `zhuzi/references/seat-registry.md`
-- 改共同 verdict schema：去 `zhuzi/references/verdict-schema.md`
+- 改席位职责、越权边界、启动/阶段纪律等手写合同：去 `zhuzi/seats/*.md`
+- 改 Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册、seat 输出契约机器段）：去 `zhuzi/manifests/roundtable-contract.json`
+- 改 Roundtable reference / seat 输出契约投影段：先改 manifest，再跑 `python3 tools/render_roundtable_contract_docs.py`
+- `zhuzi/references/seat-registry.md` 与 `zhuzi/references/verdict-schema.md` 默认只改非生成说明段；生成块不要手改
 - 改 Roundtable 阶段、gate、Quick 行为：先改 `zhuzi/workflows/roundtable.md`，再看是否需要改入口 adapter
 - 改 shipped surface：同步 `docs/INVENTORY.md` 与 `zhuzi/manifests/shipped-surface.json`
 - 改安装或路径渲染：去 `install.sh` 与 `tools/install_codex_source_adapters.py`

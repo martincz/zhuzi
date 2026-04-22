@@ -107,8 +107,8 @@ must_haves_challenge:
 
 ## 新增席位维护清单
 
-1. 先新建共享 seat contract：`zhuzi/seats/<name>-reviewer.md`（或 `-engineer.md`），定义 `<seat>_verdict` root key、native verdict 和 seat-specific 字段要求。
-2. 更新 `zhuzi/manifests/roundtable-contract.json`，把 route 映射、seat-specific 注册、Quick/stages 机器合同补齐。
-3. 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件与 `seat-registry.md` 的生成段。
+1. 先新建共享 seat contract：`zhuzi/seats/<name>-reviewer.md`（或 `-engineer.md`），手写职责、越权边界与纪律，并保留 `## 输出契约` 生成块 marker。
+2. 更新 `zhuzi/manifests/roundtable-contract.json`，把 root key、native verdict、route 映射、seat-specific 注册、Quick/stages 与 seat 输出契约机器合同补齐。
+3. 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件、`seat-registry.md` 与 seat 文件里的 `## 输出契约` 生成段。
 4. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
 5. 更新 `docs/INVENTORY.md`、`zhuzi/manifests/shipped-surface.json` 与 `tools/check_consistency.py` 的覆盖面。

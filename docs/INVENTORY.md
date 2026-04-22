@@ -89,5 +89,5 @@
 |---|---|---|
 | `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 manifest、inventory、生成段、shared seats、runtime adapter 路径与安装面 |
 | `install_codex_source_adapters.py` | `tools/install_codex_source_adapters.py` | 渲染并 side-load Codex source-only roundtable adapters 到 Codex 安装根 |
-| `render_roundtable_contract_docs.py` | `tools/render_roundtable_contract_docs.py` | 从 roundtable-contract manifest 生成 seat-registry 与 verdict-schema 的 reference 投影段 |
+| `render_roundtable_contract_docs.py` | `tools/render_roundtable_contract_docs.py` | 从 roundtable-contract manifest 生成 seat-registry、verdict-schema 与 seat 输出契约的投影段 |
 | `smoke_test_codex_roundtable.py` | `tools/smoke_test_codex_roundtable.py` | 手动 Codex roundtable 烟雾测试：刷新安装、注入 source-only adapter、验证 skill 激活 |

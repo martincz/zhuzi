@@ -222,7 +222,7 @@ def load_roundtable_contract(errors: list[str]) -> dict[str, object] | None:
         if not isinstance(config, dict):
             add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} must be an object")
             continue
-        for field in ["skill", "agent", "registry_summary", "registry_stage_row", "required_contract_snippets"]:
+        for field in ["skill", "agent", "registry_summary", "registry_stage_row", "output_contract", "required_contract_snippets"]:
             if field not in config:
                 add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing {field}")
 
@@ -474,6 +474,7 @@ def check_shared_seat_contracts(errors: list[str], roundtable_contract: dict[str
             continue
 
         text = path.read_text(encoding="utf-8")
+        relative_path = rel(path)
         required_snippets = config.get("required_contract_snippets")
         if not isinstance(required_snippets, list):
             add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing required_contract_snippets list")
@@ -481,6 +482,17 @@ def check_shared_seat_contracts(errors: list[str], roundtable_contract: dict[str
         for required in ["## 适用范围", "## 职责", "## 越权边界", "## 输出契约", "## 输出底线", *required_snippets]:
             if required not in text:
                 add_error(errors, path, 1, f"shared seat contract missing {required}")
+
+        for block_name in GENERATED_DOCS.get(relative_path, []):
+            if f"<!-- GENERATED:{block_name}:start -->" not in text or f"<!-- GENERATED:{block_name}:end -->" not in text:
+                add_error(errors, path, 1, f"shared seat contract missing generated block markers for {block_name}")
+
+        if relative_path in GENERATED_DOCS:
+            check_generated_roundtable_doc(
+                errors,
+                relative_path=relative_path,
+                roundtable_contract=roundtable_contract,
+            )
 
 
 def check_quick_roundtable_contract(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
