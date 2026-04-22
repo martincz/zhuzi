@@ -93,8 +93,8 @@ Skill 按用途分两类：
 每个 roundtable 席位现在拆成一层共享契约 + 两套 runtime adapter 源码：
 
 - `zhuzi/seats/<name>.md`——**共享 seat contract**。席位职责、越权边界、root key、route 语义、`seat_specific` 字段要求都放这里。
-- `runtimes/claude/agents/<name>.md`——**Claude runtime adapter 模板**。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；安装时才渲染成真实路径。
-- `runtimes/codex/agents/<name>.md`——**Codex agent 定义**。和 Claude 一样保留 repo-level placeholder；side-load 时再渲染成 Codex 安装路径，源码里仍保留 repo 相对路径 fallback。
+- `runtimes/claude/agents/<name>.md`——**Claude runtime adapter 模板**。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；默认安装渲染为 `$HOME/.claude/...` 风格路径，显式设置 `CLAUDE_DIR` 时改渲染为对应 concrete override path。
+- `runtimes/codex/agents/<name>.md`——**Codex agent 定义**。和 Claude 一样保留 repo-level placeholder；side-load 时默认渲染为 `$HOME/.codex/...` 风格路径，并保留 repo 相对路径 fallback；显式设置 `CODEX_HOME` 时改渲染为对应 concrete override path。
 
 两边都不复制人物方法论正文，也不再各自维护一份 seat 语义；adapter 只 pull 对应 skill、shared seat contract 与 shared schema。
 
@@ -241,9 +241,9 @@ cd zhuzi
 
 安装源面默认读取 `zhuzi/manifests/shipped-surface.json`，因此新增 / 迁移 Claude adapter 或 skill 时，除了改文件树，也要同步更新 manifest。
 
-注意：仓库里的 `runtimes/claude/agents/*.md` 与 `runtimes/claude/commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...` 或 `~/.codex/...`。这些路径只在安装产物里出现，由 `install.sh` 按目标 runtime 根目录渲染。
+注意：仓库里的 `runtimes/claude/agents/*.md` 与 `runtimes/claude/commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...`、`~/.codex/...` 或机器专属绝对路径。真正的路径策略只在安装阶段决定。
 
-补充说明：安装产物里出现本机绝对路径是**预期行为**，不是源码污染。原因很简单：这些 markdown 最终是给 runtime / agent 当“可直接读取的具体路径”用的，不是 shell 脚本；把它写成 `$HOME/...` 并不保证会被运行时展开。真正该保持 runtime-agnostic 的，是仓库里的源码模板，而不是安装后生成的本机副本。
+补充说明：默认安装产物优先写成 `$HOME/.claude/...` / `$HOME/.codex/...` 这种 **symbolic installed path**，目的是保留复制粘贴迁移能力，不把 `/home/<user>/...` 烙进文件里。只有你显式设置 `CLAUDE_DIR` / `CODEX_HOME` 装到非默认根目录时，安装器才渲染 concrete override path；否则 `$HOME/.codex/...` 会指错地方。`./zhuzi/...` 这类 repo 相对路径只能当**开发态 fallback**，不能单独替代 installed root，因为 runtime 的工作目录未必就是仓库根。
 
 ### 方式 B：手动试用 Codex roundtable adapter（当前 source-only）
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # 把 runtimes/claude/ / zhuzi/ / skills/ 下的内容安装到本机 agent runtime 配置目录。
-# 源码中的 agent / command 保持 runtime-agnostic 占位符，安装时再渲染成目标 runtime 的真实路径。
+# 源码中的 agent / command 保持 runtime-agnostic 占位符。
+# 默认安装时渲染成 $HOME-rooted symbolic path；若显式设置 CLAUDE_DIR / CODEX_HOME，则改渲染为对应 concrete override path。
 # 安装源面由 zhuzi/manifests/shipped-surface.json 驱动，避免 install.sh 再手写一套 shipped surface。
 # 覆盖安装，不保留备份。每次修改本仓库后需重跑本脚本。
 # 覆盖目标：
@@ -17,8 +18,22 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MANIFEST_PATH="$REPO/zhuzi/manifests/shipped-surface.json"
 CLAUDE="${CLAUDE_DIR:-$HOME/.claude}"
 CODEX="${CODEX_HOME:-$HOME/.codex}"
-CLAUDE_SKILL_ROOT="$CLAUDE/skills"
-CLAUDE_SHARED_ROOT="$CLAUDE/zhuzi"
+
+render_root_literal() {
+  local override_name="$1"
+  local concrete_root="$2"
+  local symbolic_root="$3"
+
+  if [[ -n "${!override_name:-}" ]]; then
+    printf '%s' "$concrete_root"
+  else
+    printf '%s' "$symbolic_root"
+  fi
+}
+
+CLAUDE_RENDER_ROOT="$(render_root_literal CLAUDE_DIR "$CLAUDE" '$HOME/.claude')"
+CLAUDE_SKILL_ROOT="$CLAUDE_RENDER_ROOT/skills"
+CLAUDE_SHARED_ROOT="$CLAUDE_RENDER_ROOT/zhuzi"
 
 render_template() {
   local src="$1"

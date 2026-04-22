@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Render and install the source-only Codex roundtable adapters."""
+"""Render and install the source-only Codex roundtable adapters.
+
+Default installs render ``$HOME/.codex/...`` symbolic paths.
+Explicit ``CODEX_HOME`` overrides render concrete paths so alternate roots stay valid.
+"""
 
 from __future__ import annotations
 
@@ -21,6 +25,10 @@ def render_text(text: str, *, skill_root: Path, shared_root: Path) -> str:
         text.replace("{{ZHUZI_SKILL_ROOT}}", str(skill_root))
         .replace("{{ZHUZI_SHARED_ROOT}}", str(shared_root))
     )
+
+
+def render_root_literal(concrete_root: Path, *, symbolic_root: str, render_concrete: bool) -> str:
+    return str(concrete_root) if render_concrete else symbolic_root
 
 
 def render_file(src: Path, dst: Path, *, skill_root: Path, shared_root: Path) -> None:
@@ -49,11 +57,28 @@ def copy_tree_with_render(src: Path, dst: Path, *, skill_root: Path, shared_root
         shutil.copy2(path, target)
 
 
-def install_source_only_adapters(codex_home: Path) -> None:
+def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | None = None) -> None:
+    if render_concrete is None:
+        render_concrete = os.environ.get("CODEX_HOME") is not None
+
     installed_agent_dir = codex_home / "agents"
     installed_skill_dir = codex_home / "skills" / "zhuzi-roundtable"
     installed_skill_root = codex_home / "skills"
     installed_shared_root = codex_home / "zhuzi"
+    rendered_skill_root = Path(
+        render_root_literal(
+            installed_skill_root,
+            symbolic_root="$HOME/.codex/skills",
+            render_concrete=render_concrete,
+        )
+    )
+    rendered_shared_root = Path(
+        render_root_literal(
+            installed_shared_root,
+            symbolic_root="$HOME/.codex/zhuzi",
+            render_concrete=render_concrete,
+        )
+    )
 
     installed_agent_dir.mkdir(parents=True, exist_ok=True)
 
@@ -61,15 +86,15 @@ def install_source_only_adapters(codex_home: Path) -> None:
         render_file(
             agent,
             installed_agent_dir / agent.name,
-            skill_root=installed_skill_root,
-            shared_root=installed_shared_root,
+            skill_root=rendered_skill_root,
+            shared_root=rendered_shared_root,
         )
 
     copy_tree_with_render(
         SOURCE_ONLY_SKILL_DIR,
         installed_skill_dir,
-        skill_root=installed_skill_root,
-        shared_root=installed_shared_root,
+        skill_root=rendered_skill_root,
+        shared_root=rendered_shared_root,
     )
 
 

@@ -642,6 +642,8 @@ def check_codex_install(errors: list[str]) -> None:
     text = path.read_text(encoding="utf-8")
     for required in [
         "CODEX_HOME",
+        "render_root_literal",
+        "CLAUDE_RENDER_ROOT",
         "$CODEX/skills",
         "$CLAUDE/skills",
         "$CLAUDE/zhuzi",
@@ -666,7 +668,11 @@ def check_codex_source_installer(errors: list[str]) -> None:
     text = path.read_text(encoding="utf-8")
     for required in [
         "render_text",
+        "render_root_literal",
         "install_source_only_adapters",
+        "render_concrete",
+        "$HOME/.codex/skills",
+        "$HOME/.codex/zhuzi",
         "{{ZHUZI_SKILL_ROOT}}",
         "{{ZHUZI_SHARED_ROOT}}",
         "runtimes/codex/agents",
