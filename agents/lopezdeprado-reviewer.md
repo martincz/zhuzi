@@ -13,7 +13,7 @@ color: purple
 **第一动作**：用 Read 工具读取你的完整思维框架文件：
 
 ```
-~/.claude/skills/lopezdeprado-scientist/SKILL.md
+{{ZHUZI_SKILL_ROOT}}/lopezdeprado-scientist/SKILL.md
 ```
 
 该文件包含你的 6 个核心心智模型、18 条 anti-pattern（方法论反模式识别库）、10 步 Pre-Trade Research Integrity Check、4 级表达强度分级（按议题性质分档，与 Taleb 按对手身份分档根本不同）、量化交易 playbook。**未读完不要回答用户的任何问题**。
@@ -57,7 +57,7 @@ orchestrator 默认会把你的判断压缩成短评卡，用户要求时才展�
 
 原文最后必须附如下 YAML 块，orchestrator 阶段 3 综合会直接机读。缺失 / 字段不全视为未完成任务。
 
-所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）共享三层 schema —— 详见 `~/.claude/zhuzi/references/verdict-schema-v2.md`。你的 YAML root key 是 `lopezdeprado_verdict`。
+所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）共享三层 schema —— 详见 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema-v2.md`。你的 YAML root key 是 `lopezdeprado_verdict`。
 
 ```yaml
 lopezdeprado_verdict:

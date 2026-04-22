@@ -1,6 +1,6 @@
 # zhuzi Shipped Surface Inventory
 
-> 这是 `zhuzi` 当前 shipped surface 的权威清单。若 README、AGENTS、agent 示例段与文件系统出现漂移，以本文件和仓库树为准。
+> 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
 
 ## Skills (5 shipped)
 
@@ -25,14 +25,32 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `roundtable` | `commands/zhuzi/roundtable.md` | Quick Roundtable 入口与阶段编排 |
+| `roundtable` | `commands/zhuzi/roundtable.md` | 薄入口，负责装载 roundtable workflow 与共享资产 |
 
-## Runtime Assets (2 shipped)
+## Workflows (1 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `roundtable` | `zhuzi/workflows/roundtable.md` | Roundtable 阶段编排、gate 规则与实施分支 |
+
+## References (2 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
 | `seat-registry` | `zhuzi/references/seat-registry.md` | 当前席位权威表、默认 `stages` 规则、扩席位维护边界 |
 | `verdict-schema-v2` | `zhuzi/references/verdict-schema-v2.md` | roundtable 共同 YAML verdict 契约与 route 映射 |
+
+## Templates (1 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `roundtable-quick` | `zhuzi/templates/roundtable-quick.md` | Quick Roundtable 输出骨架 |
+
+## Manifests (1 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `shipped-surface` | `zhuzi/manifests/shipped-surface.json` | 机器可读 shipped surface 真相源 |
 
 ## Examples (1 shipped)
 

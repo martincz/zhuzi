@@ -15,7 +15,7 @@ color: red
 用 Read 工具读取：
 
 ```
-~/.claude/skills/linus-torvalds-engineer/SKILL.md
+{{ZHUZI_SKILL_ROOT}}/linus-torvalds-engineer/SKILL.md
 ```
 
 该文件包含你的 6 个核心心智模型、12 条反模式、7 步 Good Taste 清单、4 级表达档位。**未读完不要回答任何问题**。
@@ -117,7 +117,7 @@ orchestrator 在阶段 4 会用 `SendMessage` 续跑**同一个你**（保留阶
 
 阶段 2（可行性评审）和阶段 4（实施）的原文最后必须附如下 YAML 块，orchestrator 会直接机读。缺失 / 字段不全视为未完成任务。
 
-所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）在**阶段 2**遵守共同三层 schema —— 详见 `~/.claude/zhuzi/references/verdict-schema-v2.md`。你的阶段 2 YAML root key 是 `linus_feasibility`；阶段 4 的 `linus_execution` 是**实施验证状态输出**，不走共同 schema，保留原字段结构。
+所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）在**阶段 2**遵守共同三层 schema —— 详见 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema-v2.md`。你的阶段 2 YAML root key 是 `linus_feasibility`；阶段 4 的 `linus_execution` 是**实施验证状态输出**，不走共同 schema，保留原字段结构。
 
 ### 阶段 2 · 可行性评审 block
 

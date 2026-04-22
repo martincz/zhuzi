@@ -1,0 +1,107 @@
+{
+  "families": {
+    "skills": [
+      {
+        "entry": "linus-torvalds-engineer",
+        "path": "skills/linus-torvalds-engineer/SKILL.md",
+        "role": "代码、架构、good taste 思维顾问"
+      },
+      {
+        "entry": "munger-checklist",
+        "path": "skills/munger-checklist/SKILL.md",
+        "role": "决策质量、偏误、激励结构思维顾问"
+      },
+      {
+        "entry": "taleb-antifragile",
+        "path": "skills/taleb-antifragile/SKILL.md",
+        "role": "fragility、tail risk、antifragile 思维顾问"
+      },
+      {
+        "entry": "lopezdeprado-scientist",
+        "path": "skills/lopezdeprado-scientist/SKILL.md",
+        "role": "研究诚信、causal claim、实验纪律思维顾问"
+      },
+      {
+        "entry": "luxun-zawen",
+        "path": "skills/luxun-zawen/SKILL.md",
+        "role": "杂文口吻与修辞改写工具"
+      }
+    ],
+    "agents": [
+      {
+        "entry": "linus-engineer",
+        "path": "agents/linus-engineer.md",
+        "role": "roundtable 代码席，负责工程可行性与实施"
+      },
+      {
+        "entry": "munger-reviewer",
+        "path": "agents/munger-reviewer.md",
+        "role": "roundtable 决策质量席"
+      },
+      {
+        "entry": "taleb-reviewer",
+        "path": "agents/taleb-reviewer.md",
+        "role": "roundtable 风险结构席"
+      },
+      {
+        "entry": "lopezdeprado-reviewer",
+        "path": "agents/lopezdeprado-reviewer.md",
+        "role": "roundtable 证据质量席"
+      }
+    ],
+    "commands": [
+      {
+        "entry": "roundtable",
+        "path": "commands/zhuzi/roundtable.md",
+        "role": "薄入口，负责装载 roundtable workflow 与共享资产"
+      }
+    ],
+    "workflows": [
+      {
+        "entry": "roundtable",
+        "path": "zhuzi/workflows/roundtable.md",
+        "role": "Roundtable 阶段编排、gate 规则与实施分支"
+      }
+    ],
+    "references": [
+      {
+        "entry": "seat-registry",
+        "path": "zhuzi/references/seat-registry.md",
+        "role": "当前席位权威表、默认 stages 规则、扩席位维护边界"
+      },
+      {
+        "entry": "verdict-schema-v2",
+        "path": "zhuzi/references/verdict-schema-v2.md",
+        "role": "roundtable 共同 YAML verdict 契约与 route 映射"
+      }
+    ],
+    "templates": [
+      {
+        "entry": "roundtable-quick",
+        "path": "zhuzi/templates/roundtable-quick.md",
+        "role": "Quick Roundtable 输出骨架"
+      }
+    ],
+    "manifests": [
+      {
+        "entry": "shipped-surface",
+        "path": "zhuzi/manifests/shipped-surface.json",
+        "role": "机器可读 shipped surface 真相源"
+      }
+    ],
+    "examples": [
+      {
+        "entry": "roundtable-quick",
+        "path": "examples/roundtable-quick.md",
+        "role": "默认短读圆桌输出示例"
+      }
+    ],
+    "tools": [
+      {
+        "entry": "check_consistency.py",
+        "path": "tools/check_consistency.py",
+        "role": "结构一致性检查，覆盖 inventory、manifest、schema 引用和安装路径"
+      }
+    ]
+  }
+}

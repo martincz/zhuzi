@@ -29,6 +29,7 @@ zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位�
 
 快速了解圆桌输出长相：看 [Quick Roundtable 示例](./examples/roundtable-quick.md)。
 当前 shipped surface 的权威清单：看 [docs/INVENTORY.md](./docs/INVENTORY.md)。
+机器可读的 shipped surface 真相源：看 [zhuzi/manifests/shipped-surface.json](./zhuzi/manifests/shipped-surface.json)。
 
 ## 核心组成
 
@@ -36,9 +37,12 @@ zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位�
 |---|---|---|
 | **Skills** | 5 个 | 单人物的思维操作系统——用户口语触发时，模型直接以该视角说话 |
 | **Agents** | 4 个 | Roundtable 的"席位"封装——把相应 skill 包装成可 spawn 的 subagent，强制输出共同 verdict schema |
-| **Commands** | 1 条 | `/zhuzi:roundtable`——把多个 agent 席位编排成默认短读的协作流水线 |
+| **Commands** | 1 条 | `/zhuzi:roundtable` 的薄入口——只负责装载 workflow 与共享资产 |
+| **Workflows** | 1 条 | `zhuzi/workflows/roundtable.md`——Roundtable 阶段编排、gate 与实施分支 |
 
 三者的关系：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → command 是让这些席位围坐一桌的议事规则。**
+
+Roundtable 运行时进一步拆成四层：**入口 command → workflow → shared references → Quick template / manifest**。入口保持薄，规则和骨架放到 `zhuzi/` 目录下的项目级资产里。
 
 运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
 
@@ -84,7 +88,7 @@ Skill 按用途分两类：
 
 ### 二、Agents（Roundtable 席位）
 
-每个 agent 是 `agents/<name>.md`——一份可被支持 subagent 的 runtime 加载的席位定义，**把对应 skill 包装成圆桌会议的一个席位**，强制产出统一结构的 YAML verdict block。当前安装脚本会把这些定义写入 Claude-style `~/.claude/agents/`；Codex 可先直接使用 `skills/`，roundtable adapter 后续可按 Codex 命令机制补齐。
+每个 agent 是 `agents/<name>.md`——一份 **runtime adapter 模板**，把对应 skill 包装成圆桌会议的一个席位，并强制产出统一结构的 YAML verdict block。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；安装时才渲染成目标 runtime 的真实路径。当前安装脚本会渲染出 Claude-style `agents/` 适配；Codex 先直接使用 `skills/` 与 `zhuzi/` 共享资产，roundtable adapter 后续可按 Codex 命令机制补齐。
 
 | Agent | 对应 skill | 席位性质 | 擅长领域 |
 |---|---|---|---|
@@ -106,7 +110,7 @@ Skill 按用途分两类：
 
 #### `/zhuzi:roundtable <议题>` — 多席位圆桌会议
 
-默认是 **Quick Roundtable**：内部仍按阶段推进，用户默认只读议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
+默认是 **Quick Roundtable**：命令入口 `commands/zhuzi/roundtable.md` 是一份 **runtime adapter 模板**，安装时会被渲染成目标 runtime 可执行的真实路径；它先装载 workflow、shared references 和 Quick 模板，再按阶段推进。用户默认只读议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
 
 | 阶段 | 动作 | 产物 |
 |---|---|---|
@@ -127,10 +131,13 @@ Skill 按用途分两类：
   2. 绝不跳阶段——阶段 3 用户未确认前禁进阶段 4
   3. 实施阶段优先 SendMessage 续跑，不可用则新 spawn + 阶段 2 原文**完整注入**，不得摘要
 
-`/zhuzi:roundtable` 的共享契约已抽到项目级目录 `zhuzi/references/`，安装后位于 `~/.claude/zhuzi/` 与 `~/.codex/zhuzi/`：
+`/zhuzi:roundtable` 的项目级核心资产都在 `zhuzi/`，安装后位于 `~/.claude/zhuzi/` 与 `~/.codex/zhuzi/`：
 
-- `seat-registry.md`：当前席位权威表、默认 `stages` 路由规则
-- `verdict-schema-v2.md`：共同 YAML verdict 契约、route 映射和新增席位维护边界
+- `workflows/roundtable.md`：阶段编排、gate 规则、实施分支
+- `references/seat-registry.md`：当前席位权威表、默认 `stages` 路由规则
+- `references/verdict-schema-v2.md`：共同 YAML verdict 契约、route 映射和新增席位维护边界
+- `templates/roundtable-quick.md`：Quick Roundtable 输出骨架
+- `manifests/shipped-surface.json`：机器可读 shipped surface 清单
 
 ---
 
@@ -205,14 +212,17 @@ cd zhuzi
 ./install.sh
 ```
 
-`install.sh` 默认安装两类目标：
+`install.sh` 默认安装以下目标：
 
 - `skills/*/` → `~/.claude/skills/<name>/`（Claude-style skills）
 - `skills/*/` → `$CODEX_HOME/skills/<name>/`，默认 `$HOME/.codex/skills/<name>/`（Codex skills）
 - `agents/*.md` → `~/.claude/agents/<name>.md`（4 个 agent 逐文件拷贝，不影响旁边的 gsd-* 等）
 - `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（整目录同步，`/zhuzi:roundtable` 即时可用）
+- `zhuzi/` → `~/.claude/zhuzi/` 与 `$CODEX_HOME/zhuzi/`（共享 references / workflows / templates / manifests）
 
 不保留备份。每次修改仓库后重跑。环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`。
+
+注意：仓库里的 `agents/*.md` 与 `commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...` 或 `~/.codex/...`。这些路径只在安装产物里出现，由 `install.sh` 按目标 runtime 根目录渲染。
 
 ### 方式 B：只装单个 skill
 
@@ -241,11 +251,14 @@ zhuzi/
 │   ├── taleb-reviewer.md             # 风险结构席
 │   └── lopezdeprado-reviewer.md      # 证据质量席
 ├── commands/zhuzi/
-│   └── roundtable.md                 # /zhuzi:roundtable
+│   └── roundtable.md                 # /zhuzi:roundtable 薄入口
 ├── zhuzi/
-│   └── references/                   # 安装到 ~/.claude/zhuzi/ 与 ~/.codex/zhuzi/ 的项目级共享资产
+│   ├── references/                   # 席位表与 schema
+│   ├── workflows/                    # roundtable 流程正文
+│   ├── templates/                    # Quick 输出骨架
+│   └── manifests/                    # 机器可读 shipped surface 清单
 ├── docs/
-│   └── INVENTORY.md                  # 权威 shipped surface 清单
+│   └── INVENTORY.md                  # shipped surface 的人读视图
 ├── examples/
 │   └── roundtable-quick.md            # 默认短读圆桌示例
 ├── archive/
@@ -304,7 +317,8 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 
 没有 linter、没有测试。修改后的验证方式：
 
-- **内部一致性**：SKILL.md 引用的 `references/*.md` 路径真实存在
+- **内部一致性**：SKILL.md / workflow / command 引用的路径真实存在
+- **manifest / inventory 一致性**：`zhuzi/manifests/shipped-surface.json`、`docs/INVENTORY.md` 与实际文件系统一致
 - **证据一致性**：新增观点有对应的 research 文件支撑
 - **触发词不与其他已安装 skill 冲突**（用户侧关注，本仓库无法自动检查）
 - **Roundtable 烟雾测试**：skill 方向大改（verdict 档位、核心心智模型换了）后跑一次 `/zhuzi:roundtable`，必要时调对应 agent md 的硬边界段
@@ -330,7 +344,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 1. 遵循[命名约定](#设计原则)——后缀贴合人物自我身份 / 方法论
 2. 遵循 skill 架构约定（SKILL.md 紧凑 + references 下沉）
 3. 证据链完整（每个观点可追溯到一手 / 二手来源）
-4. 若拟进入 Roundtable 席位：同步新建 `agents/<name>-reviewer.md`（或 `-engineer.md`），并更新 `zhuzi/references/seat-registry.md` 与 `zhuzi/references/verdict-schema-v2.md`
+4. 若拟进入 Roundtable 席位：同步新建 `agents/<name>-reviewer.md`（或 `-engineer.md`），并更新 `zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema-v2.md` 与 `zhuzi/manifests/shipped-surface.json`
 5. 诚实边界写明"做不到什么"
 
 ---

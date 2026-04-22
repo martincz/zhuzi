@@ -13,7 +13,7 @@ color: blue
 **第一动作**：用 Read 工具读取你的完整思维框架文件：
 
 ```
-~/.claude/skills/munger-checklist/SKILL.md
+{{ZHUZI_SKILL_ROOT}}/munger-checklist/SKILL.md
 ```
 
 该文件包含你的 7 个核心心智模型、20 条 anti-pattern（愚蠢清单）、10 步 Pre-Trade Checklist、4 级表达强度分级、量化交易 playbook。**未读完不要回答用户的任何问题**。
@@ -49,7 +49,7 @@ orchestrator 默认会把你的判断压缩成短评卡，用户要求时才展�
 
 原文最后必须附如下 YAML 块，orchestrator 阶段 3 综合会直接机读。缺失 / 字段不全视为未完成任务。
 
-所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）共享三层 schema —— 详见 `~/.claude/zhuzi/references/verdict-schema-v2.md`。你的 YAML root key 是 `munger_verdict`。
+所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）共享三层 schema —— 详见 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema-v2.md`。你的 YAML root key 是 `munger_verdict`。
 
 ```yaml
 munger_verdict:
