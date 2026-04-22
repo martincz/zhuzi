@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# 把 agents/ / commands/ / zhuzi/ / skills/ 下的内容安装到本机 agent runtime 配置目录。
+# 把 runtimes/claude/ / zhuzi/ / skills/ 下的内容安装到本机 agent runtime 配置目录。
 # 源码中的 agent / command 保持 runtime-agnostic 占位符，安装时再渲染成目标 runtime 的真实路径。
 # 覆盖安装，不保留备份。每次修改本仓库后需重跑本脚本。
 # 覆盖目标：
-#   agents/*.md           → ~/.claude/agents/<name>.md          （逐文件拷贝，不影响旁边的 gsd-*.md）
-#   commands/zhuzi/       → ~/.claude/commands/zhuzi            （命令入口）
+#   runtimes/claude/agents/*.md     → ~/.claude/agents/<name>.md （逐文件拷贝，不影响旁边的 gsd-*.md）
+#   runtimes/claude/commands/zhuzi/ → ~/.claude/commands/zhuzi   （命令入口）
 #   zhuzi/                → ~/.claude/zhuzi / ~/.codex/zhuzi    （项目级共享资产，当前含 references/workflows/templates/manifests）
 #   skills/<name>/        → ~/.claude/skills/<name>             （Claude-style skills）
 #   skills/<name>/        → $CODEX_HOME/skills/<name>           （Codex skills，默认 ~/.codex）
@@ -13,6 +13,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLAUDE_RUNTIME_SOURCE="$REPO/runtimes/claude"
 CLAUDE="${CLAUDE_DIR:-$HOME/.claude}"
 CODEX="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_SKILL_ROOT="$CLAUDE/skills"
@@ -39,7 +40,7 @@ echo "Codex 目标：$CODEX"
 echo
 
 echo "[1/4] agents"
-for f in "$REPO"/agents/*.md; do
+for f in "$CLAUDE_RUNTIME_SOURCE"/agents/*.md; do
   [[ -e "$f" ]] || continue
   dst="$CLAUDE/agents/$(basename "$f")"
   rm -rf "$dst"
@@ -52,7 +53,7 @@ echo "[2/4] commands/zhuzi"
 dst="$CLAUDE/commands/zhuzi"
 rm -rf "$dst"
 mkdir -p "$dst"
-for f in "$REPO"/commands/zhuzi/*.md; do
+for f in "$CLAUDE_RUNTIME_SOURCE"/commands/zhuzi/*.md; do
   [[ -e "$f" ]] || continue
   render_template "$f" "$dst/$(basename "$f")" "$CLAUDE_SKILL_ROOT" "$CLAUDE_SHARED_ROOT"
 done

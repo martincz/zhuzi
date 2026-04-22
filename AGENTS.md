@@ -9,12 +9,12 @@ zhuzi 是一组以"诸子百家"为隐喻的 agent 思维席位与圆桌审议�
 落地时分为 **skill + agent + command** 三层：
 
 - **Skills**（`skills/`，5 个）——单人物的思维操作系统，面向**用户直接触发**，激活后以"我"身份说话
-- **Agents**（`agents/`，4 个）——roundtable 席位的 **runtime adapter 模板**，只在 `/zhuzi:roundtable` 内被 orchestrator 调用，返回结构化 YAML verdict（不直接对话用户）
-- **Commands**（`commands/zhuzi/`，1 条）——`/zhuzi:roundtable` 的 **runtime adapter 模板**，把多个 agent 席位按 4 阶段编排
+- **Agents**（`runtimes/claude/agents/`，4 个）——roundtable 席位的 **Claude runtime adapter 模板**，只在 `/zhuzi:roundtable` 内被 orchestrator 调用，返回结构化 YAML verdict（不直接对话用户）
+- **Commands**（`runtimes/claude/commands/zhuzi/`，1 条）——`/zhuzi:roundtable` 的 **Claude runtime adapter 模板**，把多个 agent 席位按 4 阶段编排
 
 开发边界：**skill 是思想内核 → agent 是该思想在协作中的发言席位 → command 是让这些席位围坐一桌的议事规则**。修改任何一层前必须理解三者的路由边界（skill 触发词撞上 agent 触发词会造成错路由——见下方"关键设计原则"第 9 条）。
 
-运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载；当前仓库同时维护 runtime-agnostic 的项目级资产，以及安装时渲染的 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
+运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载；当前仓库同时维护 runtime-agnostic 的项目级资产与 `skills/`，以及位于 `runtimes/claude/` 的 Claude adapter 源码。未来若增加其他 runtime，按 `runtimes/<runtime>/` 并列扩展。
 
 ---
 
@@ -88,7 +88,7 @@ chore: 固化圆桌短读输出模板
 
 runtime 结构拆成四层：
 
-- `commands/zhuzi/roundtable.md`——薄入口模板，只负责装载 workflow / references / template
+- `runtimes/claude/commands/zhuzi/roundtable.md`——薄入口模板，只负责装载 workflow / references / template
 - `zhuzi/workflows/roundtable.md`——阶段编排、gate 规则、实施分支
 - `zhuzi/references/{seat-registry,verdict-schema-v2}.md`——席位权威表 + 共同 verdict 契约
 - `zhuzi/templates/roundtable-quick.md`——默认短读骨架
@@ -233,13 +233,13 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 ### Agent 侧
 
-- **新增席位** → 1) 新建 `agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选）；2) `description` 字段加路由护栏（"仅在 /zhuzi:roundtable 内调用……standalone 请用 XX skill"）；3) body 第一步 Read 对应 skill 的 `SKILL.md`（pull 模式，不复制内容）；4) 更新 `zhuzi/references/seat-registry.md` 的当前席位表与默认 `stages` 规则；5) 更新 `zhuzi/references/verdict-schema-v2.md` 的 native → core.route 映射；6) 更新 `zhuzi/manifests/shipped-surface.json` 与 `docs/INVENTORY.md`；7) verdict block root key 用 `<seat>_verdict`
+- **新增席位** → 1) 新建 `runtimes/claude/agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选）；2) `description` 字段加路由护栏（"仅在 /zhuzi:roundtable 内调用……standalone 请用 XX skill"）；3) body 第一步 Read 对应 skill 的 `SKILL.md`（pull 模式，不复制内容）；4) 更新 `zhuzi/references/seat-registry.md` 的当前席位表与默认 `stages` 规则；5) 更新 `zhuzi/references/verdict-schema-v2.md` 的 native → core.route 映射；6) 更新 `zhuzi/manifests/shipped-surface.json` 与 `docs/INVENTORY.md`；7) verdict block root key 用 `<seat>_verdict`
 - **调整席位工具权限** → 非代码席（只研究不实施）tools 不含 `Edit` / `Write`；代码席（Linus）才有完整工具
 - **调整擅长领域关键词** → 同步改 agent `description` 段和 `zhuzi/references/seat-registry.md`（阶段 0.5 路由依赖此表）
 
 ### Command 侧
 
-- **调整阶段流程** → 优先改 `zhuzi/workflows/roundtable.md`。只有入口装载顺序变化时才改 `commands/zhuzi/roundtable.md`
+- **调整阶段流程** → 优先改 `zhuzi/workflows/roundtable.md`。只有入口装载顺序变化时才改 `runtimes/claude/commands/zhuzi/roundtable.md`
 - **调整 verdict schema v2** → 同步：(1) `zhuzi/references/verdict-schema-v2.md`；(2) 所有 agent md 的 verdict block 示例段；(3) 各 skill SKILL.md 若内嵌 schema 示例也要同步
 - **调整席位资格路由** → 优先改 `zhuzi/references/seat-registry.md`；只有阶段流程本身变化时再改 `zhuzi/workflows/roundtable.md`
 - **调整 Quick 默认骨架** → 改 `zhuzi/templates/roundtable-quick.md`，并同步 `examples/roundtable-quick.md` 与一致性检查
@@ -257,8 +257,8 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 - `skills/<name>/` → `~/.claude/skills/<name>/`（Claude-style skills）
 - `skills/<name>/` → `$CODEX_HOME/skills/<name>/`，默认 `$HOME/.codex/skills/<name>/`（Codex skills）
-- `agents/*.md` → `~/.claude/agents/<name>.md`（**逐文件拷贝，不整目录同步**——保护旁边的 gsd-* 等其他 agent）
-- `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（命令入口）
+- `runtimes/claude/agents/*.md` → `~/.claude/agents/<name>.md`（**逐文件拷贝，不整目录同步**——保护旁边的 gsd-* 等其他 agent）
+- `runtimes/claude/commands/zhuzi/` → `~/.claude/commands/zhuzi/`（命令入口）
 - `zhuzi/` → `~/.claude/zhuzi/` 与 `$CODEX_HOME/zhuzi/`（项目级共享资产；当前包含 `references/`、`workflows/`、`templates/`、`manifests/`）
 
 环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`（测试用）。

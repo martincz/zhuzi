@@ -19,11 +19,12 @@ ACTIVE_TEXT_GLOBS = [
     "install.sh",
     "docs/**/*.md",
     "examples/**/*.md",
-    "agents/*.md",
-    "commands/**/*.md",
+    "runtimes/**/*.md",
     "zhuzi/**/*.md",
     "skills/*/SKILL.md",
 ]
+
+CLAUDE_RUNTIME_ROOT = ROOT / "runtimes" / "claude"
 
 AGENT_SKILLS = {
     "linus-engineer.md": "linus-torvalds-engineer",
@@ -95,13 +96,13 @@ SURFACE_FAMILIES = [
     (
         "Agents",
         "agents",
-        lambda: sorted((ROOT / "agents").glob("*.md")),
+        lambda: sorted((CLAUDE_RUNTIME_ROOT / "agents").glob("*.md")),
         lambda path: path.stem,
     ),
     (
         "Commands",
         "commands",
-        lambda: sorted((ROOT / "commands" / "zhuzi").glob("*.md")),
+        lambda: sorted((CLAUDE_RUNTIME_ROOT / "commands" / "zhuzi").glob("*.md")),
         lambda path: path.stem,
     ),
     (
@@ -188,7 +189,7 @@ def check_banned_snippets(errors: list[str]) -> None:
 
 def check_agent_skill_paths(errors: list[str]) -> None:
     for agent_file, skill_name in AGENT_SKILLS.items():
-        path = ROOT / "agents" / agent_file
+        path = CLAUDE_RUNTIME_ROOT / "agents" / agent_file
         text = path.read_text(encoding="utf-8")
         expected = AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name)
         if expected not in text:
@@ -196,8 +197,7 @@ def check_agent_skill_paths(errors: list[str]) -> None:
 
 
 def check_runtime_path_templates(errors: list[str]) -> None:
-    template_files = list((ROOT / "agents").glob("*.md"))
-    template_files.extend((ROOT / "commands").glob("**/*.md"))
+    template_files = list(CLAUDE_RUNTIME_ROOT.glob("**/*.md"))
     template_files.extend((ROOT / "zhuzi" / "workflows").glob("*.md"))
 
     banned_runtime_literals = ["~/.claude/", "~/.codex/", "@~/.claude/", "@~/.codex/"]
@@ -223,7 +223,7 @@ def check_required_order(
 
 
 def check_roundtable_command_entry(errors: list[str]) -> None:
-    path = ROOT / "commands" / "zhuzi" / "roundtable.md"
+    path = CLAUDE_RUNTIME_ROOT / "commands" / "zhuzi" / "roundtable.md"
     text = path.read_text(encoding="utf-8")
     for required in [
         "<objective>",
@@ -278,7 +278,7 @@ def check_seat_registry(errors: list[str]) -> None:
     if marker in text and "## 召开纪律" in text:
         seat_section = text.split(marker, 1)[1].split("## 召开纪律", 1)[0]
         table_agents = set(re.findall(r"^\|\s*[^|]+\s*\|\s*`([^`]+)`", seat_section, re.MULTILINE))
-        file_agents = {agent.stem for agent in (ROOT / "agents").glob("*.md")}
+        file_agents = {agent.stem for agent in (CLAUDE_RUNTIME_ROOT / "agents").glob("*.md")}
         if table_agents != file_agents:
             add_error(
                 errors,
@@ -332,7 +332,7 @@ def check_commit_guidelines(errors: list[str]) -> None:
 def check_agent_verdict_schema(errors: list[str]) -> None:
     required_sections = ["core:", "must_haves_review:", "must_haves_challenge:", "seat_specific:"]
     for agent_file, root_key in AGENT_VERDICT_ROOTS.items():
-        path = ROOT / "agents" / agent_file
+        path = CLAUDE_RUNTIME_ROOT / "agents" / agent_file
         text = path.read_text(encoding="utf-8")
         if AGENT_VERDICT_REFERENCE_PATH not in text:
             add_error(errors, path, 1, f"missing schema reference {AGENT_VERDICT_REFERENCE_PATH}")
@@ -500,6 +500,8 @@ def check_codex_install(errors: list[str]) -> None:
         "$CLAUDE/skills",
         "$CLAUDE/zhuzi",
         "$CODEX/zhuzi",
+        "runtimes/claude/agents",
+        "runtimes/claude/commands/zhuzi",
         "references/workflows/templates/manifests",
     ]:
         if required not in text:

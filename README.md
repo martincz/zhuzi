@@ -44,7 +44,7 @@ zhuzi 把"诸子百家"做成一组可运行的 agent 思维席位：每一位�
 
 Roundtable 运行时进一步拆成四层：**入口 command → workflow → shared references → Quick template / manifest**。入口保持薄，规则和骨架放到 `zhuzi/` 目录下的项目级资产里。
 
-运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 Claude-style agents/commands 适配和 Codex 可用的 skills 安装目标。
+运行形态很轻：全部内容都是 Markdown 文档，由支持相应规范的 agent runtime 加载。当前仓库同时维护 runtime-agnostic 的 `skills/` 与 `zhuzi/` 共享资产，以及位于 `runtimes/claude/` 的 Claude adapter 源码；Codex 当前直接消费 `skills/` 与 `zhuzi/`，后续如需专属 adapter 也应并列放到 `runtimes/<runtime>/`。
 
 ---
 
@@ -88,7 +88,7 @@ Skill 按用途分两类：
 
 ### 二、Agents（Roundtable 席位）
 
-每个 agent 是 `agents/<name>.md`——一份 **runtime adapter 模板**，把对应 skill 包装成圆桌会议的一个席位，并强制产出统一结构的 YAML verdict block。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；安装时才渲染成目标 runtime 的真实路径。当前安装脚本会渲染出 Claude-style `agents/` 适配；Codex 先直接使用 `skills/` 与 `zhuzi/` 共享资产，roundtable adapter 后续可按 Codex 命令机制补齐。
+每个 agent 的 repo 源码位于 `runtimes/claude/agents/<name>.md`——一份 **Claude runtime adapter 模板**，把对应 skill 包装成圆桌会议的一个席位，并强制产出统一结构的 YAML verdict block。源码里只保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 这类占位符；安装时才渲染成目标 runtime 的真实路径。Codex 当前直接使用 `skills/` 与 `zhuzi/` 共享资产；未来若补 Codex roundtable adapter，应并列放到 `runtimes/codex/`，而不是再塞回顶层目录。
 
 | Agent | 对应 skill | 席位性质 | 擅长领域 |
 |---|---|---|---|
@@ -110,7 +110,7 @@ Skill 按用途分两类：
 
 #### `/zhuzi:roundtable <议题>` — 多席位圆桌会议
 
-默认是 **Quick Roundtable**：命令入口 `commands/zhuzi/roundtable.md` 是一份 **runtime adapter 模板**，安装时会被渲染成目标 runtime 可执行的真实路径；它先装载 workflow、shared references 和 Quick 模板，再按阶段推进。用户默认只读议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
+默认是 **Quick Roundtable**：命令入口源码 `runtimes/claude/commands/zhuzi/roundtable.md` 是一份 **Claude runtime adapter 模板**，安装时会被渲染成目标 runtime 可执行的真实路径；它先装载 workflow、shared references 和 Quick 模板，再按阶段推进。用户默认只读议题卡、席位短评和决策表；完整原文/YAML 作为可展开证据保留。
 
 | 阶段 | 动作 | 产物 |
 |---|---|---|
@@ -216,13 +216,13 @@ cd zhuzi
 
 - `skills/*/` → `~/.claude/skills/<name>/`（Claude-style skills）
 - `skills/*/` → `$CODEX_HOME/skills/<name>/`，默认 `$HOME/.codex/skills/<name>/`（Codex skills）
-- `agents/*.md` → `~/.claude/agents/<name>.md`（4 个 agent 逐文件拷贝，不影响旁边的 gsd-* 等）
-- `commands/zhuzi/` → `~/.claude/commands/zhuzi/`（整目录同步，`/zhuzi:roundtable` 即时可用）
+- `runtimes/claude/agents/*.md` → `~/.claude/agents/<name>.md`（4 个 agent 逐文件渲染，不影响旁边的 gsd-* 等）
+- `runtimes/claude/commands/zhuzi/` → `~/.claude/commands/zhuzi/`（整目录渲染，`/zhuzi:roundtable` 即时可用）
 - `zhuzi/` → `~/.claude/zhuzi/` 与 `$CODEX_HOME/zhuzi/`（共享 references / workflows / templates / manifests）
 
 不保留备份。每次修改仓库后重跑。环境变量 `CLAUDE_DIR` 可覆盖 `~/.claude`，`CODEX_HOME` 可覆盖 `$HOME/.codex`。
 
-注意：仓库里的 `agents/*.md` 与 `commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...` 或 `~/.codex/...`。这些路径只在安装产物里出现，由 `install.sh` 按目标 runtime 根目录渲染。
+注意：仓库里的 `runtimes/claude/agents/*.md` 与 `runtimes/claude/commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...` 或 `~/.codex/...`。这些路径只在安装产物里出现，由 `install.sh` 按目标 runtime 根目录渲染。
 
 ### 方式 B：只装单个 skill
 
@@ -245,13 +245,15 @@ zhuzi/
 │   ├── taleb-antifragile/
 │   ├── lopezdeprado-scientist/
 │   └── luxun-zawen/
-├── agents/                           # 4 个 roundtable 席位
-│   ├── linus-engineer.md             # 代码席
-│   ├── munger-reviewer.md            # 决策质量席
-│   ├── taleb-reviewer.md             # 风险结构席
-│   └── lopezdeprado-reviewer.md      # 证据质量席
-├── commands/zhuzi/
-│   └── roundtable.md                 # /zhuzi:roundtable 薄入口
+├── runtimes/
+│   └── claude/
+│       ├── agents/                   # Claude adapter 源码：4 个 roundtable 席位
+│       │   ├── linus-engineer.md     # 代码席
+│       │   ├── munger-reviewer.md    # 决策质量席
+│       │   ├── taleb-reviewer.md     # 风险结构席
+│       │   └── lopezdeprado-reviewer.md
+│       └── commands/zhuzi/
+│           └── roundtable.md         # /zhuzi:roundtable 薄入口
 ├── zhuzi/
 │   ├── references/                   # 席位表与 schema
 │   ├── workflows/                    # roundtable 流程正文
@@ -344,7 +346,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 1. 遵循[命名约定](#设计原则)——后缀贴合人物自我身份 / 方法论
 2. 遵循 skill 架构约定（SKILL.md 紧凑 + references 下沉）
 3. 证据链完整（每个观点可追溯到一手 / 二手来源）
-4. 若拟进入 Roundtable 席位：同步新建 `agents/<name>-reviewer.md`（或 `-engineer.md`），并更新 `zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema-v2.md` 与 `zhuzi/manifests/shipped-surface.json`
+4. 若拟进入 Roundtable 席位：同步新建 `runtimes/claude/agents/<name>-reviewer.md`（或 `-engineer.md`），并更新 `zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema-v2.md` 与 `zhuzi/manifests/shipped-surface.json`
 5. 诚实边界写明"做不到什么"
 
 ---

@@ -16,16 +16,16 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `linus-engineer` | `agents/linus-engineer.md` | roundtable 代码席，负责工程可行性与实施 |
-| `munger-reviewer` | `agents/munger-reviewer.md` | roundtable 决策质量席 |
-| `taleb-reviewer` | `agents/taleb-reviewer.md` | roundtable 风险结构席 |
-| `lopezdeprado-reviewer` | `agents/lopezdeprado-reviewer.md` | roundtable 证据质量席 |
+| `linus-engineer` | `runtimes/claude/agents/linus-engineer.md` | roundtable 代码席，负责工程可行性与实施 |
+| `munger-reviewer` | `runtimes/claude/agents/munger-reviewer.md` | roundtable 决策质量席 |
+| `taleb-reviewer` | `runtimes/claude/agents/taleb-reviewer.md` | roundtable 风险结构席 |
+| `lopezdeprado-reviewer` | `runtimes/claude/agents/lopezdeprado-reviewer.md` | roundtable 证据质量席 |
 
 ## Commands (1 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
-| `roundtable` | `commands/zhuzi/roundtable.md` | 薄入口，负责装载 roundtable workflow 与共享资产 |
+| `roundtable` | `runtimes/claude/commands/zhuzi/roundtable.md` | Claude 薄入口，负责装载 roundtable workflow 与共享资产 |
 
 ## Workflows (1 shipped)
 
@@ -62,4 +62,4 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 inventory、seat registry、schema 引用和安装路径 |
+| `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 manifest、inventory、runtime adapter 路径与 schema 引用 |
