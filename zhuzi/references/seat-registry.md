@@ -39,8 +39,50 @@
 
 ## 扩席位维护清单
 
-1. 先新建共享 seat contract：`zhuzi/seats/<name>-reviewer.md`（或 `-engineer.md`），把职责、越权边界、输出契约和 seat-specific 字段要求放进去。
-2. 再为需要支持的 runtime 新建薄 adapter：Claude shipped adapter 放 `runtimes/claude/agents/<name>-reviewer.md`（或 `-engineer.md`）；若 Codex roundtable 也要支持，同步补 `runtimes/codex/agents/<name>-reviewer.md`（或 `-engineer.md`）。
-3. 更新本文件的当前席位表和默认 `stages` 规则。
-4. 更新 `docs/INVENTORY.md` 与 `zhuzi/manifests/shipped-surface.json`。
-5. 若新增 native verdict 或 route 语义，更新 `zhuzi/references/verdict-schema.md`。
+> 顺序严格：**前置判断 → 判断填字段 → 机械生成文件 → 跑守门**。每步标 **（判断）** 需问用户/查人物素材决定，**（机械）** 可照着现有席位 copy-modify 直接做。A 类思维顾问才走全流程；B 类聊天娱乐（如 `luxun-zawen`）只做 Step 1 后停。
+
+### 前置判断（判断）
+
+- [ ] **A 类 vs B 类**：skill 是否输出可进入决策的结构化判断？是 → A 类，走全流程；只做语言改写 / 娱乐 → B 类，只完成 Step 1 + Step 4 的 skills/INVENTORY/manifest 三处，不建 seat / agent
+- [ ] skill 已在 `skills/<family>-<signature>/SKILL.md` 就位（如 `taleb-antifragile`）。命名建议：`<family>` = 人物姓氏 / 代表标签，`<signature>` = 人物核心方法论词（如 `antifragile` / `checklist` / `engineer` / `scientist` / `zawen`），不使用 nuwa 默认的 `-perspective` 后缀
+
+### Step 1（机械）— skill 进仓库
+
+- [ ] 把 nuwa 产物从 `~/.claude/skills/<nuwa-output>/` 移到 `skills/<family>-<signature>/`
+- [ ] SKILL.md frontmatter 中 `description` 的 UTF-8 字节数 ≤ 1024（Codex 限制，`check_consistency.py` 会拦）
+
+### Step 2（判断）— 设计席位字段（仅 A 类）
+
+对 A 类必做。以下每项都是**人工决定**，不能自动推。填完后进 Step 3-4：
+
+- [ ] **席位名**：评议型用 `<family>-reviewer`，实施型用 `<family>-engineer`
+- [ ] **verdict root key**：通常 `<family>_verdict`；实施型（如 Linus）用 `<family>_feasibility`
+- [ ] **native verdict 词汇表**（2-5 词）：反映人物思想核心极性。参考：taleb 的 `fragile/robust/antifragile`、munger 的 `pass/revise/kill`、linus 的 feasibility 系。提示：从 skill 心智模型第 1 条找核心术语
+- [ ] **route 映射**：每个 native verdict 映射到 `go` / `go_with_conditions` / `revise_must_haves` / `kill` 之一
+- [ ] **seat_specific 必填字段**（3-6 个）：把人物独特方法论翻译成 YAML 槽位。例：taleb 的 `tail_events_breaking_must_haves`、munger 的 `lollapalooza_stack`、lópez 的 `claim_classification`
+- [ ] **默认 stages 规则**：这个人物在「策略决策 / 研究评估 / 纯代码实施 / 工程决策 / 混合议题」5 种场景下各弃权 / `[1]` / `[1,2]`，依据是人物真实专长
+- [ ] **越权边界**：跟现有 4 席（Linus / Munger / Taleb / López）哪些话题重合？重合点由谁让路？写进 seat contract 的「## 越权边界」
+- [ ] **skill/agent 路由护栏**：standalone 场景（`#<family>` / `X 视角`）用 skill，roundtable 场景用 agent。seat contract「## 适用范围」和 agent description 两侧都必须明示
+
+### Step 3（机械）— 生成三个文件
+
+从最接近的现有席位 copy-modify 并替换 family-specific 内容：
+
+- [ ] `zhuzi/seats/<seat>.md` — 评议型参考 `zhuzi/seats/taleb-reviewer.md`，实施型参考 `zhuzi/seats/linus-engineer.md`
+- [ ] `runtimes/claude/agents/<seat>.md` — 参考同人物的 Claude adapter（薄；只装载 skill + seat contract + schema）
+- [ ] `runtimes/codex/agents/<seat>.md` — 参考同人物的 Codex adapter（薄；必须含 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 模板路径和 `./skills/...` / `./zhuzi/...` 仓库 fallback 两组路径）
+
+### Step 4（机械）— 更新注册表
+
+- [ ] 本文件「## 当前席位」表格加一行
+- [ ] 本文件「## 默认 `stages` 规则」表格加一行
+- [ ] 本文件「## 补充规则」如有必召开触发词，加一节
+- [ ] `docs/INVENTORY.md` 的 Skills / Agents / Seats 三节加条目，更新每节顶部计数
+- [ ] `zhuzi/manifests/shipped-surface.json` 的 `skills` / `agents` / `seats` 三个 family 加条目
+- [ ] `tools/check_consistency.py` 的 `SEAT_REGISTRY` 加一项：填 Step 2 决定的 `skill` 和 `required_snippets`（后者至少包含 verdict root key 和全部 seat_specific 字段名）
+- [ ] 若引入新 native verdict 或 route 语义，更新 `zhuzi/references/verdict-schema.md`
+
+### Step 5（机械）— 跑守门
+
+- [ ] `python3 tools/check_consistency.py` 必须 pass
+- [ ] 若动了 roundtable surface / shared schema / Codex adapter / 安装路径：`python3 tools/smoke_test_codex_roundtable.py` 必须 pass
