@@ -74,7 +74,7 @@ echo "Claude 目标：$CLAUDE"
 echo "Codex 目标：$CODEX"
 echo
 
-echo "[1/4] agents"
+echo "[1/5] agents"
 while IFS= read -r rel; do
   [[ -n "$rel" ]] || continue
   src="$REPO/$rel"
@@ -85,7 +85,7 @@ while IFS= read -r rel; do
 done < <(manifest_paths "agents")
 
 echo
-echo "[2/4] commands/zhuzi"
+echo "[2/5] commands/zhuzi"
 dst="$CLAUDE/commands/zhuzi"
 rm -rf "$dst"
 mkdir -p "$dst"
@@ -97,7 +97,7 @@ done < <(manifest_paths "commands")
 echo "  + $dst"
 
 echo
-echo "[3/4] zhuzi runtime assets"
+echo "[3/5] zhuzi runtime assets"
 claude_runtime_dst="$CLAUDE/zhuzi"
 rm -rf "$claude_runtime_dst"
 cp -r "$REPO/zhuzi" "$claude_runtime_dst"
@@ -109,7 +109,7 @@ cp -r "$REPO/zhuzi" "$codex_runtime_dst"
 echo "  + $codex_runtime_dst"
 
 echo
-echo "[4/4] skills"
+echo "[4/5] skills"
 while IFS= read -r rel; do
   [[ -n "$rel" ]] || continue
   src_dir="$REPO/$(dirname "$rel")"
@@ -124,6 +124,10 @@ while IFS= read -r rel; do
   cp -r "$src_dir" "$codex_dst"
   echo "  + $codex_dst"
 done < <(manifest_paths "skills")
+
+echo
+echo "[5/5] codex roundtable adapter"
+python3 "$REPO/tools/install_codex_source_adapters.py"
 
 echo
 echo "完成。修改仓库文件后需重跑本脚本。"

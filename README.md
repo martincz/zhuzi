@@ -63,14 +63,13 @@ cd zhuzi
 ./install.sh
 ```
 
-`install.sh` 会把 shipped surface 安装到 Claude 和 Codex 的默认根目录；具体渲染与拷贝行为以脚本本身和 manifest 为准。
+`install.sh` 会把全部 shipped surface 安装到 Claude 和 Codex 的默认根目录，包括 Codex roundtable agents 与 `zhuzi-roundtable` skill；具体渲染与拷贝行为以脚本本身和 manifest 为准。
 
-### 方式 B：本地试用 Codex roundtable adapter
+### 方式 B：只刷新 Codex adapter
 
-`runtimes/codex/` 当前仍是 **source-only adapter**，不进主 shipped surface。要本地试用：
+已经跑过 `install.sh`、只想重新渲染 Codex 侧 adapter 时：
 
 ```bash
-./install.sh
 python3 tools/install_codex_source_adapters.py
 ```
 
@@ -90,7 +89,7 @@ zhuzi/
 ├── skills/                     # 单人物 skill
 ├── runtimes/
 │   ├── claude/                 # Claude shipped adapters
-│   └── codex/                  # Codex source-only adapters
+│   └── codex/                  # Codex shipped adapters
 ├── zhuzi/
 │   ├── seats/                  # 共享 seat contracts
 │   ├── references/             # seat-registry / verdict-schema

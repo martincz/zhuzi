@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Render and install the source-only Codex roundtable adapters.
+"""Render and install the Codex roundtable adapters.
+
+Called by ``install.sh`` as part of the default shipped-surface install so
+Codex agents and the ``zhuzi-roundtable`` skill land alongside the Claude
+assets. Can also be run standalone if only the Codex side needs refreshing.
 
 Default installs render ``$HOME/.codex/...`` symbolic paths.
 Explicit ``CODEX_HOME`` overrides render concrete paths so alternate roots stay valid.
@@ -94,7 +98,7 @@ def copy_tree_with_render(src: Path, dst: Path, *, skill_root: Path, shared_root
         shutil.copy2(path, target)
 
 
-def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | None = None) -> None:
+def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | None = None) -> list[Path]:
     if render_concrete is None:
         render_concrete = os.environ.get("CODEX_HOME") is not None
 
@@ -119,13 +123,17 @@ def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | No
 
     installed_agent_dir.mkdir(parents=True, exist_ok=True)
 
-    for agent in SOURCE_ONLY_AGENT_DIR.glob("*.md"):
+    installed_paths: list[Path] = []
+
+    for agent in sorted(SOURCE_ONLY_AGENT_DIR.glob("*.md")):
+        dst = installed_agent_dir / agent.name
         render_file(
             agent,
-            installed_agent_dir / agent.name,
+            dst,
             skill_root=rendered_skill_root,
             shared_root=rendered_shared_root,
         )
+        installed_paths.append(dst)
 
     copy_tree_with_render(
         SOURCE_ONLY_SKILL_DIR,
@@ -133,12 +141,15 @@ def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | No
         skill_root=rendered_skill_root,
         shared_root=rendered_shared_root,
     )
+    installed_paths.append(installed_skill_dir)
+
+    return installed_paths
 
 
 def main() -> int:
     codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
-    install_source_only_adapters(codex_home)
-    print(f"Codex source-only adapters installed to {codex_home}")
+    for path in install_source_only_adapters(codex_home):
+        print(f"  + {path}")
     return 0
 
 

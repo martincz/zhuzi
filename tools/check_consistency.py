@@ -142,6 +142,18 @@ SURFACE_FAMILIES = [
         lambda path: path.stem,
     ),
     (
+        "Codex Agents",
+        "codex_agents",
+        lambda: sorted((CODEX_RUNTIME_ROOT / "agents").glob("*.md")),
+        lambda path: path.stem,
+    ),
+    (
+        "Codex Skills",
+        "codex_skills",
+        lambda: sorted((CODEX_RUNTIME_ROOT / "skills").glob("*/SKILL.md")),
+        lambda path: path.parent.name,
+    ),
+    (
         "Commands",
         "commands",
         lambda: sorted((CLAUDE_RUNTIME_ROOT / "commands" / "zhuzi").glob("*.md")),
@@ -576,9 +588,6 @@ def check_inventory(errors: list[str], manifest_families: dict[str, list[dict[st
             if isinstance(entry_path, str) and f"`{entry_path}`" not in text:
                 add_error(errors, path, 1, f"inventory missing path `{entry_path}`")
 
-    if "runtimes/codex/" not in text:
-        add_error(errors, path, 1, "inventory missing note that runtimes/codex is source-only")
-
 
 def check_skill_reference_links(errors: list[str]) -> None:
     link_pattern = re.compile(r"references/[A-Za-z0-9_./-]+\.md")
@@ -649,6 +658,8 @@ def check_codex_install(errors: list[str]) -> None:
         "runtimes/claude/agents",
         "runtimes/claude/commands/zhuzi",
         "seats/references/workflows/templates/manifests",
+        "tools/install_codex_source_adapters.py",
+        "[5/5] codex roundtable adapter",
     ]:
         if required not in text:
             add_error(errors, path, 1, f"install.sh missing {required}")

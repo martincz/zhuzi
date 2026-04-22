@@ -49,6 +49,35 @@
         "role": "roundtable 证据质量席"
       }
     ],
+    "codex_agents": [
+      {
+        "entry": "linus-engineer",
+        "path": "runtimes/codex/agents/linus-engineer.md",
+        "role": "Codex roundtable 代码席 adapter"
+      },
+      {
+        "entry": "munger-reviewer",
+        "path": "runtimes/codex/agents/munger-reviewer.md",
+        "role": "Codex roundtable 决策质量席 adapter"
+      },
+      {
+        "entry": "taleb-reviewer",
+        "path": "runtimes/codex/agents/taleb-reviewer.md",
+        "role": "Codex roundtable 风险结构席 adapter"
+      },
+      {
+        "entry": "lopezdeprado-reviewer",
+        "path": "runtimes/codex/agents/lopezdeprado-reviewer.md",
+        "role": "Codex roundtable 证据质量席 adapter"
+      }
+    ],
+    "codex_skills": [
+      {
+        "entry": "zhuzi-roundtable",
+        "path": "runtimes/codex/skills/zhuzi-roundtable/SKILL.md",
+        "role": "Codex roundtable orchestrator skill，薄入口负责装载共享 workflow 与 schema"
+      }
+    ],
     "commands": [
       {
         "entry": "roundtable",
@@ -127,12 +156,12 @@
       {
         "entry": "install_codex_source_adapters.py",
         "path": "tools/install_codex_source_adapters.py",
-        "role": "渲染并 side-load Codex source-only roundtable adapters 到 Codex 安装根"
+        "role": "渲染并安装 Codex roundtable adapters 到 Codex 安装根，由 install.sh [5/5] 调用"
       },
       {
         "entry": "smoke_test_codex_roundtable.py",
         "path": "tools/smoke_test_codex_roundtable.py",
-        "role": "手动 Codex roundtable 烟雾测试：刷新安装、注入 source-only adapter、验证 skill 激活"
+        "role": "手动 Codex roundtable 烟雾测试：刷新安装、验证 adapter 与 skill 激活"
       }
     ]
   }

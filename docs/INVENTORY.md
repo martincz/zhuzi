@@ -1,8 +1,6 @@
 # zhuzi Shipped Surface Inventory
 
 > 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
->
-> 注意：`runtimes/codex/` 当前是 source-only adapter 源码，尚未接入 shipped surface / manifest / install，因此**故意不计入**本清单。
 
 ## Skills (5 shipped)
 
@@ -22,6 +20,21 @@
 | `munger-reviewer` | `runtimes/claude/agents/munger-reviewer.md` | roundtable 决策质量席 |
 | `taleb-reviewer` | `runtimes/claude/agents/taleb-reviewer.md` | roundtable 风险结构席 |
 | `lopezdeprado-reviewer` | `runtimes/claude/agents/lopezdeprado-reviewer.md` | roundtable 证据质量席 |
+
+## Codex Agents (4 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `linus-engineer` | `runtimes/codex/agents/linus-engineer.md` | Codex roundtable 代码席 adapter |
+| `munger-reviewer` | `runtimes/codex/agents/munger-reviewer.md` | Codex roundtable 决策质量席 adapter |
+| `taleb-reviewer` | `runtimes/codex/agents/taleb-reviewer.md` | Codex roundtable 风险结构席 adapter |
+| `lopezdeprado-reviewer` | `runtimes/codex/agents/lopezdeprado-reviewer.md` | Codex roundtable 证据质量席 adapter |
+
+## Codex Skills (1 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `zhuzi-roundtable` | `runtimes/codex/skills/zhuzi-roundtable/SKILL.md` | Codex roundtable orchestrator skill，薄入口负责装载共享 workflow 与 schema |
 
 ## Commands (1 shipped)
 
