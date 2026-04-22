@@ -239,13 +239,15 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 linus_id = Agent(subagent_type="linus-engineer", prompt="""
 议题: <议题原文>
 
-非代码评议结论：
+阶段 1 席位原文（按本次实际召开名单逐个粘贴；下面只是格式示意，可能包含 Taleb / Munger / López / Linus phase 1 / 未来席位）：
 
-=== Taleb ===
-<Taleb 原文>
+=== <Seat A> ===
+<Seat A 原文>
 
-=== Munger ===
-<Munger 原文>
+=== <Seat B> ===
+<Seat B 原文>
+
+...（继续附上本次阶段 1 所有席位原文）
 
 请做可行性评审（不要动任何文件）：
 - 现有架构能否承载

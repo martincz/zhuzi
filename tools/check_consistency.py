@@ -8,7 +8,7 @@ import re
 import sys
 from pathlib import Path
 
-from render_roundtable_contract_docs import GENERATED_DOCS, render_doc_text
+from render_roundtable_contract_docs import STATIC_GENERATED_DOCS, get_generated_docs, render_doc_text
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -222,7 +222,7 @@ def load_roundtable_contract(errors: list[str]) -> dict[str, object] | None:
         if not isinstance(config, dict):
             add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} must be an object")
             continue
-        for field in ["skill", "agent", "registry_summary", "registry_stage_row", "output_contract", "required_contract_snippets"]:
+        for field in ["skill", "agent", "generated_block", "registry_summary", "registry_stage_row", "output_contract", "required_contract_snippets"]:
             if field not in config:
                 add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing {field}")
 
@@ -241,6 +241,26 @@ def iter_roundtable_seats(roundtable_contract: dict[str, object] | None) -> list
         if isinstance(seat_name, str) and isinstance(config, dict):
             result.append((seat_name, config))
     return result
+
+
+def resolve_generated_docs(
+    errors: list[str],
+    roundtable_contract: dict[str, object] | None,
+) -> dict[str, list[str]]:
+    if roundtable_contract is None:
+        return {
+            relative_path: list(block_names)
+            for relative_path, block_names in STATIC_GENERATED_DOCS.items()
+        }
+
+    try:
+        return get_generated_docs(roundtable_contract)
+    except ValueError as exc:
+        add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, str(exc))
+        return {
+            relative_path: list(block_names)
+            for relative_path, block_names in STATIC_GENERATED_DOCS.items()
+        }
 
 
 def check_banned_snippets(errors: list[str]) -> None:
@@ -431,7 +451,11 @@ def check_roundtable_workflow(errors: list[str]) -> None:
             add_error(errors, path, 1, f"roundtable workflow leaked runtime-specific primitive {forbidden}")
 
 
-def check_seat_registry(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
+def check_seat_registry(
+    errors: list[str],
+    roundtable_contract: dict[str, object] | None,
+    generated_docs: dict[str, list[str]],
+) -> None:
     path = ROOT / "zhuzi" / "references" / "seat-registry.md"
     if not path.exists():
         add_error(errors, path, 1, "missing seat registry")
@@ -441,7 +465,7 @@ def check_seat_registry(errors: list[str], roundtable_contract: dict[str, object
     for required in ["## 当前席位", "## 默认 `stages` 规则", "## 扩席位维护清单"]:
         if required not in text:
             add_error(errors, path, 1, f"seat registry missing {required}")
-    for block_name in GENERATED_DOCS["zhuzi/references/seat-registry.md"]:
+    for block_name in generated_docs.get("zhuzi/references/seat-registry.md", []):
         if f"<!-- GENERATED:{block_name}:start -->" not in text or f"<!-- GENERATED:{block_name}:end -->" not in text:
             add_error(errors, path, 1, f"seat registry missing generated block markers for {block_name}")
     check_generated_roundtable_doc(
@@ -451,7 +475,11 @@ def check_seat_registry(errors: list[str], roundtable_contract: dict[str, object
     )
 
 
-def check_shared_seat_contracts(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
+def check_shared_seat_contracts(
+    errors: list[str],
+    roundtable_contract: dict[str, object] | None,
+    generated_docs: dict[str, list[str]],
+) -> None:
     seat_dir = ROOT / "zhuzi" / "seats"
     if not seat_dir.exists():
         add_error(errors, seat_dir, 1, "missing shared seats directory")
@@ -483,11 +511,11 @@ def check_shared_seat_contracts(errors: list[str], roundtable_contract: dict[str
             if required not in text:
                 add_error(errors, path, 1, f"shared seat contract missing {required}")
 
-        for block_name in GENERATED_DOCS.get(relative_path, []):
+        for block_name in generated_docs.get(relative_path, []):
             if f"<!-- GENERATED:{block_name}:start -->" not in text or f"<!-- GENERATED:{block_name}:end -->" not in text:
                 add_error(errors, path, 1, f"shared seat contract missing generated block markers for {block_name}")
 
-        if relative_path in GENERATED_DOCS:
+        if relative_path in generated_docs:
             check_generated_roundtable_doc(
                 errors,
                 relative_path=relative_path,
@@ -605,7 +633,11 @@ def check_codex_agent_adapters(errors: list[str], roundtable_contract: dict[str,
                 add_error(errors, path, 1, f"Codex agent should not inline shared schema snippet {banned}")
 
 
-def check_schema_reference(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
+def check_schema_reference(
+    errors: list[str],
+    roundtable_contract: dict[str, object] | None,
+    generated_docs: dict[str, list[str]],
+) -> None:
     path = ROOT / "zhuzi" / "references" / "verdict-schema.md"
     if not path.exists():
         add_error(errors, path, 1, "missing verdict schema reference")
@@ -622,7 +654,7 @@ def check_schema_reference(errors: list[str], roundtable_contract: dict[str, obj
     ]:
         if required not in text:
             add_error(errors, path, 1, f"schema reference missing {required}")
-    for block_name in GENERATED_DOCS["zhuzi/references/verdict-schema.md"]:
+    for block_name in generated_docs.get("zhuzi/references/verdict-schema.md", []):
         if f"<!-- GENERATED:{block_name}:start -->" not in text or f"<!-- GENERATED:{block_name}:end -->" not in text:
             add_error(errors, path, 1, f"schema reference missing generated block markers for {block_name}")
     check_generated_roundtable_doc(
@@ -824,6 +856,7 @@ def main() -> int:
     errors: list[str] = []
     manifest_families = load_manifest(errors)
     roundtable_contract = load_roundtable_contract(errors)
+    generated_docs = resolve_generated_docs(errors, roundtable_contract)
 
     check_banned_snippets(errors)
     check_claude_agent_adapters(errors, roundtable_contract)
@@ -831,12 +864,12 @@ def main() -> int:
     check_roundtable_command_entry(errors)
     check_codex_roundtable_skill(errors)
     check_roundtable_workflow(errors)
-    check_seat_registry(errors, roundtable_contract)
-    check_shared_seat_contracts(errors, roundtable_contract)
+    check_seat_registry(errors, roundtable_contract, generated_docs)
+    check_shared_seat_contracts(errors, roundtable_contract, generated_docs)
     check_quick_roundtable_contract(errors, roundtable_contract)
     check_commit_guidelines(errors)
     check_codex_agent_adapters(errors, roundtable_contract)
-    check_schema_reference(errors, roundtable_contract)
+    check_schema_reference(errors, roundtable_contract, generated_docs)
     check_manifest(errors, manifest_families)
     check_inventory(errors, manifest_families)
     check_skill_reference_links(errors)

@@ -15,12 +15,8 @@ ROUNDTABLE_CONTRACT_PATH = ROOT / "zhuzi" / "manifests" / "roundtable-contract.j
 
 SEAT_REGISTRY_PATH = "zhuzi/references/seat-registry.md"
 VERDICT_SCHEMA_PATH = "zhuzi/references/verdict-schema.md"
-TALEB_SEAT_PATH = "zhuzi/seats/taleb-reviewer.md"
-MUNGER_SEAT_PATH = "zhuzi/seats/munger-reviewer.md"
-LOPEZ_SEAT_PATH = "zhuzi/seats/lopezdeprado-reviewer.md"
-LINUS_SEAT_PATH = "zhuzi/seats/linus-engineer.md"
 
-GENERATED_DOCS = {
+STATIC_GENERATED_DOCS = {
     SEAT_REGISTRY_PATH: [
         "seat_registry_current_seats",
         "seat_registry_stage_rules",
@@ -34,18 +30,6 @@ GENERATED_DOCS = {
         "verdict_schema_seat_specific",
         "verdict_schema_route_rules",
         "verdict_schema_phase_4_exception",
-    ],
-    TALEB_SEAT_PATH: [
-        "taleb_output_contract",
-    ],
-    MUNGER_SEAT_PATH: [
-        "munger_output_contract",
-    ],
-    LOPEZ_SEAT_PATH: [
-        "lopez_output_contract",
-    ],
-    LINUS_SEAT_PATH: [
-        "linus_output_contract",
     ],
 }
 
@@ -81,6 +65,10 @@ def get_seat_config(contract: dict[str, object], seat_name: str) -> dict[str, ob
     return config
 
 
+def get_seat_relative_path(seat_name: str) -> str:
+    return f"zhuzi/seats/{seat_name}.md"
+
+
 def expect_string(value: object, label: str) -> str:
     if not isinstance(value, str) or not value:
         raise ValueError(f"{label} must be a non-empty string")
@@ -91,6 +79,23 @@ def expect_string_list(value: object, label: str) -> list[str]:
     if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
         raise ValueError(f"{label} must be a non-empty string list")
     return [str(item) for item in value]
+
+
+def get_seat_generated_block(config: dict[str, object], *, seat_name: str) -> str:
+    return expect_string(config.get("generated_block"), f"{seat_name}.generated_block")
+
+
+def get_generated_docs(contract: dict[str, object]) -> dict[str, list[str]]:
+    generated_docs = {
+        relative_path: list(block_names)
+        for relative_path, block_names in STATIC_GENERATED_DOCS.items()
+    }
+    for seat_name, config in iter_seats(contract):
+        relative_path = get_seat_relative_path(seat_name)
+        if relative_path in generated_docs:
+            raise ValueError(f"duplicate generated doc path: {relative_path}")
+        generated_docs[relative_path] = [get_seat_generated_block(config, seat_name=seat_name)]
+    return generated_docs
 
 
 def render_markdown_table(headers: list[str], rows: list[list[str]]) -> str:
@@ -428,23 +433,7 @@ def render_seat_output_contract(contract: dict[str, object], seat_name: str) -> 
     return "\n\n".join(blocks)
 
 
-def render_taleb_output_contract(contract: dict[str, object]) -> str:
-    return render_seat_output_contract(contract, "taleb-reviewer")
-
-
-def render_munger_output_contract(contract: dict[str, object]) -> str:
-    return render_seat_output_contract(contract, "munger-reviewer")
-
-
-def render_lopez_output_contract(contract: dict[str, object]) -> str:
-    return render_seat_output_contract(contract, "lopezdeprado-reviewer")
-
-
-def render_linus_output_contract(contract: dict[str, object]) -> str:
-    return render_seat_output_contract(contract, "linus-engineer")
-
-
-BLOCK_RENDERERS = {
+STATIC_BLOCK_RENDERERS = {
     "seat_registry_current_seats": render_seat_registry_current_seats,
     "seat_registry_stage_rules": render_seat_registry_stage_rules,
     "seat_registry_lopez_must_call": render_seat_registry_lopez_must_call,
@@ -455,11 +444,19 @@ BLOCK_RENDERERS = {
     "verdict_schema_seat_specific": render_verdict_schema_seat_specific,
     "verdict_schema_route_rules": render_verdict_schema_route_rules,
     "verdict_schema_phase_4_exception": render_verdict_schema_phase_4_exception,
-    "taleb_output_contract": render_taleb_output_contract,
-    "munger_output_contract": render_munger_output_contract,
-    "lopez_output_contract": render_lopez_output_contract,
-    "linus_output_contract": render_linus_output_contract,
 }
+
+
+def get_block_renderers(contract: dict[str, object]) -> dict[str, object]:
+    renderers = dict(STATIC_BLOCK_RENDERERS)
+    for seat_name, config in iter_seats(contract):
+        block_name = get_seat_generated_block(config, seat_name=seat_name)
+        if block_name in renderers:
+            raise ValueError(f"duplicate generated block name: {block_name}")
+        renderers[block_name] = (
+            lambda current_contract, seat_name=seat_name: render_seat_output_contract(current_contract, seat_name)
+        )
+    return renderers
 
 
 def replace_generated_block(text: str, block_name: str, body: str) -> str:
@@ -477,23 +474,27 @@ def replace_generated_block(text: str, block_name: str, body: str) -> str:
 
 
 def render_doc_text(relative_path: str, text: str, contract: dict[str, object]) -> str:
-    block_names = GENERATED_DOCS.get(relative_path)
+    block_names = get_generated_docs(contract).get(relative_path)
     if block_names is None:
         raise ValueError(f"unsupported generated doc: {relative_path}")
 
+    block_renderers = get_block_renderers(contract)
     rendered = text
     for block_name in block_names:
-        renderer = BLOCK_RENDERERS[block_name]
+        renderer = block_renderers.get(block_name)
+        if renderer is None:
+            raise ValueError(f"missing renderer for generated block: {block_name}")
         rendered = replace_generated_block(rendered, block_name, renderer(contract))
     return rendered
 
 
 def render_docs(*, check: bool) -> int:
     contract = load_roundtable_contract()
+    generated_docs = get_generated_docs(contract)
     stale: list[str] = []
     changed: list[str] = []
 
-    for relative_path in GENERATED_DOCS:
+    for relative_path in generated_docs:
         path = ROOT / relative_path
         current_text = path.read_text(encoding="utf-8")
         rendered_text = render_doc_text(relative_path, current_text, contract)

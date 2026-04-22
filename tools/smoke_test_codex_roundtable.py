@@ -20,6 +20,7 @@ import tempfile
 from pathlib import Path
 
 from install_codex_source_adapters import install_source_only_adapters
+from render_roundtable_contract_docs import iter_seats, load_roundtable_contract
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -71,12 +72,10 @@ def refresh_shipped_assets(*, install_env: dict[str, str]) -> None:
 def collect_installed_files(*, codex_home: Path) -> list[Path]:
     installed_agent_dir = codex_home / "agents"
     installed_skill_dir = codex_home / "skills" / "zhuzi-roundtable"
+    contract = load_roundtable_contract()
     return [
         installed_skill_dir / "SKILL.md",
-        installed_agent_dir / "linus-engineer.md",
-        installed_agent_dir / "munger-reviewer.md",
-        installed_agent_dir / "taleb-reviewer.md",
-        installed_agent_dir / "lopezdeprado-reviewer.md",
+        *(installed_agent_dir / f"{seat_name}.md" for seat_name, _ in iter_seats(contract)),
     ]
 
 
