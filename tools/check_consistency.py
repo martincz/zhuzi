@@ -40,10 +40,10 @@ AGENT_VERDICT_ROOTS = {
     "lopezdeprado-reviewer.md": "lopezdeprado_verdict:",
 }
 
-AGENT_VERDICT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema-v2.md"
+AGENT_VERDICT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md"
 ROUNDTABLE_REFERENCE_PATHS = [
     "{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md",
-    "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema-v2.md",
+    "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md",
 ]
 ROUNDTABLE_WORKFLOW_PATH = "{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md"
 ROUNDTABLE_TEMPLATE_PATH = "{{ZHUZI_SHARED_ROOT}}/templates/roundtable-quick.md"
@@ -344,7 +344,7 @@ def check_agent_verdict_schema(errors: list[str]) -> None:
 
 
 def check_schema_reference(errors: list[str]) -> None:
-    path = ROOT / "zhuzi" / "references" / "verdict-schema-v2.md"
+    path = ROOT / "zhuzi" / "references" / "verdict-schema.md"
     if not path.exists():
         add_error(errors, path, 1, "missing verdict schema reference")
         return

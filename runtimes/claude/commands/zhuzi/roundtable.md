@@ -17,7 +17,7 @@ $ARGUMENTS
 <execution_context>
 @{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md
 @{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md
-@{{ZHUZI_SHARED_ROOT}}/references/verdict-schema-v2.md
+@{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md
 @{{ZHUZI_SHARED_ROOT}}/templates/roundtable-quick.md
 </execution_context>
 
@@ -25,7 +25,7 @@ $ARGUMENTS
 仓库内对应路径：
 - `zhuzi/workflows/roundtable.md`
 - `zhuzi/references/seat-registry.md`
-- `zhuzi/references/verdict-schema-v2.md`
+- `zhuzi/references/verdict-schema.md`
 - `zhuzi/templates/roundtable-quick.md`
 
 若 workflow、references、template 与 README、agent 示例段有出入，以本命令装载的执行上下文为准。

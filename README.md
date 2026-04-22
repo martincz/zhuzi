@@ -123,7 +123,7 @@ Skill 按用途分两类：
 
 核心设计：
 
-- **共同 verdict schema v2**——所有席位统一输出 `core` 层（`route` + `seat_native_verdict` + `hard_blockers` + `peer_disagreements`）+ `must_haves_review` + `must_haves_challenge` + `seat_specific`。主持人阶段 3 机读综合不用翻译席位方言。
+- **共同 verdict schema**——所有席位统一输出 `core` 层（`route` + `seat_native_verdict` + `hard_blockers` + `peer_disagreements`）+ `must_haves_review` + `must_haves_challenge` + `seat_specific`。主持人阶段 3 机读综合不用翻译席位方言。
 - **must_haves 契约优先于视角**——议题成功的可验证 truth 在阶段 0.5 就锁定；Quick 默认 1-3 条，full 模式最多 5 条。席位可通过 `must_haves_challenge` 反向推翻契约，但必须走阶段 1.5 修订 gate、给用户决定。
 - **N ≥ 1 席位合法**——无匹配席位则退回普通对话；只匹配 1 席位（如纯 factor literature 审视→只召 López）仍可跑。Quick 默认评议席位不超过 3 个。
 - **硬约束**：
@@ -135,7 +135,7 @@ Skill 按用途分两类：
 
 - `workflows/roundtable.md`：阶段编排、gate 规则、实施分支
 - `references/seat-registry.md`：当前席位权威表、默认 `stages` 路由规则
-- `references/verdict-schema-v2.md`：共同 YAML verdict 契约、route 映射和新增席位维护边界
+- `references/verdict-schema.md`：共同 YAML verdict 契约、route 映射和新增席位维护边界
 - `templates/roundtable-quick.md`：Quick Roundtable 输出骨架
 - `manifests/shipped-surface.json`：机器可读 shipped surface 清单
 
@@ -313,7 +313,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 3. **跨类隔离**——A 类（思维顾问）与 B 类（聊天娱乐）不混用；B 类（鲁迅）不进 Roundtable 席位。
 4. **命名约定**——新增 skill 后缀取自人物自己的身份 / 方法论，不照搬 `-engineer`：Linus 用 `-engineer`（自我认同）、Munger 用 `-checklist`（招牌方法）、Taleb 用 `-antifragile`（自造词 + magnum opus）、López 用 `-scientist`（scientist vs charlatan 二元轴）、鲁迅用 `-zawen`（一辈子的招牌文体）。
 5. **通用性约束**——skill / agent / command 对任意项目类型通用。禁止硬编码特定项目（某量化策略 / 某 web app）的场景、truth 形式、verdict 用词；硬约束层必须领域无关，示例层至少一组异领域对照。
-6. **Roundtable verdict schema v2 是契约**——新增席位必须填齐 `core` 四层字段，并在 `zhuzi/references/verdict-schema-v2.md` 补 route 映射。
+6. **Roundtable verdict schema 是契约**——新增席位必须填齐 `core` 四层字段，并在 `zhuzi/references/verdict-schema.md` 补 route 映射。
 
 ---
 
@@ -348,7 +348,7 @@ orchestrator 会先给出议题卡让用户确认，包括召开席位、弃权�
 1. 遵循[命名约定](#设计原则)——后缀贴合人物自我身份 / 方法论
 2. 遵循 skill 架构约定（SKILL.md 紧凑 + references 下沉）
 3. 证据链完整（每个观点可追溯到一手 / 二手来源）
-4. 若拟进入 Roundtable 席位：同步新建 `runtimes/claude/agents/<name>-reviewer.md`（或 `-engineer.md`），并更新 `zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema-v2.md` 与 `zhuzi/manifests/shipped-surface.json`
+4. 若拟进入 Roundtable 席位：同步新建 `runtimes/claude/agents/<name>-reviewer.md`（或 `-engineer.md`），并更新 `zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema.md` 与 `zhuzi/manifests/shipped-surface.json`
 5. 诚实边界写明"做不到什么"
 
 ---

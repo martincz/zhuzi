@@ -38,7 +38,7 @@
 | Entry | Path | Role |
 |---|---|---|
 | `seat-registry` | `zhuzi/references/seat-registry.md` | 当前席位权威表、默认 `stages` 规则、扩席位维护边界 |
-| `verdict-schema-v2` | `zhuzi/references/verdict-schema-v2.md` | roundtable 共同 YAML verdict 契约与 route 映射 |
+| `verdict-schema` | `zhuzi/references/verdict-schema.md` | roundtable 共同 YAML verdict 契约与 route 映射 |
 
 ## Templates (1 shipped)
 

@@ -75,10 +75,10 @@ chore: 固化圆桌短读输出模板
 
 1. **Pull 模式引用 skill**——agent body 的第一步是 `Read` 对应 skill 的 `SKILL.md`。skill 更新后，agent 下次 spawn 自动拉最新，**零同步成本**。不要把 skill 内容复制到 agent md 里。
 2. **非代码席只研究不实施**——Munger / Taleb / López 的 tools 字段不含 `Edit` / `Write`；只有 `linus-engineer` 有完整工具（他在阶段 4 实施）。
-3. **强制共同 verdict schema v2**——所有 agent 返回 YAML verdict block，含 `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层。`core` 字段机读统一（`route` / `seat_native_verdict` / `hard_blockers` / `peer_disagreements`），主持人阶段 3 不用翻译席位方言。
+3. **强制共同 verdict schema**——所有 agent 返回 YAML verdict block，含 `core` + `must_haves_review` + `must_haves_challenge` + `seat_specific` 四层。`core` 字段机读统一（`route` / `seat_native_verdict` / `hard_blockers` / `peer_disagreements`），主持人阶段 3 不用翻译席位方言。
 4. **pattern-level 批评纪律**（López 最严）——不点名具体公司 / 基金 / PM / ticker；仅对 pattern 开火。
 5. **角色隔离 via description 路由护栏**——每个 agent 的 `description` 字段显式写 "仅在 /zhuzi:roundtable 内调用……standalone 场景请用 XX skill，不要 spawn 本 agent"。防止与 skill 触发词撞车。
-6. **Roundtable runtime 分层**——当前席位表在 `zhuzi/references/seat-registry.md`，共同 verdict schema v2 在 `zhuzi/references/verdict-schema-v2.md`，阶段流程在 `zhuzi/workflows/roundtable.md`，Quick 骨架在 `zhuzi/templates/roundtable-quick.md`，机器可读 shipped surface 在 `zhuzi/manifests/shipped-surface.json`。agent、command、README、docs 的摘要性描述若漂移，以这些项目级资产为准。
+6. **Roundtable runtime 分层**——当前席位表在 `zhuzi/references/seat-registry.md`，共同 verdict schema 在 `zhuzi/references/verdict-schema.md`，阶段流程在 `zhuzi/workflows/roundtable.md`，Quick 骨架在 `zhuzi/templates/roundtable-quick.md`，机器可读 shipped surface 在 `zhuzi/manifests/shipped-surface.json`。agent、command、README、docs 的摘要性描述若漂移，以这些项目级资产为准。
 
 ---
 
@@ -90,7 +90,7 @@ runtime 结构拆成四层：
 
 - `runtimes/claude/commands/zhuzi/roundtable.md`——薄入口模板，只负责装载 workflow / references / template
 - `zhuzi/workflows/roundtable.md`——阶段编排、gate 规则、实施分支
-- `zhuzi/references/{seat-registry,verdict-schema-v2}.md`——席位权威表 + 共同 verdict 契约
+- `zhuzi/references/{seat-registry,verdict-schema}.md`——席位权威表 + 共同 verdict 契约
 - `zhuzi/templates/roundtable-quick.md`——默认短读骨架
 
 **路径纪律**：
@@ -101,7 +101,7 @@ runtime 结构拆成四层：
 
 共享契约文件：
 - `zhuzi/references/seat-registry.md`——当前席位权威表、默认 `stages` 规则、扩席位维护边界
-- `zhuzi/references/verdict-schema-v2.md`——共同 YAML verdict 契约与 route 映射
+- `zhuzi/references/verdict-schema.md`——共同 YAML verdict 契约与 route 映射
 - `zhuzi/workflows/roundtable.md`——权威阶段流程
 - `zhuzi/templates/roundtable-quick.md`——Quick 模式默认骨架
 
@@ -184,7 +184,7 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
    - 禁止把 B 类改写结果当"人物对这件事的真实观点"
    - 两类 anti-pattern 库相互独立，不交叉引用
 9. **Skill 触发词 vs Agent 触发词的路由护栏**——skill 的 `description` 触发词是"用户场景触发"（如 "用 Linus 视角"），agent 的 `description` 显式写 "仅在 /zhuzi:roundtable 内调用……standalone 请用对应 skill"。新增 skill / agent 时必须同时检查两侧触发词不撞车——用户说 "用 López 视角" 应激活 skill，不应 spawn agent。
-10. **Roundtable verdict schema v2 是跨席位契约**——`core` 层字段机读统一；`must_haves_challenge.proposed_revision` 三字段分层（`revised_truth` ≤ 50 字 / `revised_verify_suggestion` / `spawn_sub_topic`），**严禁回退为字符串字面量**。新增席位必须填齐 `core` 四层字段并在 `zhuzi/references/verdict-schema-v2.md` 补对应映射。
+10. **Roundtable verdict schema 是跨席位契约**——`core` 层字段机读统一；`must_haves_challenge.proposed_revision` 三字段分层（`revised_truth` ≤ 50 字 / `revised_verify_suggestion` / `spawn_sub_topic`），**严禁回退为字符串字面量**。新增席位必须填齐 `core` 四层字段并在 `zhuzi/references/verdict-schema.md` 补对应映射。
 
 ---
 
@@ -233,14 +233,14 @@ SKILL.md 是给模型加载的主文件，必须紧凑（v2 设计目标："激�
 
 ### Agent 侧
 
-- **新增席位** → 1) 新建 `runtimes/claude/agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选）；2) `description` 字段加路由护栏（"仅在 /zhuzi:roundtable 内调用……standalone 请用 XX skill"）；3) body 第一步 Read 对应 skill 的 `SKILL.md`（pull 模式，不复制内容）；4) 更新 `zhuzi/references/seat-registry.md` 的当前席位表与默认 `stages` 规则；5) 更新 `zhuzi/references/verdict-schema-v2.md` 的 native → core.route 映射；6) 更新 `zhuzi/manifests/shipped-surface.json` 与 `docs/INVENTORY.md`；7) verdict block root key 用 `<seat>_verdict`
+- **新增席位** → 1) 新建 `runtimes/claude/agents/<name>-reviewer.md`（或 `-engineer.md`，后缀按席位身份选）；2) `description` 字段加路由护栏（"仅在 /zhuzi:roundtable 内调用……standalone 请用 XX skill"）；3) body 第一步 Read 对应 skill 的 `SKILL.md`（pull 模式，不复制内容）；4) 更新 `zhuzi/references/seat-registry.md` 的当前席位表与默认 `stages` 规则；5) 更新 `zhuzi/references/verdict-schema.md` 的 native → core.route 映射；6) 更新 `zhuzi/manifests/shipped-surface.json` 与 `docs/INVENTORY.md`；7) verdict block root key 用 `<seat>_verdict`
 - **调整席位工具权限** → 非代码席（只研究不实施）tools 不含 `Edit` / `Write`；代码席（Linus）才有完整工具
 - **调整擅长领域关键词** → 同步改 agent `description` 段和 `zhuzi/references/seat-registry.md`（阶段 0.5 路由依赖此表）
 
 ### Command 侧
 
 - **调整阶段流程** → 优先改 `zhuzi/workflows/roundtable.md`。只有入口装载顺序变化时才改 `runtimes/claude/commands/zhuzi/roundtable.md`
-- **调整 verdict schema v2** → 同步：(1) `zhuzi/references/verdict-schema-v2.md`；(2) 所有 agent md 的 verdict block 示例段；(3) 各 skill SKILL.md 若内嵌 schema 示例也要同步
+- **调整 verdict schema** → 同步：(1) `zhuzi/references/verdict-schema.md`；(2) 所有 agent md 的 verdict block 示例段；(3) 各 skill SKILL.md 若内嵌 schema 示例也要同步
 - **调整席位资格路由** → 优先改 `zhuzi/references/seat-registry.md`；只有阶段流程本身变化时再改 `zhuzi/workflows/roundtable.md`
 - **调整 Quick 默认骨架** → 改 `zhuzi/templates/roundtable-quick.md`，并同步 `examples/roundtable-quick.md` 与一致性检查
 - **项目级覆盖** → 某项目有专属需求时，在该项目的 `.claude/commands/zhuzi/roundtable.md` 放覆盖版。支持项目级覆盖的 runtime 同名时项目级优先

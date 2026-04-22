@@ -42,4 +42,4 @@
 1. 新建 `agents/<name>-reviewer.md` 或 `agents/<name>-engineer.md`。
 2. 更新本文件的当前席位表和默认 `stages` 规则。
 3. 更新 `docs/INVENTORY.md`。
-4. 若新增 native verdict 或 route 语义，更新 `zhuzi/references/verdict-schema-v2.md`。
+4. 若新增 native verdict 或 route 语义，更新 `zhuzi/references/verdict-schema.md`。

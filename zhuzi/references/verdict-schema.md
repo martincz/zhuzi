@@ -1,4 +1,4 @@
-# Shared Verdict Schema v2
+# Shared Verdict Schema
 
 > 这是 `/zhuzi:roundtable` 所有席位共享的 YAML verdict 契约权威源。若 `roundtable.md`、agent 示例段或 README 的说法漂移，以本文件为准。
 

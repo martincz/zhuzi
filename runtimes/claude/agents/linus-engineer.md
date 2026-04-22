@@ -117,7 +117,7 @@ orchestrator 在阶段 4 会用 `SendMessage` 续跑**同一个你**（保留阶
 
 阶段 2（可行性评审）和阶段 4（实施）的原文最后必须附如下 YAML 块，orchestrator 会直接机读。缺失 / 字段不全视为未完成任务。
 
-所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）在**阶段 2**遵守共同三层 schema —— 详见 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema-v2.md`。你的阶段 2 YAML root key 是 `linus_feasibility`；阶段 4 的 `linus_execution` 是**实施验证状态输出**，不走共同 schema，保留原字段结构。
+所有 roundtable 席位（Taleb / Munger / López / Linus / 未来扩展）在**阶段 2**遵守共同 schema —— 详见 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。你的阶段 2 YAML root key 是 `linus_feasibility`；阶段 4 的 `linus_execution` 是**实施验证状态输出**，不走共同 schema，保留原字段结构。
 
 ### 阶段 2 · 可行性评审 block
 
@@ -148,7 +148,7 @@ linus_feasibility:
     triggered: yes | no                    # 若 yes 触发阶段 1.5 must_haves 修订 gate
     challenged_truths: [1, 3]              # triggered=yes 时必填
     fundamental_issue: "<代码层视角下为何 must_haves 跑偏，例如：truth 要求的能力需要先做架构重构才可能实现>"
-    proposed_revision:                     # list of struct，每 challenged truth 一条；三字段强制分层（详见 verdict-schema-v2.md）
+    proposed_revision:                     # list of struct，每 challenged truth 一条；三字段强制分层（详见 verdict-schema.md）
       - truth_id: 1
         revised_truth: "<修订后的主张本身，≤ 50 字；禁混实施路径 / 验证命令 / 衍生议题>"
         revised_verify_suggestion: "<如何验证此主张；无则空字符串 '' 让 orchestrator 后定>"

@@ -70,8 +70,8 @@
         "role": "当前席位权威表、默认 stages 规则、扩席位维护边界"
       },
       {
-        "entry": "verdict-schema-v2",
-        "path": "zhuzi/references/verdict-schema-v2.md",
+        "entry": "verdict-schema",
+        "path": "zhuzi/references/verdict-schema.md",
         "role": "roundtable 共同 YAML verdict 契约与 route 映射"
       }
     ],
