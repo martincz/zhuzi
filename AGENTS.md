@@ -104,6 +104,7 @@ runtime 结构拆成五层：
 - Claude adapter 模板只允许出现 `{{ZHUZI_SKILL_ROOT}}`、`{{ZHUZI_SHARED_ROOT}}` 这类占位符，不允许写死 runtime 根目录
 - Codex source-only adapter 在源码层也使用和 Claude 一样的 repo-level placeholder；通过 `tools/install_codex_source_adapters.py` side-load 时再渲染成 Codex 安装路径，并保留 repo 相对路径 fallback
 - 安装脚本只负责 shipped surface 的渲染与拷贝；当前**不处理** `runtimes/codex/` source-only adapter，本地试用走 `tools/install_codex_source_adapters.py`
+- 安装后生成的 runtime 文件允许出现**本机绝对路径**；那是 render output，不是源码泄漏。不要把安装产物里的 concrete path 改回 `$HOME/...`，因为这些 markdown 不是 shell，运行时不保证替你做环境变量展开
 - 共享资产（`zhuzi/`）必须保持 runtime-agnostic，不知道自己最终装在哪个 runtime 根目录
 
 共享契约文件：

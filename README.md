@@ -243,6 +243,8 @@ cd zhuzi
 
 注意：仓库里的 `runtimes/claude/agents/*.md` 与 `runtimes/claude/commands/zhuzi/*.md` 是**模板源码**，不直接写死 `~/.claude/...` 或 `~/.codex/...`。这些路径只在安装产物里出现，由 `install.sh` 按目标 runtime 根目录渲染。
 
+补充说明：安装产物里出现本机绝对路径是**预期行为**，不是源码污染。原因很简单：这些 markdown 最终是给 runtime / agent 当“可直接读取的具体路径”用的，不是 shell 脚本；把它写成 `$HOME/...` 并不保证会被运行时展开。真正该保持 runtime-agnostic 的，是仓库里的源码模板，而不是安装后生成的本机副本。
+
 ### 方式 B：手动试用 Codex roundtable adapter（当前 source-only）
 
 `runtimes/codex/` 当前**故意不进** shipped surface / manifest / `install.sh`。如果要本地试用 Codex roundtable：
