@@ -231,7 +231,19 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 
 | 席位 | 结论 | 最大风险 | 必须满足 | 分歧 | 信心 |
 |---|---|---|---|---|---|
-| `<seat>` | `core.route` + native verdict | 1 句 | 1 句 | 1 句，没有写“无” | low/medium/high |
+| `<seat>` | <路由中文译 · 1 句条件> | 1 句 | 1 句 | 1 句，没有写“无” | low/medium/high |
+
+**结论列译表（Quick 默认只露路由的中文译，不露 `core.route` token 也不露 `native_verdict`）**：
+
+| `core.route` | 中文译 | 用法 |
+|---|---|---|
+| `go` | 过 | 方案按现状可推进 |
+| `go_with_conditions` | 可做 · <1 句条件> | 条件直接拼进译文，例：`可做 · 先定义缓存键和失效规则` |
+| `revise_must_haves` | 改 must_haves | 回阶段 1.5 修 |
+| `kill` | 停 | 建议不做 |
+| `too_hard` | 放弃 · <1 句原因> | 能力圈外或议题粒度太粗 |
+
+席位 `native_verdict`（如 `sane` / `cargo_cult` / `pseudo_scientific` / `fragile`）是 persona DNA，保留在内部 YAML 和原文里，**Quick 短评卡不展示**；用户说 “展开 verdict / 展开原文” 时才列。硬 blocker（`kill` / `too_hard` / `revise_must_haves` / 代码层 `broken`）除外——这些必须在短评卡直接露出，不得藏到展开内容里。
 
 **展开规则**：
 

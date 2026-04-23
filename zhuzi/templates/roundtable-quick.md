@@ -19,9 +19,11 @@
 
 ## 席位短评
 
+> 结论列只露路由中文译（`go` → 过 / `go_with_conditions` → 可做·条件 / `revise_must_haves` → 改 must_haves / `kill` → 停 / `too_hard` → 放弃·原因），不露 `core.route` 原 token 也不露 `native_verdict`；用户要原生 verdict 时说"展开原文"。
+
 | 席位 | 结论 | 最大风险 | 必须满足 | 分歧 | 信心 |
 |---|---|---|---|---|---|
-| <seat> | <core.route + native verdict> | <1 句> | <1 句> | <1 句或“无”> | <low/medium/high> |
+| <seat> | <路由中文译 · 1 句条件> | <1 句> | <1 句> | <1 句或“无”> | <low/medium/high> |
 
 ## 做完会怎样
 
