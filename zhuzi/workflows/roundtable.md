@@ -21,6 +21,7 @@
 - `主持人结论` 必须先出现；不能先展示流程、YAML 或席位原文。
 - `席位短评` 每席只占一行；需要长理由时放到 full/strict 展开。
 - `决策表` 的分类只用 `locked / deferred / discretion`，避免额外术语。
+- **persona 术语首次出现必须带 1 句人话括注**——覆盖议题卡、must_haves truths、席位短评、做完会怎样、DECISIONS 表等所有默认呈现段。例：`Deflated Sharpe`（试了 N 次后要对观察到的 Sharpe 打折才算真显著）、`ergodicity`（单人长期路径和平行宇宙平均是两回事）。用户要完整 persona DNA 时说“展开原文”再呈现无括注版。
 
 **可读性预算**：
 
@@ -220,7 +221,7 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 
 任一违反则 orchestrator 综合产出不合格，必须重写：
 
-1. **去 persona 黑话**——席位专业方言首次出现时必须带 1 句通俗解释。
+1. **去 persona 黑话**——按模板纪律里的术语括注规则执行；阶段 1.5 产物不得出现首次无括注的 persona 术语。
 2. **尊重席位侧已分层的 `proposed_revision`**——直接对应 `revised_truth` / `revised_verify_suggestion` / `spawn_sub_topic` 三字段合并，不得重新搅成一团。
 3. **结构复杂度上限**：
    - v2 主张单条 ≤ 50 字。
