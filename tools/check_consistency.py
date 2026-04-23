@@ -271,11 +271,20 @@ ROUNDTABLE_PUNCT_FILES = [
 # 核心 persona / 项目术语：首次出现必须带机制括注
 # window 50 字符内含 hints 里任一子串 = 视为已括注
 REQUIRED_TERM_ANNOTATIONS = {
+    # López / 证据质量
     "walpha": ["加权超额收益"],
     "multiple testing": ["试 N 次", "多次试验", "看似显著", "噪声"],
     "Deflated Sharpe": ["试 N 次", "打折", "Sharpe 打折"],
-    "paired bootstrap": ["抽样比对", "抽样对比"],
+    "paired bootstrap": ["抽样比对", "抽样对比", "配对抽样"],
+    "meta-labeling": ["方向", "三步法", "次级分类", "先判方向"],
+    "PBO": ["排名翻转", "翻转概率", "OOS 排名"],
+    "CPCV": ["组合", "清洗", "purged", "combinatorial"],
+    "backtest overfitting": ["过拟合", "回测过度", "反复试"],
+    # Taleb / 风险结构
     "ergodicity": ["单人长期", "时间平均", "平行宇宙"],
+    "fragility": ["尾部", "黑天鹅", "凹性", "受伤", "会塌"],
+    "barbell": ["两头", "杠铃", "无风险", "极端两端"],
+    "ruin risk": ["破产", "归零", "吸收", "absorbing"],
 }
 
 
