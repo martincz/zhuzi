@@ -16,7 +16,7 @@
 
 | 项 | 内容 |
 |---|---|
-| 目标 | 判断是否应该给 API 增加缓存层，以及怎样落地才不破坏语义 |
+| 目标 | 产出一张决策表：缓存该怎么落地（locked）、不做什么（deferred）、如何验证真的做到（验证信号） |
 | 召开席位 | `linus-engineer` · 架构和实现边界<br>`munger-reviewer` · 激励和指标误导 |
 | 弃权席位 | `taleb-reviewer` · 无尾部风险建模核心问题<br>`lopezdeprado-reviewer` · 无研究方法论核心问题 |
 | 暂不讨论 | 不重写整个 API<br>不引入分布式缓存集群 |
