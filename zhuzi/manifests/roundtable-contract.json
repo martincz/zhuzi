@@ -181,8 +181,11 @@
         "undefined_terms",
         "mechanism_gaps",
         "missing_examples",
+        "boundary_gaps",
+        "false_analogies",
         "verification_gaps",
-        "ai_misread_risk"
+        "ai_misread_risk",
+        "diagnosis_level"
       ],
       "Linus 阶段 1": [
         "data_structure_risks",
@@ -560,8 +563,11 @@
         "undefined_terms",
         "mechanism_gaps",
         "missing_examples",
+        "boundary_gaps",
+        "false_analogies",
         "verification_gaps",
-        "ai_misread_risk"
+        "ai_misread_risk",
+        "diagnosis_level"
       ],
       "output_contract": {
         "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Feynman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
@@ -570,7 +576,7 @@
             "root_key": "feynman_verdict",
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，并说明术语是否定义清楚、机制是否讲明白、验证口径是否会被人和 agent 同时误读",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制，或把不可验证的话术伪装成了可执行 contract"
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制、用同样未理解的东西去类比解释、或只写正例不写失效条件，把不可验证的话术伪装成了可执行 contract"
           }
         ]
       },

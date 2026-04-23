@@ -77,7 +77,7 @@ must_haves_challenge:
 - Taleb: `tail_events_breaking_must_haves` / `fragility_checklist_failures` / `distribution_class` / `payoff_convexity` / `skin_in_the_game`
 - Munger: `anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `incentive_map` / `opportunity_cost_note` / `reverse_kill_path`
 - López: `claim_classification` / `causal_graph_missing` / `trial_count_disclosed` / `integrity_checklist_failures` / `anti_pattern_hits` / `workflow_diagnosis` / `domain_limit_flag`
-- Feynman: `undefined_terms` / `mechanism_gaps` / `missing_examples` / `verification_gaps` / `ai_misread_risk`
+- Feynman: `undefined_terms` / `mechanism_gaps` / `missing_examples` / `boundary_gaps` / `false_analogies` / `verification_gaps` / `ai_misread_risk` / `diagnosis_level`
 - Linus 阶段 1: `data_structure_risks` / `special_case_pressure` / `anti_patterns_hit` / `interface_risks` / `out_of_scope_for_strategy`
 - Linus 阶段 2: `broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`
 <!-- GENERATED:verdict_schema_seat_specific:end -->

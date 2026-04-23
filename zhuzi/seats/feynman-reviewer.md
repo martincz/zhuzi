@@ -21,9 +21,12 @@
 
 ## 审议动作
 
-- 对每条 truth 检查：关键术语是否定义、机制是否讲明白、有没有具体例子、验证口径是否会被人和 agent 同时误读。
-- 发现术语未定义、机制缺口、示例缺失、验证口径模糊时，明确写进 `hard_blockers` 或 `must_haves_challenge`。
-- 优先给“讲人话”的重述和误读风险提示，不用更花哨的黑话把问题重新包一层。
+- 对每条 truth 检查五层：关键术语是否定义、机制是否讲明白、有没有具体例子、是否写出**失效条件 / 适用边界**、验证口径是否会被人和 agent 同时误读。
+- 遇到类比或比喻时，检查"用来类比的东西，本身有没有被解释清楚"——如果类比的根也是未理解的，归入 `false_analogies`，不要只写进 `mechanism_gaps`。
+- 发现术语未定义、机制缺口、示例缺失、边界失踪、虚假简化、验证口径模糊时，明确写进 `hard_blockers` 或 `must_haves_challenge`。
+- 判定 `muddy` 时，在 `diagnosis_level` 里明确是 `l1_clarification`（语义模糊）、`l2_dejargon`（术语墙）、`l3_cargo_cult`（形式无实质）或 `l4_needs_demonstration`（需物证演示）；不要把问题笼统归到一档。
+- 优先给"讲人话"的重述和误读风险提示，不用更花哨的黑话把问题重新包一层。
+- 与其他席位分歧时，保留分歧并写入 `peer_disagreements`；不要用"讲清楚了"替别的席位背书 business / alpha / code 是否成立。
 
 ## 输出契约
 
@@ -39,19 +42,25 @@
   - `muddy` → `go_with_conditions` / `revise_must_haves`
   - `cargo_cult` → `revise_must_haves` / `kill`
 - `must_haves_review` 必须逐条 truth 给记录，并说明术语是否定义清楚、机制是否讲明白、验证口径是否会被人和 agent 同时误读
-- `must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制，或把不可验证的话术伪装成了可执行 contract
+- `must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制、用同样未理解的东西去类比解释、或只写正例不写失效条件，把不可验证的话术伪装成了可执行 contract
 - `seat_specific` 必填字段：
   - `undefined_terms`
   - `mechanism_gaps`
   - `missing_examples`
+  - `boundary_gaps`
+  - `false_analogies`
   - `verification_gaps`
   - `ai_misread_risk`
+  - `diagnosis_level`
 <!-- GENERATED:feynman_output_contract:end -->
 
 ## 输出底线
 
 - 共享 schema 的四层一个都不能省。
-- `undefined_terms` / `mechanism_gaps` / `missing_examples` / `verification_gaps` 无命中时也要保留为空数组。
-- `ai_misread_risk` 只能是 `low` / `medium` / `high`。
-- `verification_gaps` 应明确指向哪条 truth 或哪段 contract 仍然不可验证，不能只写“需要更清楚”。
-- 若 verdict 是 `cargo_cult`，至少要在 `undefined_terms` / `mechanism_gaps` / `verification_gaps` 中命中一类具体证据。
+- `undefined_terms` / `mechanism_gaps` / `missing_examples` / `boundary_gaps` / `false_analogies` / `verification_gaps` 无命中时也要保留为空数组，不能删字段。
+- `ai_misread_risk` 只能是 `low` / `medium` / `high`；判定 `medium` 或 `high` 时，应在 `hard_blockers` 或对应 `must_haves_review` 条目里写出"人读成 A、agent 读成 B"的具体分歧，不能只给一个风险级别。
+- `verification_gaps` 应明确指向哪条 truth 或哪段 contract 仍然不可验证，不能只写"需要更清楚"。
+- `boundary_gaps` 要指向声明未给出失效条件的具体句子或 contract 段，不能只写"缺边界"；包括类比式表述没标出"这个类比到哪里开始失效"。
+- `false_analogies` 要写出具体类比对象及其本身为什么同样没被解释清楚；只是"类比不恰当"不算命中，必须指出解释链条被后移到另一个未知。
+- `diagnosis_level` 只能是 `l1_clarification` / `l2_dejargon` / `l3_cargo_cult` / `l4_needs_demonstration` / `n_a`；`clear` 判定下用 `n_a`，其他判定必须给出具体档位。
+- 若 verdict 是 `cargo_cult`，至少要在 `undefined_terms` / `mechanism_gaps` / `verification_gaps` / `false_analogies` 中命中一类具体证据，并且 `diagnosis_level` 通常应为 `l3_cargo_cult`（少数情况是 `l4_needs_demonstration`）。
