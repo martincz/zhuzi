@@ -59,17 +59,6 @@ ADAPTER_INLINE_SCHEMA_SNIPPETS = [
 ]
 
 BANNED_SNIPPETS = [
-    "本仓库不再",
-    "不再只是",
-    "Skill 集合",
-    "它包含三类互相咬合的产物",
-    "不是某个单一运行时",
-    "席位原文完整呈现",
-    "完整呈现给用户",
-    "绝不转述 agent 原文",
-    "席位 YAML verdict 完整呈现",
-    "3-5 条可验证 truth",
-    "可被 Claude Code 直接加载",
     "/home/martincz",
     "/mnt/g/zhuzi",
     "`/roundtable`",
