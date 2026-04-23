@@ -295,10 +295,25 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 - **任一 `triggered: yes`** → **暂停，走修订流程**：
 
 1. orchestrator 汇总所有 `triggered: yes` 席位的 `proposed_revision`，合并成 must_haves v2（多席位冲突时显式标注差异，不擅自取舍）。
-2. 呈现给用户：
-   - v1 vs v2 对照表（按 truth_id）
-   - 每条修改的来源席位 + `fundamental_issue`
-   - 用户五选一：**接受 v2** / **接受部分**（指定哪些 truth 采纳）/ **保持 v1** / **重开议题** / **要求 orchestrator 改写 v2 表达**
+2. 呈现给用户——**v1 vs v2 对照必须用 Markdown table**（**禁止 K:V 垂直列表**，5 列骨架）：
+
+   ```markdown
+   | # | v1（旧） | v2（新） | 来源 | 根因 |
+   |---|---|---|---|---|
+   | 1 | <≤ 25 字摘要> | <≤ 25 字摘要> | <席位名> | <≤ 25 字> |
+   | 2 | ... | ... | ... | ... |
+   ```
+
+   **硬约束**：
+   - 每 cell ≤ 25 字。超过 → 详情挪到 table 下方 `### Truth <N> 展开` 段。
+   - `来源` 列只填席位名（`López` / `Taleb` / `López + Taleb` 合并），不混入理由。
+   - `根因` 列是 `fundamental_issue` 的摘要，不是 v2 内容的重复。
+   - v1 被完全替换时填 `<完全重写>`；v1 没对应项（新增 truth）时 v1 列填 `（新增）`，不用破折号占位。
+
+   对照表后（若有）加：
+
+   - `### Truth <N> 展开` 段（只对超 25 字 cell 出现）
+   - **用户五选一**：**接受 v2** / **接受部分**（指定哪些 truth 采纳）/ **保持 v1** / **重开议题** / **要求 orchestrator 改写 v2 表达**
 3. 用户选“接受 v2”或“接受部分” → 锁定新版 must_haves，阶段 2 Linus 拿新版。
 4. 用户选“保持 v1” → 阶段 2 进行但显式告知 Linus“非代码评议席位建议修订 must_haves 但用户维持 v1”，Linus 在自己的 verdict 里可选择继续 challenge。
 5. 用户选“重开议题” → 流水线终止，回阶段 0.5 重写议题。
