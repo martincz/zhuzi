@@ -1,31 +1,41 @@
 # AGENTS.md
 
-This file provides guidance to agent runtimes (Codex, Claude Code, and compatible tools) when working with code in this repository.
+本文件给 agent runtime（Codex, Claude Code 及兼容工具）在本仓库工作时用。规约优先于任何 runtime 默认行为；与其他文档冲突时以本文件及下面列出的真相源为准。
 
 ## 仓库性质
 
-`zhuzi` 是一个围绕 **skill + agent + roundtable** 三层模型构建的开发仓库。全部资产都是 Markdown 驱动，由支持相应规范的 agent runtime 加载。
+`zhuzi` 围绕 **skill + agent + roundtable** 三层模型组织，全部资产 Markdown 驱动。修改前先分清自己在碰哪一层：
 
-- `skills/`：用户直接触发的人物 skill
-- `zhuzi/seats/` + `runtimes/*/agents/`：roundtable 席位契约与 runtime adapter
-- `zhuzi/workflows/roundtable.md` + `runtimes/*` 入口：圆桌编排规则
+- **skill**（`skills/`）——单人物思维内核，直接对用户说话。
+- **agent / seat**（`zhuzi/seats/` + `runtimes/*/agents/`）——roundtable 席位契约与 runtime adapter，对 orchestrator 返回结构化 verdict。
+- **roundtable**（`zhuzi/workflows/` + `runtimes/*` 入口）——议事编排与 gate 规则，不承载人物正文。
 
-修改前先分清三层边界：
+## 真相源与修改指针
 
-- **skill** 是思想内核，直接对用户说话
-- **agent** 是协作席位，对 orchestrator 返回结构化 verdict
-- **roundtable adapter** 是入口和议事规则，不承载人物正文
+按资产层列出权威文件 + 改动入口。任何说明、示例、摘要与下列文件冲突时，以下列文件为准。
 
-若摘要性描述有漂移，以下列文件为准：
+| 资产层 | 权威文件 | 改动入口 |
+|---|---|---|
+| 人物正文、触发词、anti-pattern、研究支撑 | `skills/<name>/SKILL.md` 及其 `references/` | 直接改对应 skill 目录 |
+| 席位职责、越权边界、启动/阶段纪律 | `zhuzi/seats/<seat>.md` | 改 seat contract；保留 `## 输出契约` 生成块 marker |
+| Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 字段、seat 输出契约机器段） | `zhuzi/manifests/roundtable-contract.json` | 改 manifest，然后 `python3 tools/render_roundtable_contract_docs.py` |
+| Roundtable reference（seat-registry、verdict-schema）及 seat 输出契约投影段 | `zhuzi/references/*.md`、`zhuzi/seats/*.md` 的生成块 | 只改非生成说明段；生成块由 manifest 渲染 |
+| Roundtable 流程、阶段、gate、Quick 行为 | `zhuzi/workflows/roundtable.md` | 先改 workflow，再看是否需要同步 runtime 入口 adapter |
+| Quick Roundtable 输出骨架 | `zhuzi/templates/roundtable-quick.md` | 先改 template，再看是否同步示例 |
+| Shipped surface（人读 + 机读） | `docs/INVENTORY.md` + `zhuzi/manifests/shipped-surface.json` | 两处同步 |
+| 安装、渲染、side-load 行为 | `install.sh` + `tools/install_codex_source_adapters.py` | 改脚本；行为以脚本本身为准 |
 
-- `README.md`：仓库概览、目录结构、安装方式
-- `zhuzi/workflows/roundtable.md`：Roundtable 权威流程与 gate 规则
-- `zhuzi/manifests/roundtable-contract.json`：Quick headings、seat/stages/route、seat_specific 与 seat 输出契约机器合同
-- `zhuzi/references/seat-registry.md`：当前席位、默认 `stages`、召开纪律
-- `zhuzi/references/verdict-schema.md`：共同 YAML verdict 契约
-- `zhuzi/templates/roundtable-quick.md`：Quick Roundtable 默认骨架
-- `docs/INVENTORY.md` + `zhuzi/manifests/shipped-surface.json`：shipped surface 真相源
-- `install.sh` + `tools/install_codex_source_adapters.py`：安装、渲染、side-load 行为
+## 硬约束
+
+以下是**跨项目、跨 runtime 都成立**的规则。违反任一条属于 roundtable/agent 层的 regression，应当回滚或补齐。
+
+1. **共享真相源优先**——同一份事实只能维护在一处。Claude 和 Codex adapter 都只装载共享资产，不复制人物正文、不内嵌 schema 副本、不自写另一份 seat 语义。
+2. **Adapter 保持薄**——runtime adapter 的作用是装载 skill + seat contract + shared schema。不写维护手册、不塞生成块、不改写席位职责。
+3. **Runtime-agnostic 的文案与路径**——共享资产不绑定单一 runtime、不写死机器绝对路径。源码模板允许 placeholder 和仓库 fallback；安装产物应收敛到 installed root。
+4. **Skill / agent 路由护栏**——standalone 思维顾问场景激活 skill；协作席位场景才调用 agent。新增人物或席位时，skill frontmatter 触发词与 agent description 必须两侧校对不撞车。
+5. **共同 verdict 契约不得私改方言**——`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific` 的分层语义以 shared schema 为准。新增 native verdict 或 route 语义要先补 shared schema 与 manifest，再改 adapter。
+6. **硬约束与示例分离**——能跨项目成立的纪律才进合同；某个项目、领域或工具链的业务结论只作示例，不得冒充通用规则。
+7. **证据链不可断**——新增人物观点、anti-pattern、表达档位或方法论约束前，先补对应研究 / 一手来源。没有证据，不进主合同。
 
 ## 提交规范
 
@@ -43,66 +53,35 @@ chore: 固化圆桌短读输出模板
 - 扩展一致性检查覆盖默认输出骨架
 ```
 
-## 关键设计原则
-
-1. **共享真相源优先**  
-   席位职责、越权边界放在 `zhuzi/seats/`；Quick headings、seat/stages/route、`seat_specific` 机器合同放在 `zhuzi/manifests/roundtable-contract.json`；人读解释放在 `zhuzi/references/`。不要在 Claude/Codex adapter 里再各写一份。
-
-2. **adapter 保持薄**  
-   runtime adapter 只负责装载对应 skill、seat contract、shared schema 和 workflow，不复制人物正文，不内嵌大段 schema，不承载维护手册。
-
-3. **runtime-agnostic 文案与路径**  
-   共享资产和总规约不写死单一 runtime，不写死机器绝对路径。源码模板允许 placeholder 和仓库 fallback；安装后的产物应收敛到 installed root。
-
-4. **skill / agent 路由护栏必须明确**  
-   用户说“用 Linus 视角”这类 standalone 场景，应激活 skill；只有 roundtable 协作场景才调用 agent。新增人物或席位时，必须同时检查两侧触发词是否撞车。
-
-5. **A 类思维顾问与 B 类聊天娱乐隔离**  
-   思维顾问型 skill 不做口吻玩梗；聊天娱乐型 skill 不做决策建议。不要把娱乐改写伪装成严肃判断。
-
-6. **能力边界按人物真实专长写，不按当前示例收窄**  
-   席位和 skill 的职责应覆盖该人物真实擅长领域，不要被当前量化案例、现有示例或一时的落地项目绑死。
-
-7. **证据链不可断**  
-   新增人物观点、anti-pattern、表达档位或方法论约束前，先补对应 research / 来源。没有证据，不进主合同。
-
-8. **硬约束与示例分离**  
-   能跨项目成立的内容才进合同；项目、领域、工具链相关内容只作示例，不得冒充通用规则。
-
-9. **Roundtable 共同契约不得私改方言**  
-   `core`、`must_haves_review`、`must_haves_challenge`、`seat_specific` 的分层语义以 shared schema 为准。新增席位或 verdict 语义时，先补 shared schema，再改 adapter。
-
-## 跨项目使用纪律
-
-本仓库是 skill / agent / roundtable 资产的开发仓库，不是具体业务项目的工作仓库。
-
-- 用户贴来别的项目里的 verdict、截图、圆桌输出或契约草稿时，默认意图是**改进本仓库的通用产物**。
-- 不要把别的项目的业务结论、参数口径、领域纪律写进这里的通用文档。
-- 如果用户意图不明，先分清他是要改本仓库，还是要讨论那个具体议题本身。
-- 所有总规约都应尽量保持跨项目成立；量化、Web、文档、编译产物等示例只能帮助理解，不能替代定义。
-
-## 修改指针
-
-- 改人物正文、触发词、研究引用、anti-pattern：去对应 `skills/<name>/`
-- 改席位职责、越权边界、启动/阶段纪律等手写合同：去 `zhuzi/seats/*.md`
-- 改 Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册、seat 输出契约机器段）：去 `zhuzi/manifests/roundtable-contract.json`
-- 改 Roundtable reference / seat 输出契约投影段：先改 manifest，再跑 `python3 tools/render_roundtable_contract_docs.py`
-- `zhuzi/references/seat-registry.md` 与 `zhuzi/references/verdict-schema.md` 默认只改非生成说明段；生成块不要手改
-- 改 Roundtable 阶段、gate、Quick 行为：先改 `zhuzi/workflows/roundtable.md`，再看是否需要改入口 adapter
-- 改 shipped surface：同步 `docs/INVENTORY.md` 与 `zhuzi/manifests/shipped-surface.json`
-- 改安装或路径渲染：去 `install.sh` 与 `tools/install_codex_source_adapters.py`
-
-## 无需运行的检查
+## 验证流程
 
 修改后的最小验证：
 
-- 运行 `python3 tools/render_roundtable_contract_docs.py`
-- 运行 `python3 tools/check_consistency.py`
-- 若动了 roundtable surface、shared schema、Codex adapter 或安装路径，再跑 `python3 tools/smoke_test_codex_roundtable.py`
+```bash
+python3 tools/render_roundtable_contract_docs.py
+python3 tools/check_consistency.py
+```
+
+改动涉及 roundtable surface、shared schema、Codex adapter 或安装路径时，再跑：
+
+```bash
+python3 tools/smoke_test_codex_roundtable.py
+```
 
 额外自查：
 
-- 路径真实存在
-- 没有把机器专属路径写进 active 文档
+- 引用的路径真实存在且是当前权威路径
+- 没有把机器专属绝对路径写进 active 文档
 - 没有把某个项目的业务纪律泄漏进通用合同
 - adapter、workflow、registry、schema、inventory、manifest 之间没有重复维护同一份真相
+
+## 反模式
+
+agent 在本仓库工作时不得做的事：
+
+- 把人物正文复制到 adapter 里（应只引用 skill 路径）
+- 在 adapter 内嵌 YAML schema 片段或维护手册（应引用 shared schema）
+- 添加只对单一 runtime 有效的路径、指令或命名（应保留 runtime-agnostic 占位符）
+- 在通用规约中写死某个业务项目的参数、口径或纪律（应收敛到示例或具体项目的文档）
+- 新增 seat / native verdict / route 语义时跳过 manifest 直接改 reference 或 adapter（应先改 manifest 再渲染）
+- 手改 `<!-- GENERATED: ... -->` 区块内容（应改 manifest 后重新渲染）
