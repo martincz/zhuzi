@@ -324,6 +324,64 @@ def check_roundtable_dash_ban(errors: list[str]) -> None:
                     break
 
 
+SEAT_REVIEW_HEADING = "## 席位短评"
+SEAT_REVIEW_CELL_LIMIT = 30  # 除结论/信心列，其他 cell 字数上限
+SEAT_REVIEW_SKIP_COLS = {"席位", "结论", "信心"}  # 这几列有自己的格式，跳过字数检查
+
+
+def _count_visible_chars(cell: str) -> int:
+    """cell 可见字符数——去掉 Markdown 反引号/链接/HTML br/前后空白"""
+    s = cell.strip()
+    s = s.replace("`", "").replace("<br>", "").replace("<br/>", "")
+    return len(s)
+
+
+def check_roundtable_seat_review_cells(errors: list[str]) -> None:
+    """短评 table cell 字数超限 → FAIL。防 table 掉成 K:V 垂直。"""
+    for path in ROUNDTABLE_PUNCT_FILES:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        in_seat_review = False
+        header_cols: list[str] = []
+        in_code = False
+        for lineno, line in enumerate(lines, 1):
+            if line.lstrip().startswith("```"):
+                in_code = not in_code
+                continue
+            if in_code:
+                continue
+            stripped = line.strip()
+            if stripped.startswith("## "):
+                in_seat_review = stripped == SEAT_REVIEW_HEADING
+                header_cols = []
+                continue
+            if not in_seat_review:
+                continue
+            if not stripped.startswith("|"):
+                continue
+            cells = [c.strip() for c in stripped.strip("|").split("|")]
+            if not header_cols:
+                header_cols = cells
+                continue
+            if set(cells) <= set("-:") or all(set(c) <= set("-:") for c in cells if c):
+                continue  # separator row
+            for col_name, cell in zip(header_cols, cells):
+                if col_name in SEAT_REVIEW_SKIP_COLS:
+                    continue
+                if cell.startswith("<") and cell.endswith(">"):
+                    continue  # template placeholder
+                if _count_visible_chars(cell) > SEAT_REVIEW_CELL_LIMIT:
+                    add_error(
+                        errors,
+                        path,
+                        lineno,
+                        f"席位短评 cell '{col_name}' 字数 {_count_visible_chars(cell)} > {SEAT_REVIEW_CELL_LIMIT}："
+                        f"挪到独立 '### <席位> 展开' 段，cell 填 '见下方展开'",
+                    )
+
+
 def check_roundtable_term_annotations(errors: list[str]) -> None:
     for path in ROUNDTABLE_PUNCT_FILES:
         if not path.exists():
@@ -934,6 +992,7 @@ def main() -> int:
     check_banned_snippets(errors)
     check_roundtable_dash_ban(errors)
     check_roundtable_term_annotations(errors)
+    check_roundtable_seat_review_cells(errors)
     check_claude_agent_adapters(errors, roundtable_contract)
     check_runtime_path_templates(errors)
     check_roundtable_command_entry(errors)
