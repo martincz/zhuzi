@@ -75,83 +75,6 @@
       "incentive_mismatch",
       "other"
     ],
-    "route_mappings": [
-      {
-        "seat": "Taleb",
-        "native": "fragile",
-        "route": "go_with_conditions / revise_must_haves / kill"
-      },
-      {
-        "seat": "Taleb",
-        "native": "robust / antifragile",
-        "route": "go"
-      },
-      {
-        "seat": "Munger",
-        "native": "keep",
-        "route": "go"
-      },
-      {
-        "seat": "Munger",
-        "native": "kill",
-        "route": "kill"
-      },
-      {
-        "seat": "Munger",
-        "native": "too_hard",
-        "route": "too_hard"
-      },
-      {
-        "seat": "López",
-        "native": "scientific",
-        "route": "go"
-      },
-      {
-        "seat": "López",
-        "native": "associational",
-        "route": "go_with_conditions"
-      },
-      {
-        "seat": "López",
-        "native": "pseudo_scientific",
-        "route": "kill / revise_must_haves"
-      },
-      {
-        "seat": "López",
-        "native": "domain_limit_flag 非空",
-        "route": "too_hard"
-      },
-      {
-        "seat": "Feynman",
-        "native": "clear",
-        "route": "go"
-      },
-      {
-        "seat": "Feynman",
-        "native": "muddy",
-        "route": "go_with_conditions / revise_must_haves"
-      },
-      {
-        "seat": "Feynman",
-        "native": "cargo_cult",
-        "route": "revise_must_haves / kill"
-      },
-      {
-        "seat": "Linus",
-        "native": "sane",
-        "route": "go"
-      },
-      {
-        "seat": "Linus",
-        "native": "broken",
-        "route": "kill"
-      },
-      {
-        "seat": "Linus",
-        "native": "needs_refactor_first",
-        "route": "revise_must_haves / go_with_conditions"
-      }
-    ],
     "seat_specific_fields": {
       "Taleb": [
         "tail_events_breaking_must_haves",
@@ -221,6 +144,7 @@
       "skill": "taleb-antifragile",
       "agent": "taleb-reviewer",
       "core_seat": "taleb",
+      "persona": "Taleb",
       "generated_block": "taleb_output_contract",
       "registry_summary": {
         "seat": "风险结构",
@@ -311,6 +235,7 @@
       "skill": "munger-checklist",
       "agent": "munger-reviewer",
       "core_seat": "munger",
+      "persona": "Munger",
       "generated_block": "munger_output_contract",
       "registry_summary": {
         "seat": "决策质量",
@@ -400,6 +325,7 @@
       "skill": "lopezdeprado-scientist",
       "agent": "lopezdeprado-reviewer",
       "core_seat": "lopezdeprado",
+      "persona": "López",
       "generated_block": "lopez_output_contract",
       "registry_summary": {
         "seat": "证据质量",
@@ -491,6 +417,7 @@
       "skill": "feynman-explainer",
       "agent": "feynman-reviewer",
       "core_seat": "feynman",
+      "persona": "Feynman",
       "generated_block": "feynman_output_contract",
       "registry_summary": {
         "seat": "解释清晰度",
@@ -588,6 +515,7 @@
       "skill": "linus-torvalds-engineer",
       "agent": "linus-engineer",
       "core_seat": "linus",
+      "persona": "Linus",
       "generated_block": "linus_output_contract",
       "registry_summary": {
         "seat": "代码",

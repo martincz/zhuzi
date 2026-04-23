@@ -84,18 +84,20 @@ must_haves_challenge:
 
 ## route 映射规则
 
+本表只列 native verdict → route 的通用映射。特殊条件 route（例：López `domain_limit_flag` 非空 → `too_hard`）由各席位在自己的 `## 输出契约` 段定义，不收入此表。
+
 <!-- GENERATED:verdict_schema_route_rules:start -->
 | 席位 | native | → `core.route` |
 |---|---|---|
 | Taleb | `fragile` | `go_with_conditions` / `revise_must_haves` / `kill` |
-| Taleb | `robust` / `antifragile` | `go` |
+| Taleb | `robust` | `go` |
+| Taleb | `antifragile` | `go` |
 | Munger | `keep` | `go` |
 | Munger | `kill` | `kill` |
 | Munger | `too_hard` | `too_hard` |
 | López | `scientific` | `go` |
 | López | `associational` | `go_with_conditions` |
 | López | `pseudo_scientific` | `kill` / `revise_must_haves` |
-| López | `domain_limit_flag` 非空 | `too_hard` |
 | Feynman | `clear` | `go` |
 | Feynman | `muddy` | `go_with_conditions` / `revise_must_haves` |
 | Feynman | `cargo_cult` | `revise_must_haves` / `kill` |

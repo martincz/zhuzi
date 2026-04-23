@@ -211,7 +211,7 @@ def load_roundtable_contract(errors: list[str]) -> dict[str, object] | None:
         if not isinstance(config, dict):
             add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} must be an object")
             continue
-        for field in ["skill", "agent", "generated_block", "registry_summary", "registry_stage_row", "output_contract", "required_contract_snippets"]:
+        for field in ["skill", "agent", "persona", "generated_block", "registry_summary", "registry_stage_row", "output_contract", "required_contract_snippets"]:
             if field not in config:
                 add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing {field}")
 

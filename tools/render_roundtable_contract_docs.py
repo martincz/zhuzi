@@ -245,25 +245,25 @@ def render_verdict_schema_seat_specific(contract: dict[str, object]) -> str:
 
 
 def render_verdict_schema_route_rules(contract: dict[str, object]) -> str:
-    verdict_schema = contract.get("verdict_schema")
-    if not isinstance(verdict_schema, dict):
-        raise ValueError("roundtable contract missing verdict_schema")
-    route_mappings = verdict_schema.get("route_mappings")
-    if not isinstance(route_mappings, list):
-        raise ValueError("roundtable contract missing verdict_schema.route_mappings")
-
     headers = ["席位", "native", "→ `core.route`"]
     rows: list[list[str]] = []
-    for row in route_mappings:
-        if not isinstance(row, dict):
-            raise ValueError("route mapping rows must be objects")
-        rows.append(
-            [
-                str(row.get("seat", "")),
-                markdownize_literals(str(row.get("native", ""))),
-                markdownize_literals(str(row.get("route", ""))),
-            ]
-        )
+    for seat_name, config in iter_seats(contract):
+        persona_label = expect_string(config.get("persona"), f"{seat_name}.persona")
+
+        native_verdict_routes = config.get("native_verdict_routes")
+        if not isinstance(native_verdict_routes, dict) or not native_verdict_routes:
+            raise ValueError(f"{seat_name}.native_verdict_routes must be a non-empty object")
+
+        for native, route_list in native_verdict_routes.items():
+            native_key = expect_string(native, f"{seat_name}.native_verdict")
+            routes = expect_string_list(route_list, f"{seat_name}.native_verdict_routes.{native_key}")
+            rows.append(
+                [
+                    persona_label,
+                    f"`{native_key}`",
+                    " / ".join(f"`{route}`" for route in routes),
+                ]
+            )
     return render_markdown_table(headers, rows)
 
 
