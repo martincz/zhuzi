@@ -157,24 +157,35 @@ def render_seat_registry_stage_rules(contract: dict[str, object]) -> str:
 
 
 def render_seat_registry_lopez_must_call(contract: dict[str, object]) -> str:
-    dispatch_rules = contract.get("dispatch_rules")
-    if not isinstance(dispatch_rules, dict):
-        raise ValueError("roundtable contract missing dispatch_rules")
-    keywords = dispatch_rules.get("lopez_must_call_keywords")
-    if not isinstance(keywords, list):
-        raise ValueError("roundtable contract missing lopez_must_call_keywords")
-    joined = " / ".join(str(keyword) for keyword in keywords)
-    return f"议题含 `{joined}` 任一关键词时，López 必召开，即使议题不是量化金融。"
+    entries: list[str] = []
+    for seat_name, config in iter_seats(contract):
+        dispatch = config.get("dispatch")
+        if not isinstance(dispatch, dict):
+            continue
+        keywords = dispatch.get("must_call_keywords")
+        if not isinstance(keywords, list) or not keywords:
+            continue
+        persona = expect_string(config.get("persona"), f"{seat_name}.persona")
+        joined = " / ".join(str(keyword) for keyword in keywords)
+        line = f"议题含 `{joined}` 任一关键词时，{persona} 必召开"
+        note = dispatch.get("must_call_note")
+        if isinstance(note, str) and note:
+            line += f"，{note}"
+        entries.append(line + "。")
+    return "\n\n".join(entries)
 
 
 def render_seat_registry_linus_dual_stage(contract: dict[str, object]) -> str:
-    dispatch_rules = contract.get("dispatch_rules")
-    if not isinstance(dispatch_rules, dict):
-        raise ValueError("roundtable contract missing dispatch_rules")
-    notes = dispatch_rules.get("linus_dual_stage_notes")
-    if not isinstance(notes, list):
-        raise ValueError("roundtable contract missing linus_dual_stage_notes")
-    return "\n".join(f"- {note}" for note in notes)
+    lines: list[str] = []
+    for _, config in iter_seats(contract):
+        dispatch = config.get("dispatch")
+        if not isinstance(dispatch, dict):
+            continue
+        hints = dispatch.get("stage_hints")
+        if not isinstance(hints, list) or not hints:
+            continue
+        lines.extend(f"- {hint}" for hint in hints)
+    return "\n".join(lines)
 
 
 def render_verdict_schema_layers(contract: dict[str, object]) -> str:

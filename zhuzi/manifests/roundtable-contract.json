@@ -23,31 +23,7 @@
     "max_review_seats": 3
   },
   "dispatch_rules": {
-    "min_invoked_seats": 1,
-    "lopez_must_call_keywords": [
-      "研究方法论",
-      "实验设计",
-      "benchmark",
-      "eval",
-      "A-B test",
-      "因果声明",
-      "causal claim",
-      "data leakage",
-      "selection bias",
-      "backtest 审视",
-      "因子诚信",
-      "过拟合诊断",
-      "trial 披露",
-      "CV 方法",
-      "Sharpe deflation",
-      "factor zoo",
-      "specification",
-      "Sisyphus workflow"
-    ],
-    "linus_dual_stage_notes": [
-      "阶段 1：工程视角评议题，关注 good taste、数据结构、anti-pattern，不评判当前 codebase 是否承载得住。",
-      "阶段 2：可行性 gate，吸收阶段 1 和其他席位结论，评估能否干净落地。"
-    ]
+    "min_invoked_seats": 1
   },
   "verdict_schema": {
     "layers": [
@@ -321,6 +297,29 @@
         "engineering_decision": "弃权",
         "hybrid": "[1]"
       },
+      "dispatch": {
+        "must_call_keywords": [
+          "研究方法论",
+          "实验设计",
+          "benchmark",
+          "eval",
+          "A-B test",
+          "因果声明",
+          "causal claim",
+          "data leakage",
+          "selection bias",
+          "backtest 审视",
+          "因子诚信",
+          "过拟合诊断",
+          "trial 披露",
+          "CV 方法",
+          "Sharpe deflation",
+          "factor zoo",
+          "specification",
+          "Sisyphus workflow"
+        ],
+        "must_call_note": "即使议题不是量化金融"
+      },
       "shared_root_keys": [
         "lopezdeprado_verdict"
       ],
@@ -510,6 +509,12 @@
         "pure_code_implementation": "[2]",
         "engineering_decision": "[1,2]",
         "hybrid": "[1,2]"
+      },
+      "dispatch": {
+        "stage_hints": [
+          "阶段 1：工程视角评议题，关注 good taste、数据结构、anti-pattern，不评判当前 codebase 是否承载得住。",
+          "阶段 2：可行性 gate，吸收阶段 1 和其他席位结论，评估能否干净落地。"
+        ]
       },
       "shared_root_keys": [
         "linus_feasibility",
