@@ -261,6 +261,81 @@ def check_banned_snippets(errors: list[str]) -> None:
                     add_error(errors, path, lineno, f"banned snippet: {snippet}")
 
 
+# 议题卡 / 什么算过关 / 四选一 统一禁用破折号，用 ':' 接详情
+ROUNDTABLE_DASH_BANNED = ["——", " — "]
+ROUNDTABLE_PUNCT_FILES = [
+    ROOT / "zhuzi" / "templates" / "roundtable-quick.md",
+    ROOT / "examples" / "roundtable-quick.md",
+]
+
+# 核心 persona / 项目术语：首次出现必须带机制括注
+# window 50 字符内含 hints 里任一子串 = 视为已括注
+REQUIRED_TERM_ANNOTATIONS = {
+    "walpha": ["加权超额收益"],
+    "multiple testing": ["试 N 次", "多次试验", "看似显著", "噪声"],
+    "Deflated Sharpe": ["试 N 次", "打折", "Sharpe 打折"],
+    "paired bootstrap": ["抽样比对", "抽样对比"],
+    "ergodicity": ["单人长期", "时间平均", "平行宇宙"],
+}
+
+
+def _strip_code_blocks(text: str) -> str:
+    in_code = False
+    cleaned: list[str] = []
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            in_code = not in_code
+            cleaned.append("")
+            continue
+        cleaned.append("" if in_code else line)
+    return "\n".join(cleaned)
+
+
+def check_roundtable_dash_ban(errors: list[str]) -> None:
+    for path in ROUNDTABLE_PUNCT_FILES:
+        if not path.exists():
+            continue
+        in_code = False
+        for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if line.lstrip().startswith("```"):
+                in_code = not in_code
+                continue
+            if in_code:
+                continue
+            if line.lstrip().startswith("|") and set(line.strip(" |")) <= set("-:"):
+                continue  # table separator row
+            for dash in ROUNDTABLE_DASH_BANNED:
+                if dash in line:
+                    add_error(
+                        errors,
+                        path,
+                        lineno,
+                        f"禁用破折号 '{dash.strip()}' 出现——议题卡/什么算过关/四选一统一用 ':' 接详情",
+                    )
+                    break
+
+
+def check_roundtable_term_annotations(errors: list[str]) -> None:
+    for path in ROUNDTABLE_PUNCT_FILES:
+        if not path.exists():
+            continue
+        clean = _strip_code_blocks(path.read_text(encoding="utf-8"))
+        for term, hints in REQUIRED_TERM_ANNOTATIONS.items():
+            idx = clean.find(term)
+            if idx < 0:
+                continue
+            window = clean[idx + len(term) : idx + len(term) + 60]
+            if any(hint in window for hint in hints):
+                continue
+            lineno = clean.count("\n", 0, idx) + 1
+            add_error(
+                errors,
+                path,
+                lineno,
+                f"术语 '{term}' 首次出现缺机制括注（期望 60 字符内含 {hints[0]!r} 等提示词）",
+            )
+
+
 def check_claude_agent_adapters(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
     actual_files = {path.name for path in (CLAUDE_RUNTIME_ROOT / "agents").glob("*.md")}
     expected_files = {f"{seat_name}.md" for seat_name, _ in iter_roundtable_seats(roundtable_contract)}
@@ -848,6 +923,8 @@ def main() -> int:
     generated_docs = resolve_generated_docs(errors, roundtable_contract)
 
     check_banned_snippets(errors)
+    check_roundtable_dash_ban(errors)
+    check_roundtable_term_annotations(errors)
     check_claude_agent_adapters(errors, roundtable_contract)
     check_runtime_path_templates(errors)
     check_roundtable_command_entry(errors)

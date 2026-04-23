@@ -124,7 +124,7 @@ must_haves:
 **什么算过关**
 
 **1. 改进要能量化**：给出目标指标 + 阈值。候选参考：
-- `paired bootstrap replay`（抽样比对新旧版本差异显著性）下 walpha 下界 > 0
+- `paired bootstrap replay`（抽样比对新旧版本差异显著性）下 `walpha`（加权超额收益）Δ 下界 > 0
 - d20 命中率不回退超 1pp
 
 **2. 每条建议声明性质**：三选一——
