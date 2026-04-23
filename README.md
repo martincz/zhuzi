@@ -1,62 +1,113 @@
 # zhuzi · 诸子
 
-> **诸子**——把不同人物的方法论做成可运行的 skill，并把它们接到同一张 roundtable 上。
+> 把不同人物的方法论做成可运行的 skill，再把它们接到同一张 roundtable 上。
 >
 > A runtime-agnostic toolkit for persona skills, roundtable seats, and shared deliberation workflows.
 
 ---
 
-## 项目作用
+## 项目由来
 
-`zhuzi` 不是一个单一人格 prompt 集合，而是一套分层资产：
+"诸子"取自先秦"诸子百家"——百家争鸣不是为了合流成一家，而是把彼此不相容的看法各自表达清楚，让分歧本身成为判断的一部分。
 
-- **skill**：单人物视角，直接对用户说话
-- **agent seat**：roundtable 席位，对 orchestrator 返回结构化 verdict
-- **roundtable**：把多个席位放到同一条流程里审议一个议题
+当今的 AI 助手常常把多元立场揉成一个"平衡而温和"的回答——这是另一种形式的合流，代价是**锋利的判断被磨平了**。`zhuzi` 做相反的事：
 
-它的目标不是把不同学派揉成“通用智慧”，而是把分歧保留下来，并让这些分歧进入一个可执行、可验证、可复盘的协作流程。
+- 每个人物有**独立的思维操作系统**——不是 prompt 风格包装，是经过研究提炼的心智模型、anti-pattern 库、表达档位。
+- 要多视角时让他们**同席而坐、各执一词**，保留分歧进入决策流程，而不是替用户调和。
+- 写成 Markdown 驱动，由支持相应规范的 agent runtime 加载——目前支持 Claude Code 与 Codex CLI。
 
-## 使用方式
+## 圆桌是什么
 
-| 用法 | 适合场景 | 结果 |
-|---|---|---|
-| 直接触发单个 skill | 想用某一人物视角审代码、看研究、改口吻 | 模型以该人物的思维框架直接回应 |
-| Claude：`/zhuzi:roundtable <议题>` | 议题需要多视角审议 | 默认输出议题卡、席位短评和决策表 |
-| Codex：触发 `zhuzi-roundtable` skill | 同样的多席位审议，但走 Codex orchestrator skill | 共享同一套 workflow / schema / Quick 模板 |
+圆桌（roundtable）是把多个人物席位放进一条议事流水线，审议同一个议题。和 "把几个 prompt 塞给一个 agent" 不同的是：
 
-快速了解默认输出长相：看 [Quick Roundtable 示例](./examples/roundtable-quick.md)。  
-当前 shipped surface 的人读清单：看 [docs/INVENTORY.md](./docs/INVENTORY.md)。  
-机器可读真相源：看 [zhuzi/manifests/shipped-surface.json](./zhuzi/manifests/shipped-surface.json) 和 [zhuzi/manifests/roundtable-contract.json](./zhuzi/manifests/roundtable-contract.json)。
+- **席位独立运行**——每个席位是一个子 agent，按自己的 verdict schema 给结构化判断，不被其他席位的结论污染。
+- **分歧被显式保留**——主持人（orchestrator）做综合，但不擅自收敛；Taleb 认为 fragile、Munger 认为 keep、这两件事会并列呈现，让用户拍板。
+- **议题契约先行**——召开席位前先定义 `must_haves.truths` 和 `verify_commands`，避免"讨论了一圈但不知道什么算成立"。
+- **实施可承接**——若议题涉及代码，Linus 席位在阶段 2 做可行性 gate，阶段 4 按锁定方案实施。
 
-## 核心组成
-
-| 层 | 位置 | 作用 |
-|---|---|---|
-| Skills | `skills/` | 单人物思维操作系统 |
-| Shared seat contracts | `zhuzi/seats/` | 席位职责、越权边界、route 语义、输出契约 |
-| Runtime adapters | `runtimes/claude/`、`runtimes/codex/` | 薄 wrapper，负责装载 shared assets |
-| Workflow | `zhuzi/workflows/roundtable.md` | roundtable 权威流程 |
-| Shared references | `zhuzi/references/` | 席位表、schema、路由规则 |
-| Templates / manifests | `zhuzi/templates/`、`zhuzi/manifests/` | Quick 输出骨架、roundtable 执行合同与 shipped surface 真相源 |
-
-一句话关系：**skill 是思想内核，agent 是协作席位，roundtable 是议事规则。**
+权威流程在 [zhuzi/workflows/roundtable.md](./zhuzi/workflows/roundtable.md)；机器合同在 [zhuzi/manifests/roundtable-contract.json](./zhuzi/manifests/roundtable-contract.json)；默认输出长相见 [Quick Roundtable 示例](./examples/roundtable-quick.md) 与 [模板](./zhuzi/templates/roundtable-quick.md)。
 
 ## 内置人物
 
-| Skill | 定位 | Roundtable 角色 |
-|---|---|---|
-| `linus-torvalds-engineer` | 工程、架构、good taste 思维顾问 | `linus-engineer`，唯一代码席 |
-| `munger-checklist` | 决策质量、偏误、激励结构思维顾问 | `munger-reviewer`，决策质量席 |
-| `taleb-antifragile` | 尾部风险、fragility、antifragile 思维顾问 | `taleb-reviewer`，风险结构席 |
-| `lopezdeprado-scientist` | 研究诚信、causal claim、实验纪律思维顾问 | `lopezdeprado-reviewer`，证据质量席 |
-| `feynman-explainer` | 解释清晰度、cargo cult 检测、概念理解思维顾问 | `feynman-reviewer`，解释清晰度席 |
-| `luxun-zawen` | 聊天娱乐型文体改写工具 | 不进 roundtable |
+### Linus Torvalds · `linus-torvalds-engineer`
 
-更具体的人物正文、触发词和研究支撑都在各自的 `SKILL.md` 与 `references/` 内；README 只保留入口级说明，不重复维护这些细节。
+Linux 内核与 Git 的作者。工程实用主义的代表人物——"Talk is cheap. Show me the code."
+
+**他看问题的方式**：数据结构先行（坏代码救不了烂数据结构），特殊情况必须消失（good taste 的核心），维护者的 bug 响应比代码本身更重要。
+
+- **Skill**：工程、架构、代码审查、技术选型的思维顾问。会点名 premature abstraction、bikeshedding、cargo cult 之类的 anti-pattern，按 4 级表达档位下判断。
+- **Roundtable 角色**：`linus-engineer`——**唯一代码席位**。阶段 2 做代码可行性 gate，代码层判 `broken` 可单边否决；阶段 4 按锁定方案实施。
+
+### Charlie Munger · `munger-checklist`
+
+伯克希尔副主席，Buffett 长期搭档（1924–2023）。"反过来想"和"愚蠢清单"的倡导者——"If I know where I'm going to die, I'll never go there."
+
+**他看问题的方式**：能力圈是纪律（圈外沉默叫 Too Hard），激励结构决定行为，≥3 个偏误同时发力就进入 Lollapalooza 警报，安全边际是底线。
+
+- **Skill**：投资、商业判断、组织决策的反愚蠢审视——20 条 anti-pattern 逐条过，10 步 Pre-Trade Checklist。
+- **Roundtable 角色**：`munger-reviewer`——**决策质量席**。当议题涉及激励、能力圈、机会成本、或多偏误叠加时召开。
+
+### Nassim Nicholas Taleb · `taleb-antifragile`
+
+期权交易员出身的统计学家。《Black Swan》《Antifragile》《Skin in the Game》作者——"The Sharpe ratio is meaningless under fat tails."
+
+**他看问题的方式**：事物只分 fragile / robust / antifragile 三态；分布是 Mediocristan 还是 Extremistan 决定工具是否合适；payoff 凸凹决定是否需要预测；上行受益者不承担下行埋单就是激励错位。
+
+- **Skill**：尾部风险、破产风险、Kelly 仓位、barbell 结构、`skin in the game` 审视——18 条 fragility anti-pattern 和 10 步 Pre-Trade Fragility Check。
+- **Roundtable 角色**：`taleb-reviewer`——**风险结构席**。当议题含不确定性、尾部风险、脆弱性或 ruin risk 时召开。
+
+### Marcos López de Prado · `lopezdeprado-scientist`
+
+AFML、ML for Asset Managers、Causal Factor Investing 作者，Cornell 讲师，ADIA Lab 负责人。把金融从炼金术推向科学的旗手——"A backtest is not a theory."
+
+**他看问题的方式**：先分 associational vs causal（没有 causal graph 就归 associational），selection bias 在 multiple testing 下几乎必然，Sisyphus workflow（单人端到端）是结构性警报，CV 方法用错就是 class error。
+
+- **Skill**：研究诚信、实验/评估设计、backtest overfitting 审视——18 条方法论 anti-pattern、10 步 Research Integrity Check、Deflated Sharpe / PBO / Purged K-Fold / CPCV 工具集。
+- **Roundtable 角色**：`lopezdeprado-reviewer`——**证据质量席**。议题含实验、因果声明、benchmark、eval、回测时必召开（触发词见 [seat-registry](./zhuzi/references/seat-registry.md)）。
+
+### Richard Feynman · `feynman-explainer`
+
+诺贝尔物理奖得主（1918–1988），Caltech 教授，挑战者号事故调查委员——"The first principle is that you must not fool yourself, and you are the easiest person to fool."
+
+**他看问题的方式**：命名不等于理解（知道鸟叫什么 ≠ 了解鸟），形式不等于科学（cargo cult），权威不等于证据。解释必须能被验证——讲不清就是没懂。
+
+- **Skill**：说明文、spec、教程、架构文档、决策论证的清晰度审视——专抓术语遮羞布、命名冒充机制、论证缺例子。
+- **Roundtable 角色**：`feynman-reviewer`——**解释清晰度席**。议题含术语定义、指标口径、时间语义、接口语义或 spec clarity 时召开。
+
+### 鲁迅 · `luxun-zawen`
+
+中国现代白话文最尖锐的讽刺作家（1881–1936）。杂文数百万字是他真正的战场——短、狠、冷、见微知著。
+
+**本 skill 的定位**：B 类聊天娱乐型——只做**修辞肌肉**（6 种杂文 DNA、4 级阴狠度），不做决策、投资、代码建议。把普通话改成鲁迅腔消息、吐槽、反击、催促。遇到思维咨询会自动退出角色。
+
+- **不进 roundtable**——娱乐型 skill 不承担结构化判断。
+
+## 使用方式
+
+### 直接触发 skill
+
+```text
+用 Linus 视角 review 这段代码
+用 Taleb 视角看这个方案 fragile 不 fragile
+用费曼视角审一下这份 spec
+用鲁迅口吻把这句话改损一点
+```
+
+每个 skill 的完整触发词见 `skills/<name>/SKILL.md` 顶部 frontmatter。
+
+### 召开圆桌
+
+```text
+# Claude Code
+/zhuzi:roundtable 这个 API 设计该不该先重构再扩功能
+
+# Codex CLI
+触发 zhuzi-roundtable skill，喂入同样的议题
+```
+
+默认走 Quick Roundtable 短读输出：议题卡、席位短评表、决策表。需要完整席位原文或 YAML verdict 时说"展开原文 / 展开 YAML / full / strict"。
 
 ## 安装
-
-### 方式 A：一键安装
 
 ```bash
 git clone https://github.com/<your-fork>/zhuzi.git
@@ -64,24 +115,12 @@ cd zhuzi
 ./install.sh
 ```
 
-`install.sh` 会按 `zhuzi/manifests/shipped-surface.json` 安装全部 shipped surface 到 Claude 和 Codex 的默认根目录，包括 Codex roundtable agents 与 `zhuzi-roundtable` skill；具体渲染与拷贝行为以脚本本身和 manifest 为准。
+`install.sh` 按 [zhuzi/manifests/shipped-surface.json](./zhuzi/manifests/shipped-surface.json) 把全部 shipped surface 安装到 Claude 和 Codex 的默认根目录。shipped surface 的人读清单见 [docs/INVENTORY.md](./docs/INVENTORY.md)。
 
-### 方式 B：只刷新 Codex adapter
+覆盖根目录：
 
-已经跑过 `install.sh`、只想重新渲染 Codex 侧 adapter 时：
-
-```bash
-python3 tools/install_codex_source_adapters.py
-```
-
-### 方式 C：只装单个 skill
-
-```bash
-cp -r skills/<skill-name> ~/.claude/skills/
-cp -r skills/<skill-name> "${CODEX_HOME:-$HOME/.codex}/skills/"
-```
-
-这只安装 persona skill，不安装 roundtable 入口和 seat adapter。
+- `CLAUDE_DIR`（默认 `~/.claude`）
+- `CODEX_HOME`（默认 `~/.codex`）
 
 ## 仓库布局
 
@@ -99,87 +138,26 @@ zhuzi/
 │   └── manifests/              # roundtable / shipped surface 机器真相源
 ├── docs/INVENTORY.md           # shipped surface 的人读清单
 ├── examples/roundtable-quick.md
-├── AGENTS.md                   # 仓库协作总规约
+├── AGENTS.md                   # agent 规约（协作、修改、验证）
 ├── CLAUDE.md                   # 指向 AGENTS.md 的兼容 shim
 ├── install.sh
 └── tools/
 ```
 
-如果你要找 roundtable 的权威文件，先看这些路径：
+找 roundtable 权威资产：
 
-- `zhuzi/workflows/roundtable.md`
-- `zhuzi/manifests/roundtable-contract.json`
-- `zhuzi/seats/`
-- `zhuzi/references/seat-registry.md`
-- `zhuzi/references/verdict-schema.md`
+- 流程：`zhuzi/workflows/roundtable.md`
+- 机器合同：`zhuzi/manifests/roundtable-contract.json`
+- 席位契约：`zhuzi/seats/`
+- 人读说明：`zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema.md`
 
-## 激活示例
+## 协作与贡献
 
-### 直接触发 skill
-
-```text
-用 Linus 视角 review 这段代码
-用 Taleb 视角看这个方案 fragile 不 fragile
-用鲁迅口吻把这句话改得更损一点
-```
-
-完整触发词看各 skill 顶部 frontmatter，不在 README 里重复抄一遍。
-
-### 召开圆桌
-
-```text
-/zhuzi:roundtable 这个 API 设计该不该先重构再扩功能
-```
-
-默认输出遵循 [Quick Roundtable 模板](./zhuzi/templates/roundtable-quick.md)；想看实际长相就看 [Quick Roundtable 示例](./examples/roundtable-quick.md)。  
-完整原文和 YAML 只在你要求 `展开原文 / 展开 YAML / full / strict` 时展示。
-
-## 协作与验证
-
-仓库级协作纪律统一写在 [AGENTS.md](./AGENTS.md)。`CLAUDE.md` 只是一个兼容 shim，不是另一份规则。
-
-最小验证流程：
-
-```bash
-python3 tools/render_roundtable_contract_docs.py
-python3 tools/check_consistency.py
-```
-
-如果你动了 roundtable surface、shared schema、Codex adapter 或安装路径，再跑：
-
-```bash
-python3 tools/smoke_test_codex_roundtable.py
-```
-
-## 伦理与边界
-
-每个 skill 都应明确说明：
-
-- 它做什么，不做什么
-- 信息截止日期或更新策略
-- 哪些结论是原话，哪些只是基于原则的推演
-- 在 roundtable 里哪些批评只能打到 pattern，不应下沉为对具体人或具体项目的攻击
-
-这些边界应写在 skill 本体和 shared contract 里，而不是散落在 README 段落里。
-
-## 贡献
-
-欢迎 PR。改动前先分清你碰的是哪一层：
-
-- 人物正文、触发词、anti-pattern、研究支撑：改 `skills/<name>/`
-- 席位职责、越权边界、启动/阶段纪律等手写合同：改 `zhuzi/seats/*.md`
-- Roundtable 机器合同（Quick headings、seat/stages/route、seat-specific 注册、seat 输出契约机器段）：改 `zhuzi/manifests/roundtable-contract.json`
-- Roundtable reference / seat 输出契约投影段：先改 manifest，再跑 `python3 tools/render_roundtable_contract_docs.py`
-- `zhuzi/references/seat-registry.md` 与 `zhuzi/references/verdict-schema.md` 默认只改非生成说明段；生成块不要手改
-- Roundtable 流程：先改 `zhuzi/workflows/roundtable.md`
-- shipped surface：同步 `docs/INVENTORY.md` 与 `zhuzi/manifests/shipped-surface.json`
-- 安装或 side-load 行为：改 `install.sh` 与 `tools/install_codex_source_adapters.py`
-
-如果你要新增人物或新增席位，先把共享真相源补齐，再去写 runtime adapter。不要先写 wrapper，再回头补合同。
+agent 在本仓库工作的规约、真相源清单、修改指针、提交规范、验证流程统一在 [AGENTS.md](./AGENTS.md)。
 
 ## License
 
-MIT License. 调研使用的一手 / 二手来源版权归原作者所有。
+MIT License. 各人物调研使用的一手 / 二手来源版权归原作者所有。
 
 ---
 
