@@ -75,56 +75,6 @@
       "incentive_mismatch",
       "other"
     ],
-    "seat_specific_fields": {
-      "Taleb": [
-        "tail_events_breaking_must_haves",
-        "fragility_checklist_failures",
-        "distribution_class",
-        "payoff_convexity",
-        "skin_in_the_game"
-      ],
-      "Munger": [
-        "anti_patterns_hit",
-        "lollapalooza_stack",
-        "circle_of_competence",
-        "incentive_map",
-        "opportunity_cost_note",
-        "reverse_kill_path"
-      ],
-      "López": [
-        "claim_classification",
-        "causal_graph_missing",
-        "trial_count_disclosed",
-        "integrity_checklist_failures",
-        "anti_pattern_hits",
-        "workflow_diagnosis",
-        "domain_limit_flag"
-      ],
-      "Feynman": [
-        "undefined_terms",
-        "mechanism_gaps",
-        "missing_examples",
-        "boundary_gaps",
-        "false_analogies",
-        "verification_gaps",
-        "ai_misread_risk",
-        "diagnosis_level"
-      ],
-      "Linus 阶段 1": [
-        "data_structure_risks",
-        "special_case_pressure",
-        "anti_patterns_hit",
-        "interface_risks",
-        "out_of_scope_for_strategy"
-      ],
-      "Linus 阶段 2": [
-        "broken_evidence",
-        "must_haves_coverage_detail",
-        "refactor_prerequisites",
-        "risk_notes",
-        "out_of_scope_for_strategy"
-      ]
-    },
     "phase_4_exception": {
       "root_key": "linus_execution",
       "fields": [
@@ -209,18 +159,18 @@
           "go"
         ]
       },
-      "seat_specific_fields": [
-        "tail_events_breaking_must_haves",
-        "fragility_checklist_failures",
-        "distribution_class",
-        "payoff_convexity",
-        "skin_in_the_game"
-      ],
       "output_contract": {
         "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Taleb 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "taleb_verdict",
+            "seat_specific_fields": [
+              "tail_events_breaking_must_haves",
+              "fragility_checklist_failures",
+              "distribution_class",
+              "payoff_convexity",
+              "skin_in_the_game"
+            ],
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
             "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身把 Mediocristan 指标拿去审 Extremistan 问题，或根本忽视了 ruin / Jensen / time-average 约束"
@@ -295,19 +245,19 @@
           "too_hard"
         ]
       },
-      "seat_specific_fields": [
-        "anti_patterns_hit",
-        "lollapalooza_stack",
-        "circle_of_competence",
-        "incentive_map",
-        "opportunity_cost_note",
-        "reverse_kill_path"
-      ],
       "output_contract": {
         "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Munger 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "munger_verdict",
+            "seat_specific_fields": [
+              "anti_patterns_hit",
+              "lollapalooza_stack",
+              "circle_of_competence",
+              "incentive_map",
+              "opportunity_cost_note",
+              "reverse_kill_path"
+            ],
             "phase": "1",
             "extra_route_lines": [
               "若 must_haves 本身是 Goodhart / 激励扭曲 / 样本污染，应走 `revise_must_haves`"
@@ -386,20 +336,20 @@
           "revise_must_haves"
         ]
       },
-      "seat_specific_fields": [
-        "claim_classification",
-        "causal_graph_missing",
-        "trial_count_disclosed",
-        "integrity_checklist_failures",
-        "anti_pattern_hits",
-        "workflow_diagnosis",
-        "domain_limit_flag"
-      ],
       "output_contract": {
         "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；López 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "lopezdeprado_verdict",
+            "seat_specific_fields": [
+              "claim_classification",
+              "causal_graph_missing",
+              "trial_count_disclosed",
+              "integrity_checklist_failures",
+              "anti_pattern_hits",
+              "workflow_diagnosis",
+              "domain_limit_flag"
+            ],
             "phase": "1",
             "extra_route_lines": [
               "`domain_limit_flag != none` → `too_hard`"
@@ -486,21 +436,21 @@
           "kill"
         ]
       },
-      "seat_specific_fields": [
-        "undefined_terms",
-        "mechanism_gaps",
-        "missing_examples",
-        "boundary_gaps",
-        "false_analogies",
-        "verification_gaps",
-        "ai_misread_risk",
-        "diagnosis_level"
-      ],
       "output_contract": {
         "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Feynman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "feynman_verdict",
+            "seat_specific_fields": [
+              "undefined_terms",
+              "mechanism_gaps",
+              "missing_examples",
+              "boundary_gaps",
+              "false_analogies",
+              "verification_gaps",
+              "ai_misread_risk",
+              "diagnosis_level"
+            ],
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，并说明术语是否定义清楚、机制是否讲明白、验证口径是否会被人和 agent 同时误读",
             "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制、用同样未理解的东西去类比解释、或只写正例不写失效条件，把不可验证的话术伪装成了可执行 contract"
@@ -577,40 +527,20 @@
           "go_with_conditions"
         ]
       },
-      "seat_specific_fields": {
-        "phase_1": [
-          "data_structure_risks",
-          "special_case_pressure",
-          "anti_patterns_hit",
-          "interface_risks",
-          "out_of_scope_for_strategy"
-        ],
-        "phase_2": [
-          "broken_evidence",
-          "must_haves_coverage_detail",
-          "refactor_prerequisites",
-          "risk_notes",
-          "out_of_scope_for_strategy"
-        ],
-        "phase_4": [
-          "phase",
-          "status",
-          "decisions_honored",
-          "out_of_scope_touched",
-          "verification_attempted",
-          "self_audit",
-          "commit_status",
-          "gaps_to_route_back"
-        ]
-      },
       "output_contract": {
         "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "heading": "阶段 1",
             "root_key": "linus_feasibility",
+            "seat_specific_fields": [
+              "data_structure_risks",
+              "special_case_pressure",
+              "anti_patterns_hit",
+              "interface_risks",
+              "out_of_scope_for_strategy"
+            ],
             "phase": "1",
-            "seat_specific_field_group": "phase_1",
             "extra_route_lines": [
               "`needs_refactor_first` 在阶段 1 代表议题切法需要先拆 scope 或改接口形状，不等同于阶段 2 的代码重构要求"
             ],
@@ -623,8 +553,14 @@
           {
             "heading": "阶段 2",
             "root_key": "linus_feasibility",
+            "seat_specific_fields": [
+              "broken_evidence",
+              "must_haves_coverage_detail",
+              "refactor_prerequisites",
+              "risk_notes",
+              "out_of_scope_for_strategy"
+            ],
             "phase": "2",
-            "seat_specific_field_group": "phase_2",
             "must_haves_review_note": "`must_haves_review` 必须覆盖每条 truth；Linus 视角最常用的 flag 是 `coverage_gap`",
             "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 表示代码层认为 must_haves 本身要求了现架构无法干净承载的能力，应回到阶段 1.5 修订",
             "field_rules": [
@@ -635,7 +571,16 @@
             "heading": "阶段 4",
             "schema_mode": "phase_4_exception",
             "root_key": "linus_execution",
-            "seat_specific_field_group": "phase_4",
+            "seat_specific_fields": [
+              "phase",
+              "status",
+              "decisions_honored",
+              "out_of_scope_touched",
+              "verification_attempted",
+              "self_audit",
+              "commit_status",
+              "gaps_to_route_back"
+            ],
             "intro_note": "这是实施验证状态输出，不走共同四层 schema",
             "field_list_label": "必填字段",
             "field_rules": [

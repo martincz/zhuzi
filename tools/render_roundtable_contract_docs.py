@@ -228,19 +228,29 @@ def render_verdict_schema_review_flags(contract: dict[str, object]) -> str:
 
 
 def render_verdict_schema_seat_specific(contract: dict[str, object]) -> str:
-    verdict_schema = contract.get("verdict_schema")
-    if not isinstance(verdict_schema, dict):
-        raise ValueError("roundtable contract missing verdict_schema")
-    seat_specific_fields = verdict_schema.get("seat_specific_fields")
-    if not isinstance(seat_specific_fields, dict):
-        raise ValueError("roundtable contract missing verdict_schema.seat_specific_fields")
-
     lines: list[str] = []
-    for seat_label, fields in seat_specific_fields.items():
-        if not isinstance(fields, list):
-            raise ValueError(f"seat-specific fields for {seat_label} must be a list")
-        joined = " / ".join(f"`{field}`" for field in fields)
-        lines.append(f"- {seat_label}: {joined}")
+    for seat_name, config in iter_seats(contract):
+        persona = expect_string(config.get("persona"), f"{seat_name}.persona")
+        sections = config.get("output_contract", {}).get("sections")
+        if not isinstance(sections, list) or not sections:
+            raise ValueError(f"{seat_name}.output_contract.sections must be a non-empty list")
+        for section in sections:
+            if not isinstance(section, dict):
+                continue
+            if section.get("schema_mode") == "phase_4_exception":
+                continue
+            fields = expect_string_list(
+                section.get("seat_specific_fields"),
+                f"{seat_name}.output_contract.sections[*].seat_specific_fields",
+            )
+            heading = section.get("heading")
+            label = (
+                f"{persona} {heading}"
+                if isinstance(heading, str) and heading
+                else persona
+            )
+            joined = " / ".join(f"`{field}`" for field in fields)
+            lines.append(f"- {label}: {joined}")
     return "\n".join(lines)
 
 
@@ -282,26 +292,6 @@ def render_verdict_schema_phase_4_exception(contract: dict[str, object]) -> str:
 
     joined = " / ".join(f"`{field}`" for field in fields)
     return f"`{root_key}` 是实施验证状态输出，不走共同 verdict schema。它保留自己的字段结构：{joined}。"
-
-
-def resolve_seat_specific_fields(
-    config: dict[str, object],
-    *,
-    seat_name: str,
-    field_group: str | None,
-) -> list[str]:
-    seat_specific_fields = config.get("seat_specific_fields")
-    if isinstance(seat_specific_fields, list):
-        if field_group not in (None, "default"):
-            raise ValueError(f"{seat_name} does not support seat_specific field group {field_group}")
-        return expect_string_list(seat_specific_fields, f"{seat_name}.seat_specific_fields")
-
-    if isinstance(seat_specific_fields, dict):
-        selected_group = expect_string(field_group or "default", f"{seat_name}.output_contract.field_group")
-        fields = seat_specific_fields.get(selected_group)
-        return expect_string_list(fields, f"{seat_name}.seat_specific_fields.{selected_group}")
-
-    raise ValueError(f"{seat_name}.seat_specific_fields must be a string list or grouped object")
 
 
 def render_route_targets(routes: list[str]) -> str:
@@ -352,13 +342,12 @@ def render_shared_output_contract_section(
         if note is not None:
             lines.append(f"- {expect_string(note, f'{seat_name}.output_contract.{note_key}')}")
 
-    field_group = section.get("seat_specific_field_group")
+    fields = expect_string_list(
+        section.get("seat_specific_fields"),
+        f"{seat_name}.output_contract.sections[*].seat_specific_fields",
+    )
     lines.append("- `seat_specific` 必填字段：")
-    for field in resolve_seat_specific_fields(
-        config,
-        seat_name=seat_name,
-        field_group=field_group if isinstance(field_group, str) else None,
-    ):
+    for field in fields:
         lines.append(f"  - `{field}`")
 
     field_rules = section.get("field_rules")
@@ -375,9 +364,9 @@ def render_exception_output_contract_section(
     section: dict[str, object],
 ) -> str:
     root_key = expect_string(section.get("root_key"), f"{seat_name}.output_contract.root_key")
-    field_group = expect_string(
-        section.get("seat_specific_field_group"),
-        f"{seat_name}.output_contract.seat_specific_field_group",
+    fields = expect_string_list(
+        section.get("seat_specific_fields"),
+        f"{seat_name}.output_contract.sections[*].seat_specific_fields",
     )
 
     lines: list[str] = []
@@ -395,7 +384,7 @@ def render_exception_output_contract_section(
         f"{seat_name}.output_contract.field_list_label",
     )
     lines.append(f"- {field_list_label}：")
-    for field in resolve_seat_specific_fields(config, seat_name=seat_name, field_group=field_group):
+    for field in fields:
         lines.append(f"  - `{field}`")
 
     field_rules = section.get("field_rules")
