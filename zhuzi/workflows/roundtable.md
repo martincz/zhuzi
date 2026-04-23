@@ -231,7 +231,17 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认只向用户�
 
 | 席位 | 结论 | 最大风险 | 必须满足 | 分歧 | 信心 |
 |---|---|---|---|---|---|
-| `<seat>` | <路由中文译 · 1 句条件> | 1 句 | 1 句 | 1 句，没有写“无” | low/medium/high |
+| `<seat>` | <路由中文译 · 1 句条件> | 1 句 | 1 句 | 1 句，没有写“无” | <判据 · high/medium/low> |
+
+**信心列打分机制（不允许主观打分，必须按判据给值 + 一句判据来源）**：
+
+| 判据 | 值 | 说明 |
+|---|---|---|
+| 席位自声明"证据充分 + 能力圈内 + 无 must_haves challenge" | `high` | 格式：`high · 2 席一致` / `high · 本席位 core 领域` |
+| 席位 flag 了 `must_haves_review` 或席位间结论分歧 | `medium` | 格式：`medium · 方法论 blocker 未过` / `medium · 与 Linus 有分歧` |
+| 席位 `core.domain_limit_flag=true`、`too_hard`、或信息不足 | `low` | 格式：`low · 能力圈外` / `low · 证据不足` |
+
+判据必须写进单元格（`<值> · <判据>` 形式），禁止裸写 `high` / `medium` / `low`。判据冲突时就低不就高。
 
 **结论列译表（Quick 默认只露路由的中文译，不露 `core.route` token 也不露 `native_verdict`）**：
 
