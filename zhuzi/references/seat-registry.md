@@ -30,7 +30,7 @@
 | Munger | 含判断质量 / 激励 / 能力圈 / 机会成本 → `[1]` | 仅在指标激励或研究者偏误关键时 `[1]` | 弃权 | 弃权 | `[1]` |
 | López | evidence claim 关键时 `[1]` | 含实验 / 因果 / benchmark / eval / 回测 → `[1]` | 弃权 | 弃权 | `[1]` |
 | Feynman | 决策论证怀疑是口号 / 名词遮蔽机制 / 权威代替证据 → `[1]` | 指标或口径怀疑是 cargo cult 或 AI 易误读 → `[1]` | 仅在命名冒充机制 / 接口语义被黑话遮蔽时 `[1]` | spec 含未定义术语 / 虚假简化 / 类比根未解释 → `[1]` | 议题存在未验证主张伪装成 contract 的风险 → `[1]` |
-| Paul Graham | 含创业 / 产品 / 创始人 / PMF / Founder Mode → `[1]` | off（研究诚信让给 López） | off（代码让给 Linus） | 含产品方向 / maker-manager 的 taste 决策 → `[1]` | 议题含创业 / 产品 / essay 评审 → `[1]` |
+| Paul Graham | 含创业 / 产品 / 创始人 / PMF / Founder Mode → `[1]` | off（研究诚信让给 López） | off（代码让给 Linus） | 含产品方向 / maker-manager / spec 或 ADR 的 taste 与说服力判断 → `[1]` | 议题含创业 / 产品 / essay / spec 评审或说服力维度 → `[1]` |
 | Linus | 弃权 | 弃权 | `[2]` | `[1,2]` | `[1,2]` |
 <!-- GENERATED:seat_registry_stage_rules:end -->
 
@@ -41,7 +41,7 @@
 <!-- GENERATED:seat_registry_lopez_must_call:start -->
 议题含 `研究方法论 / 实验设计 / benchmark / eval / A-B test / 因果声明 / causal claim / data leakage / selection bias / backtest 审视 / 因子诚信 / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow` 任一关键词时，López 必召开，即使议题不是量化金融。
 
-议题含 `创业方向 / 产品方向 / PMF / product-market fit / 创始人评估 / founder 靠谱吗 / pitch 评审 / pitch deck / essay 评审 / essay 写作 / 写作 taste / Founder Mode / Manager Mode / default alive / default dead / Stay Upwind / Keep Identity Small / superlinear returns / maker 还是 manager` 任一关键词时，Paul Graham 必召开，触发创业 taste / essay 评审场景时必召开，和 Munger（偏误 / 激励）、Taleb（尾部风险）形成互补分工。
+议题含 `创业方向 / 产品方向 / PMF / product-market fit / 创始人评估 / founder 靠谱吗 / pitch 评审 / pitch deck / essay 评审 / essay 写作 / 写作 taste / spec taste / ADR taste / 说服力评审 / Founder Mode / Manager Mode / default alive / default dead / Stay Upwind / Keep Identity Small / superlinear returns / maker 还是 manager` 任一关键词时，Paul Graham 必召开，触发创业 taste / essay 评审场景时必召开，和 Munger（偏误 / 激励）、Taleb（尾部风险）形成互补分工。
 <!-- GENERATED:seat_registry_lopez_must_call:end -->
 
 ### Linus `stages=[1,2]`

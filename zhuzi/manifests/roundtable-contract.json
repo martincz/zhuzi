@@ -496,14 +496,14 @@
           "stages": [
             1
           ],
-          "condition": "含产品方向 / maker-manager / 做不做这件事的 taste 决策"
+          "condition": "含产品方向 / maker-manager / spec 或 ADR 的 taste 与说服力判断 / 做不做这件事的 taste 决策"
         },
         "hybrid": {
           "mode": "conditional",
           "stages": [
             1
           ],
-          "condition": "议题含创业 / 产品 / essay 评审维度"
+          "condition": "议题含创业 / 产品 / essay / spec 评审或说服力维度"
         }
       },
       "registry_stage_row": {
@@ -511,8 +511,8 @@
         "strategy_business_org": "含创业 / 产品 / 创始人 / PMF / Founder Mode → `[1]`",
         "research_eval": "off（研究诚信让给 López）",
         "pure_code_implementation": "off（代码让给 Linus）",
-        "engineering_decision": "含产品方向 / maker-manager 的 taste 决策 → `[1]`",
-        "hybrid": "议题含创业 / 产品 / essay 评审 → `[1]`"
+        "engineering_decision": "含产品方向 / maker-manager / spec 或 ADR 的 taste 与说服力判断 → `[1]`",
+        "hybrid": "议题含创业 / 产品 / essay / spec 评审或说服力维度 → `[1]`"
       },
       "shared_root_keys": [
         "paul_graham_verdict"
@@ -546,6 +546,9 @@
           "essay 评审",
           "essay 写作",
           "写作 taste",
+          "spec taste",
+          "ADR taste",
+          "说服力评审",
           "Founder Mode",
           "Manager Mode",
           "default alive",
