@@ -30,6 +30,11 @@
         "entry": "luxun-zawen",
         "path": "skills/luxun-zawen/SKILL.md",
         "role": "杂文口吻与修辞改写工具"
+      },
+      {
+        "entry": "paul-graham-perspective",
+        "path": "skills/paul-graham-perspective/SKILL.md",
+        "role": "essay 写作、创业评估、人生选择思维顾问（Maker 半边）"
       }
     ],
     "agents": [

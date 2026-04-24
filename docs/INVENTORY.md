@@ -2,7 +2,7 @@
 
 > 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json` 与 `zhuzi/manifests/roundtable-contract.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
 
-## Skills (6 shipped)
+## Skills (7 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -12,6 +12,7 @@
 | `lopezdeprado-scientist` | `skills/lopezdeprado-scientist/SKILL.md` | 研究诚信、causal claim、实验纪律思维顾问 |
 | `feynman-explainer` | `skills/feynman-explainer/SKILL.md` | 解释清晰度、cargo cult 检测、概念理解思维顾问 |
 | `luxun-zawen` | `skills/luxun-zawen/SKILL.md` | 杂文口吻与修辞改写工具 |
+| `paul-graham-perspective` | `skills/paul-graham-perspective/SKILL.md` | essay 写作、创业评估、人生选择思维顾问（Maker 半边） |
 
 ## Agents (5 shipped)
 
