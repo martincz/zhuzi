@@ -35,6 +35,11 @@
         "entry": "paul-graham-perspective",
         "path": "skills/paul-graham-perspective/SKILL.md",
         "role": "essay 写作、创业评估、人生选择思维顾问（Maker 半边）"
+      },
+      {
+        "entry": "donald-trump-perspective",
+        "path": "skills/donald-trump-perspective/SKILL.md",
+        "role": "谈判、品牌、媒体战、对抗性博弈思维顾问（非政治立场工具）"
       }
     ],
     "agents": [
