@@ -461,6 +461,126 @@
         "## 审议动作"
       ]
     },
+    "paul-graham-reviewer": {
+      "skill": "paul-graham-perspective",
+      "agent": "paul-graham-reviewer",
+      "core_seat": "paul_graham",
+      "persona": "Paul Graham",
+      "generated_block": "paul_graham_output_contract",
+      "registry_summary": {
+        "seat": "Maker 视角",
+        "role": "创业 / 产品 taste、PMF 真伪、maker vs manager 判断、essay / pitch 评审、Founder Mode 检测",
+        "default_stages": "[1]",
+        "domains": "创业决策 / 产品方向 / PMF / 创始人评估 / essay 或 pitch 评审 / 职业与人生选择 / Founder Mode vs Manager Mode 组织问题"
+      },
+      "stage_policy": {
+        "strategy_business_org": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含创业 / 产品方向 / 创始人评估 / PMF / Founder Mode 判断"
+        },
+        "research_eval": {
+          "mode": "off",
+          "stages": [],
+          "condition": "研究方法论与实验纪律让给 López"
+        },
+        "pure_code_implementation": {
+          "mode": "off",
+          "stages": [],
+          "condition": "代码实现让给 Linus"
+        },
+        "engineering_decision": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含产品方向 / maker-manager / 做不做这件事的 taste 决策"
+        },
+        "hybrid": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "议题含创业 / 产品 / essay 评审维度"
+        }
+      },
+      "registry_stage_row": {
+        "seat": "Paul Graham",
+        "strategy_business_org": "含创业 / 产品 / 创始人 / PMF / Founder Mode → `[1]`",
+        "research_eval": "off（研究诚信让给 López）",
+        "pure_code_implementation": "off（代码让给 Linus）",
+        "engineering_decision": "含产品方向 / maker-manager 的 taste 决策 → `[1]`",
+        "hybrid": "议题含创业 / 产品 / essay 评审 → `[1]`"
+      },
+      "shared_root_keys": [
+        "paul_graham_verdict"
+      ],
+      "native_verdict_routes": {
+        "sane": [
+          "go"
+        ],
+        "needs_pivot": [
+          "go_with_conditions",
+          "revise_must_haves"
+        ],
+        "manager_drift": [
+          "revise_must_haves",
+          "kill"
+        ],
+        "not_my_circle": [
+          "too_hard"
+        ]
+      },
+      "dispatch": {
+        "must_call_keywords": [
+          "创业方向",
+          "产品方向",
+          "PMF",
+          "product-market fit",
+          "创始人评估",
+          "founder 靠谱吗",
+          "pitch 评审",
+          "pitch deck",
+          "essay 评审",
+          "essay 写作",
+          "写作 taste",
+          "Founder Mode",
+          "Manager Mode",
+          "default alive",
+          "default dead",
+          "Stay Upwind",
+          "Keep Identity Small",
+          "superlinear returns",
+          "maker 还是 manager"
+        ],
+        "must_call_note": "触发创业 taste / essay 评审场景时必召开，和 Munger（偏误 / 激励）、Taleb（尾部风险）形成互补分工"
+      },
+      "output_contract": {
+        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Paul Graham 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "sections": [
+          {
+            "root_key": "paul_graham_verdict",
+            "seat_specific_fields": [
+              "founder_type",
+              "pmf_signal",
+              "taste_verdict",
+              "identity_risk",
+              "superlinear_score",
+              "anti_patterns_hit",
+              "out_of_circle_flags"
+            ],
+            "phase": "1",
+            "must_haves_review_note": "`must_haves_review` 必须逐条 truth 标注是 maker-side 还是 manager-side 判断，以及该 truth 是否需要更具体的用户 / 创始人 / 产品证据",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表议题把 idea polish / investor optimization / manager mode / 虚构用户包装成了正面命题；或目标行动本身属于 polishing bad ideas / building for users who don't exist yet"
+          }
+        ]
+      },
+      "required_contract_snippets": [
+        "## 审议动作"
+      ]
+    },
     "linus-engineer": {
       "skill": "linus-torvalds-engineer",
       "agent": "linus-engineer",

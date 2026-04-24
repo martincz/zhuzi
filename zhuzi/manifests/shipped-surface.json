@@ -62,6 +62,11 @@
         "entry": "feynman-reviewer",
         "path": "runtimes/claude/agents/feynman-reviewer.md",
         "role": "roundtable 解释清晰度席"
+      },
+      {
+        "entry": "paul-graham-reviewer",
+        "path": "runtimes/claude/agents/paul-graham-reviewer.md",
+        "role": "roundtable Maker 视角席（创业 taste / PMF / essay 评审）"
       }
     ],
     "codex_agents": [
@@ -89,6 +94,11 @@
         "entry": "feynman-reviewer",
         "path": "runtimes/codex/agents/feynman-reviewer.md",
         "role": "Codex roundtable 解释清晰度席 adapter"
+      },
+      {
+        "entry": "paul-graham-reviewer",
+        "path": "runtimes/codex/agents/paul-graham-reviewer.md",
+        "role": "Codex roundtable Maker 视角席 adapter"
       }
     ],
     "codex_skills": [
@@ -137,6 +147,11 @@
         "entry": "feynman-reviewer",
         "path": "zhuzi/seats/feynman-reviewer.md",
         "role": "共享 Feynman 解释清晰度席契约，定义清晰度审议与输出契约"
+      },
+      {
+        "entry": "paul-graham-reviewer",
+        "path": "zhuzi/seats/paul-graham-reviewer.md",
+        "role": "共享 Paul Graham Maker 视角席契约，定义 taste 审议与输出契约"
       }
     ],
     "references": [

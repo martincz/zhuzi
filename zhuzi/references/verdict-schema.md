@@ -18,7 +18,7 @@
 <!-- GENERATED:verdict_schema_core_table:start -->
 | 字段 | 取值 | 作用 |
 |---|---|---|
-| `seat` | `taleb` / `munger` / `lopezdeprado` / `feynman` / `linus` / 新席位 | 席位标识 |
+| `seat` | `taleb` / `munger` / `lopezdeprado` / `feynman` / `paul_graham` / `linus` / 新席位 | 席位标识 |
 | `phase` | `1` / `2` / `4` | 当前阶段 |
 | `route` | `go` / `go_with_conditions` / `revise_must_haves` / `kill` / `too_hard` | 主持人机读统一路由空间 |
 | `seat_native_verdict` | 各席位原生 verdict | 保留人物 DNA |
@@ -78,6 +78,7 @@ must_haves_challenge:
 - Munger: `anti_patterns_hit` / `lollapalooza_stack` / `circle_of_competence` / `incentive_map` / `opportunity_cost_note` / `reverse_kill_path`
 - López: `claim_classification` / `causal_graph_missing` / `trial_count_disclosed` / `integrity_checklist_failures` / `anti_pattern_hits` / `workflow_diagnosis` / `domain_limit_flag`
 - Feynman: `undefined_terms` / `mechanism_gaps` / `missing_examples` / `boundary_gaps` / `false_analogies` / `verification_gaps` / `ai_misread_risk` / `diagnosis_level`
+- Paul Graham: `founder_type` / `pmf_signal` / `taste_verdict` / `identity_risk` / `superlinear_score` / `anti_patterns_hit` / `out_of_circle_flags`
 - Linus 阶段 1: `data_structure_risks` / `special_case_pressure` / `anti_patterns_hit` / `interface_risks` / `out_of_scope_for_strategy`
 - Linus 阶段 2: `broken_evidence` / `must_haves_coverage_detail` / `refactor_prerequisites` / `risk_notes` / `out_of_scope_for_strategy`
 <!-- GENERATED:verdict_schema_seat_specific:end -->
@@ -101,6 +102,10 @@ must_haves_challenge:
 | Feynman | `clear` | `go` |
 | Feynman | `muddy` | `go_with_conditions` / `revise_must_haves` |
 | Feynman | `cargo_cult` | `revise_must_haves` / `kill` |
+| Paul Graham | `sane` | `go` |
+| Paul Graham | `needs_pivot` | `go_with_conditions` / `revise_must_haves` |
+| Paul Graham | `manager_drift` | `revise_must_haves` / `kill` |
+| Paul Graham | `not_my_circle` | `too_hard` |
 | Linus | `sane` | `go` |
 | Linus | `broken` | `kill` |
 | Linus | `needs_refactor_first` | `revise_must_haves` / `go_with_conditions` |

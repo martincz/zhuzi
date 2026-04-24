@@ -14,7 +14,7 @@
 | `luxun-zawen` | `skills/luxun-zawen/SKILL.md` | 杂文口吻与修辞改写工具 |
 | `paul-graham-perspective` | `skills/paul-graham-perspective/SKILL.md` | essay 写作、创业评估、人生选择思维顾问（Maker 半边） |
 
-## Agents (5 shipped)
+## Agents (6 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -23,8 +23,9 @@
 | `taleb-reviewer` | `runtimes/claude/agents/taleb-reviewer.md` | roundtable 风险结构席 |
 | `lopezdeprado-reviewer` | `runtimes/claude/agents/lopezdeprado-reviewer.md` | roundtable 证据质量席 |
 | `feynman-reviewer` | `runtimes/claude/agents/feynman-reviewer.md` | roundtable 解释清晰度席 |
+| `paul-graham-reviewer` | `runtimes/claude/agents/paul-graham-reviewer.md` | roundtable Maker 视角席（创业 taste / PMF / essay 评审） |
 
-## Codex Agents (5 shipped)
+## Codex Agents (6 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -33,6 +34,7 @@
 | `taleb-reviewer` | `runtimes/codex/agents/taleb-reviewer.md` | Codex roundtable 风险结构席 adapter |
 | `lopezdeprado-reviewer` | `runtimes/codex/agents/lopezdeprado-reviewer.md` | Codex roundtable 证据质量席 adapter |
 | `feynman-reviewer` | `runtimes/codex/agents/feynman-reviewer.md` | Codex roundtable 解释清晰度席 adapter |
+| `paul-graham-reviewer` | `runtimes/codex/agents/paul-graham-reviewer.md` | Codex roundtable Maker 视角席 adapter |
 
 ## Codex Skills (1 shipped)
 
@@ -52,7 +54,7 @@
 |---|---|---|
 | `roundtable` | `zhuzi/workflows/roundtable.md` | Roundtable 阶段编排、gate 规则与实施分支 |
 
-## Seats (5 shipped)
+## Seats (6 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -61,6 +63,7 @@
 | `taleb-reviewer` | `zhuzi/seats/taleb-reviewer.md` | 共享 Taleb 风险结构席契约，定义 fragility 审议与输出契约 |
 | `lopezdeprado-reviewer` | `zhuzi/seats/lopezdeprado-reviewer.md` | 共享 López 证据质量席契约，定义方法论边界与输出契约 |
 | `feynman-reviewer` | `zhuzi/seats/feynman-reviewer.md` | 共享 Feynman 解释清晰度席契约，定义清晰度审议与输出契约 |
+| `paul-graham-reviewer` | `zhuzi/seats/paul-graham-reviewer.md` | 共享 Paul Graham Maker 视角席契约，定义 taste 审议与输出契约 |
 
 ## References (2 shipped)
 
