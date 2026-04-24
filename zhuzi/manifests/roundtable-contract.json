@@ -381,44 +381,44 @@
           "stages": [
             1
           ],
-          "condition": "含术语定义 / 决策说明 / 口径解释清晰度"
+          "condition": "决策论证怀疑是口号 / 名词遮蔽机制 / 权威代替证据"
         },
         "research_eval": {
           "mode": "conditional",
           "stages": [
             1
           ],
-          "condition": "含指标口径 / 时间语义 / 方法解释"
+          "condition": "指标或口径怀疑是 cargo cult 或 AI 易误读"
         },
         "pure_code_implementation": {
           "mode": "conditional",
           "stages": [
             1
           ],
-          "condition": "仅在 API contract / 命名 / 抽象边界讲不清时"
+          "condition": "仅在命名冒充机制 / 接口语义被黑话遮蔽时"
         },
         "engineering_decision": {
           "mode": "conditional",
           "stages": [
             1
           ],
-          "condition": "含接口语义 / 抽象命名 / spec clarity"
+          "condition": "spec 含未定义术语 / 虚假简化 / 类比根未解释"
         },
         "hybrid": {
           "mode": "conditional",
           "stages": [
             1
           ],
-          "condition": "议题需要先讲清 contract / 术语 / 验证口径"
+          "condition": "议题存在未验证主张伪装成 contract 的风险"
         }
       },
       "registry_stage_row": {
         "seat": "Feynman",
-        "strategy_business_org": "含术语定义 / 决策说明 / 口径解释清晰度 → `[1]`",
-        "research_eval": "含指标口径 / 时间语义 / 方法解释 → `[1]`",
-        "pure_code_implementation": "仅在 API contract / 命名 / 抽象边界讲不清时 `[1]`",
-        "engineering_decision": "含接口语义 / 抽象命名 / spec clarity → `[1]`",
-        "hybrid": "议题需要先讲清 contract / 术语 / 验证口径 → `[1]`"
+        "strategy_business_org": "决策论证怀疑是口号 / 名词遮蔽机制 / 权威代替证据 → `[1]`",
+        "research_eval": "指标或口径怀疑是 cargo cult 或 AI 易误读 → `[1]`",
+        "pure_code_implementation": "仅在命名冒充机制 / 接口语义被黑话遮蔽时 `[1]`",
+        "engineering_decision": "spec 含未定义术语 / 虚假简化 / 类比根未解释 → `[1]`",
+        "hybrid": "议题存在未验证主张伪装成 contract 的风险 → `[1]`"
       },
       "shared_root_keys": [
         "feynman_verdict"
