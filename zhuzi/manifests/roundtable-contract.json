@@ -589,6 +589,139 @@
         "## 审议动作"
       ]
     },
+    "don-norman-reviewer": {
+      "skill": "don-norman-perspective",
+      "agent": "don-norman-reviewer",
+      "core_seat": "norman",
+      "persona": "Norman",
+      "generated_block": "norman_output_contract",
+      "registry_summary": {
+        "seat": "UI/UX 认知诊断",
+        "role": "discoverability / feedback / conceptual model 三件套审查、affordance vs signifier、slip vs mistake、可访问性",
+        "default_stages": "[1]",
+        "domains": "UI 评审 / UX 评审 / 用户体验 / 产品界面 / discoverability / affordance / signifier / mapping / feedback / conceptual model / mental model / Gulf of Execution / Gulf of Evaluation / slip vs mistake / Norman door / 可访问性 / 无障碍设计 / dark patterns / 自动化交接界面"
+      },
+      "stage_policy": {
+        "strategy_business_org": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "议题含产品界面 / 用户体验 / UI 评审 / 可用性归因争议"
+        },
+        "research_eval": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "评估口径含用户界面 / 用户测试 / 可用性指标"
+        },
+        "pure_code_implementation": {
+          "mode": "off",
+          "stages": [],
+          "condition": "纯后端代码不评；UI 代码归 hybrid 议题"
+        },
+        "engineering_decision": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "含 UI / CLI 交互 / API surface 用户体验 / 错误信息设计 / 默认值与不可逆操作"
+        },
+        "hybrid": {
+          "mode": "conditional",
+          "stages": [
+            1
+          ],
+          "condition": "议题含 UI / UX / 用户体验 / 可访问性 / 用户错误归因维度"
+        }
+      },
+      "registry_stage_row": {
+        "seat": "Norman",
+        "strategy_business_org": "含产品界面 / 用户体验 / UI 评审 / 可用性归因争议 → `[1]`",
+        "research_eval": "评估口径含用户界面 / 用户测试时 `[1]`",
+        "pure_code_implementation": "off（纯后端不评，UI 代码归 hybrid）",
+        "engineering_decision": "含 UI / CLI / API surface / 错误信息 / 默认值 → `[1]`",
+        "hybrid": "议题含 UI / UX / 可访问性 / 用户错误归因 → `[1]`"
+      },
+      "dispatch": {
+        "must_call_keywords": [
+          "UI 评审",
+          "UX 评审",
+          "design review",
+          "可用性问题",
+          "为什么用户犯错",
+          "discoverability",
+          "affordance",
+          "signifier",
+          "mapping",
+          "feedback 设计",
+          "conceptual model",
+          "mental model",
+          "Gulf of Execution",
+          "Gulf of Evaluation",
+          "slip 还是 mistake",
+          "Norman door",
+          "用户体验",
+          "产品界面",
+          "可访问性",
+          "无障碍设计",
+          "dark pattern",
+          "错误信息设计",
+          "default value",
+          "用户操作失误",
+          "用户没培训好"
+        ],
+        "must_call_note": "触发 UI/UX 评议或可用性归因争议时必召开，与 Linus（代码品味）、Feynman（spec 清晰度）、Paul Graham（产品 taste）形成互补分工"
+      },
+      "shared_root_keys": [
+        "norman_verdict"
+      ],
+      "native_verdict_routes": {
+        "usable": [
+          "go"
+        ],
+        "confused_users": [
+          "go_with_conditions",
+          "revise_must_haves"
+        ],
+        "blames_users": [
+          "revise_must_haves",
+          "kill"
+        ],
+        "not_my_circle": [
+          "too_hard"
+        ]
+      },
+      "output_contract": {
+        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Norman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "sections": [
+          {
+            "root_key": "norman_verdict",
+            "seat_specific_fields": [
+              "gulf_diagnosis",
+              "three_pillars_failures",
+              "slip_vs_mistake_classification",
+              "signifier_vs_affordance_misuse",
+              "accessibility_blockers",
+              "iconic_object_analogy",
+              "anti_patterns_hit",
+              "out_of_circle_flags"
+            ],
+            "phase": "1",
+            "extra_route_lines": [
+              "若 must_haves 把'用户应该学习 / 用户没培训好'当作可用性问题的解释，应走 `revise_must_haves`（这是把责任错配给用户）",
+              "议题完全不在 UI/UX 范畴时走 `not_my_circle` → `too_hard`"
+            ],
+            "must_haves_review_note": "`must_haves_review` 必须逐条 truth 标注：(1) 这条是不是把用户错归因为'设计错'；(2) 失败定位在 Gulf of Execution 还是 Gulf of Evaluation；(3) 三件套（discoverability / feedback / conceptual model）哪根缺",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架本身把'用户应该学习'当成解释、把 affordance 当 signifier 误用、或对老人 / 视障 / 新手系统性敌对（minimalist 美学伪装 ableism）"
+          }
+        ]
+      },
+      "required_contract_snippets": [
+        "## 审议动作"
+      ]
+    },
     "linus-engineer": {
       "skill": "linus-torvalds-engineer",
       "agent": "linus-engineer",

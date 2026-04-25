@@ -16,7 +16,7 @@
 | `donald-trump-perspective` | `skills/donald-trump-perspective/SKILL.md` | 谈判、品牌、媒体战、对抗性博弈思维顾问（非政治立场工具） |
 | `don-norman-perspective` | `skills/don-norman-perspective/SKILL.md` | UI/UX 失败的认知诊断思维顾问（affordance / signifier / 两道鸿沟 / slips vs mistakes） |
 
-## Agents (6 shipped)
+## Agents (7 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -26,8 +26,9 @@
 | `lopezdeprado-reviewer` | `runtimes/claude/agents/lopezdeprado-reviewer.md` | roundtable 证据质量席 |
 | `feynman-reviewer` | `runtimes/claude/agents/feynman-reviewer.md` | roundtable 解释清晰度席 |
 | `paul-graham-reviewer` | `runtimes/claude/agents/paul-graham-reviewer.md` | roundtable Maker 视角席（创业 taste / PMF / essay 评审） |
+| `don-norman-reviewer` | `runtimes/claude/agents/don-norman-reviewer.md` | roundtable UI/UX 认知诊断席（discoverability / 两道鸿沟 / affordance vs signifier / slips vs mistakes） |
 
-## Codex Agents (6 shipped)
+## Codex Agents (7 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -37,6 +38,7 @@
 | `lopezdeprado-reviewer` | `runtimes/codex/agents/lopezdeprado-reviewer.md` | Codex roundtable 证据质量席 adapter |
 | `feynman-reviewer` | `runtimes/codex/agents/feynman-reviewer.md` | Codex roundtable 解释清晰度席 adapter |
 | `paul-graham-reviewer` | `runtimes/codex/agents/paul-graham-reviewer.md` | Codex roundtable Maker 视角席 adapter |
+| `don-norman-reviewer` | `runtimes/codex/agents/don-norman-reviewer.md` | Codex roundtable UI/UX 认知诊断席 adapter |
 
 ## Codex Skills (2 shipped)
 
@@ -59,7 +61,7 @@
 | `roundtable` | `zhuzi/workflows/roundtable.md` | Roundtable 阶段编排、gate 规则与实施分支 |
 | `quick-multi` | `zhuzi/workflows/quick-multi.md` | 多视角短读流程：N 席位平行说一段话，不走 must_haves / gate / verdict schema |
 
-## Seats (6 shipped)
+## Seats (7 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -69,6 +71,7 @@
 | `lopezdeprado-reviewer` | `zhuzi/seats/lopezdeprado-reviewer.md` | 共享 López 证据质量席契约，定义方法论边界与输出契约 |
 | `feynman-reviewer` | `zhuzi/seats/feynman-reviewer.md` | 共享 Feynman 解释清晰度席契约，定义清晰度审议与输出契约 |
 | `paul-graham-reviewer` | `zhuzi/seats/paul-graham-reviewer.md` | 共享 Paul Graham Maker 视角席契约，定义 taste 审议与输出契约 |
+| `don-norman-reviewer` | `zhuzi/seats/don-norman-reviewer.md` | 共享 Don Norman UI/UX 认知诊断席契约，定义 UI 评审纪律与输出契约 |
 
 ## References (2 shipped)
 

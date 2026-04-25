@@ -77,6 +77,11 @@
         "entry": "paul-graham-reviewer",
         "path": "runtimes/claude/agents/paul-graham-reviewer.md",
         "role": "roundtable Maker 视角席（创业 taste / PMF / essay 评审）"
+      },
+      {
+        "entry": "don-norman-reviewer",
+        "path": "runtimes/claude/agents/don-norman-reviewer.md",
+        "role": "roundtable UI/UX 认知诊断席（discoverability / 两道鸿沟 / affordance vs signifier / slips vs mistakes）"
       }
     ],
     "codex_agents": [
@@ -109,6 +114,11 @@
         "entry": "paul-graham-reviewer",
         "path": "runtimes/codex/agents/paul-graham-reviewer.md",
         "role": "Codex roundtable Maker 视角席 adapter"
+      },
+      {
+        "entry": "don-norman-reviewer",
+        "path": "runtimes/codex/agents/don-norman-reviewer.md",
+        "role": "Codex roundtable UI/UX 认知诊断席 adapter"
       }
     ],
     "codex_skills": [
@@ -177,6 +187,11 @@
         "entry": "paul-graham-reviewer",
         "path": "zhuzi/seats/paul-graham-reviewer.md",
         "role": "共享 Paul Graham Maker 视角席契约，定义 taste 审议与输出契约"
+      },
+      {
+        "entry": "don-norman-reviewer",
+        "path": "zhuzi/seats/don-norman-reviewer.md",
+        "role": "共享 Don Norman UI/UX 认知诊断席契约，定义 UI 评审纪律与输出契约"
       }
     ],
     "references": [
