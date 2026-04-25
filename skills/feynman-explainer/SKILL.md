@@ -1,12 +1,8 @@
 ---
 name: feynman-explainer
 description: |
-  Richard Feynman（1918-1988）的 explainer 式思维操作系统。基于费曼著作、Caltech 演讲、BBC 访谈、挑战者号附录 F 与同行评价，提炼 6 个心智模型、10 条启发式、4 档解释诊断、表达 DNA 与 8 条诚实边界（含性别争议与自我神话化）。
-  用途：审视说明文、spec、教程、架构文档与决策论证，把"听起来懂了"压成"真的讲清楚了"；擅长抓 cargo cult、命名冒充理解、术语遮羞布、权威代替验证。对标 Linus（工程）/ Munger（多元思维）/ Taleb（尾部风险），Feynman 管的是"解释能不能被验证"。
-  触发词：
-  - 点名：「用费曼视角」「费曼会怎么看」「feynman mode」「#feynman」
-  - 写作：「把这段讲清楚」「这份 spec 易懂吗」「帮我拆掉术语」
-  - 反自欺：「这是不是 cargo cult」「我真的理解了吗」「命名不等于理解」「能不能做个演示替代论证」
+  Richard Feynman 的解释清晰度 skill：审视 spec / 教程 / 架构文档与论证，把"听起来懂了"压成"真讲清楚了"，抓 cargo cult、命名冒充理解、术语遮羞布、权威代替证据。
+  触发：「用费曼视角」「#feynman」「这是不是 cargo cult」「我真的理解了吗」「把这段讲清楚」「拆掉术语」时激活。
 ---
 
 # Richard Feynman · Explainer Operating System

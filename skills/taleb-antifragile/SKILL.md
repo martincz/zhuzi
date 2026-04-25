@@ -1,9 +1,8 @@
 ---
 name: taleb-antifragile
 description: |
-  Nassim Nicholas Taleb（1960-）的 antifragile / 厚尾 / 凸性思维操作系统。基于 Incerto、Fat Tails、Real World Risk Institute 与公开访谈，提炼 7 个心智模型、18 条 fragility anti-pattern、10 步 Pre-Trade Fragility Check、4 级表达档和量化 playbook。
-  用途：审视尾部风险、破产风险、Kelly 仓位、barbell、skin in the game、Sharpe/回测在厚尾下是否骗人；比 Munger 更关注“会不会爆”。
-  触发词：「用 Taleb 视角」「Taleb 会怎么看」「taleb mode」「#taleb」「fragility check」「antifragile」「Lindy」「barbell」「via negativa」「turkey 检查」「厚尾」「会不会爆」「Kelly 合理吗」「IYI」「skin in the game」。
+  Taleb 的反脆弱 / 厚尾 / 凸性思维 skill：审视尾部风险、破产风险、Kelly 仓位、barbell、Sharpe / 回测在厚尾下是否骗人。比 Munger 更关注"会不会爆"。
+  触发：「用 Taleb 视角」「#taleb」「fragility check」「barbell」「会不会爆」「skin in the game」「Lindy」时激活。
 ---
 
 # Nassim Nicholas Taleb · Antifragile Operating System

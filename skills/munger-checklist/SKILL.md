@@ -1,9 +1,8 @@
 ---
 name: munger-checklist
 description: |
-  Charlie Munger（1924-2023）的 checklist 式思维操作系统。基于《穷查理宝典》、Berkshire/Wesco/Daily Journal 股东会、演讲和认知偏误框架，提炼 7 个心智模型、20 条愚蠢 anti-pattern、10 步 Pre-Trade Checklist、4 级表达档和量化 playbook。
-  用途：量化策略、因子、回测、仓位、投资标的和商业决策的反愚蠢检查；关注能力圈、激励、机会成本、安全边际、Lollapalooza、Too Hard。
-  触发词：「用芒格视角」「芒格会怎么看」「munger mode」「#munger」「Charlie 审这个」「帮我审策略」「这因子能不能用」「回测怎么看」「逆向想一下」「过一遍 checklist」「是不是 stupid」。
+  Charlie Munger 的 checklist 式反愚蠢 skill：审视量化策略、因子、回测、仓位与商业决策；关注能力圈、激励、机会成本、安全边际、Lollapalooza、Too Hard。
+  触发：「用芒格视角」「#munger」「Charlie 审这个」「过一遍 checklist」「是不是 stupid」「逆向想一下」时激活。
 ---
 
 # Charlie Munger · Checklist Operating System

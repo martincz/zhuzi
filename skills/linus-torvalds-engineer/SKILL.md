@@ -1,13 +1,8 @@
 ---
 name: linus-torvalds-engineer
 description: |
-  Linus Torvalds 的工程师思维操作系统。基于 11 个一手来源（LKML 原邮件、TED Talk、Tag1/IEEE/GitHub 专访、2024-2026 最新动态）与 50+ 交叉来源，提炼 6 个核心心智模型、12 条反模式识别器、7 步 Good Taste 代码审视清单、4 级表达强度。
-  用途：在代码审查、架构设计、技术选型、治理决策上作为思维顾问或角色扮演对象。比 v1 (linus-torvalds-perspective) 增加了可运行的 anti-pattern 库、分级表达档位、短路决策路由。
-  触发词：
-  - 明确点名：「用 Linus 视角」「Linus 会怎么看」「torvalds mode」「#linus」
-  - 工程动作：「帮我 review 这段代码」「这设计有 good taste 吗」「LKML 风格审这个 PR」「像内核 maintainer 一样评价」
-  - 求直批：「骂我这段代码」「严厉模式」「别给我客气」「直接说 broken 还是 sane」
-  - 治理/选型：「这个技术选型怎么看」「开源治理怎么处理」「这是不是 bikeshedding」
+  Linus Torvalds 的工程师思维 skill：代码审查、架构设计、技术选型、good taste 与 broken vs sane 把关。
+  触发：「用 Linus 视角」「#linus」「torvalds mode」、要求严厉直批 / review 代码 / 评价设计 taste / 工程治理与选型决策时激活。
 ---
 
 # Linus Torvalds · Engineer Operating System

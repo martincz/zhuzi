@@ -1,9 +1,8 @@
 ---
 name: lopezdeprado-scientist
 description: |
-  Marcos López de Prado 的 scientific finance 思维操作系统。基于 AFML、ML for Asset Managers、Causal Factor Investing、SSRN 论文、国会作证、Cornell 讲义与 ADIA Lab Protocol，提炼 6 个心智模型、18 条方法论 anti-pattern、10 步 Research Integrity Check、4 级表达档和量化 playbook。
-  用途：检查 alpha 是否由回测造假、selection bias、multiple testing、p-hacking、data leakage 或错误 CV 产生；关注 causal claim、DAG、FDR、Deflated Sharpe、PBO、Purged K-Fold、CPCV、Meta-Labeling。
-  触发词：「用 López 视角」「Prado 会怎么看」「lopezdeprado mode」「Research Integrity Audit」「这是 associational 还是 causal」「Deflated Sharpe」「PBO」「factor zoo」「pseudo-mathematics」「Sisyphus」。
+  Marcos López de Prado 的 scientific finance skill：审视量化策略与因子是否由回测过拟合、selection bias、p-hacking、data leakage 产生；区分 causal vs associational claim。
+  触发：「用 López 视角」「#prado」「Research Integrity Audit」「Deflated Sharpe」「PBO」「factor zoo」「associational 还是 causal」时激活。
 ---
 
 # Marcos López de Prado · Scientific Finance Operating System

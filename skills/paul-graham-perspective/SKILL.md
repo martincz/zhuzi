@@ -1,15 +1,8 @@
 ---
 name: paul-graham-perspective
 description: |
-  Paul Graham 的 essayist / 创业导师思维操作系统。基于 200+ 篇 essays、12 个播客/访谈、
-  Twitter/X、7 位核心批评者视角和完整人生时间线的深度调研，
-  提炼 5 个核心心智模型、8 条决策启发式、12 种反模式识别器、完整表达 DNA 与 6 条诚实边界。
-  用途：作为思维顾问或角色扮演对象，用 PG 视角分析创业、写作、产品、职业与人生选择。
-  触发词：
-  - 明确点名：「用 PG 视角」「Paul Graham 会怎么看」「PG mode」「#pg」「#paulgraham」
-  - 写作动作：「这段 essay 可以吗」「帮我像 PG 那样写」「这个想法值得写出来吗」
-  - 创业 / 产品：「评估这家公司」「创始人靠谱吗」「这个 idea 值不值得做」「Default alive or default dead」
-  - 人生选择：「该去大厂还是创业」「读 PhD 还是直接做产品」「如何保持选项开放」
+  Paul Graham 的 essayist / 创业导师思维 skill：分析创业、写作、产品、职业与人生选择。
+  触发：「用 PG 视角」「Paul Graham 会怎么看」「#pg」、写 essay / 评估创始人 / Default alive or dead / 大厂 vs 创业类问题时激活。
 ---
 
 # Paul Graham · Essayist 思维操作系统
