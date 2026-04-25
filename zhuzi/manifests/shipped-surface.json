@@ -40,6 +40,11 @@
         "entry": "donald-trump-perspective",
         "path": "skills/donald-trump-perspective/SKILL.md",
         "role": "谈判、品牌、媒体战、对抗性博弈思维顾问（非政治立场工具）"
+      },
+      {
+        "entry": "don-norman-perspective",
+        "path": "skills/don-norman-perspective/SKILL.md",
+        "role": "UI/UX 失败的认知诊断思维顾问（affordance / signifier / 两道鸿沟 / slips vs mistakes）"
       }
     ],
     "agents": [
