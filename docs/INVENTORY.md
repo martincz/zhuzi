@@ -37,23 +37,26 @@
 | `feynman-reviewer` | `runtimes/codex/agents/feynman-reviewer.md` | Codex roundtable 解释清晰度席 adapter |
 | `paul-graham-reviewer` | `runtimes/codex/agents/paul-graham-reviewer.md` | Codex roundtable Maker 视角席 adapter |
 
-## Codex Skills (1 shipped)
+## Codex Skills (2 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
 | `zhuzi-roundtable` | `runtimes/codex/skills/zhuzi-roundtable/SKILL.md` | Codex roundtable orchestrator skill，薄入口负责装载共享 workflow 与 schema |
+| `zhuzi-quick` | `runtimes/codex/skills/zhuzi-quick/SKILL.md` | Codex 多视角短读 orchestrator skill，不走 must_haves / gate / verdict schema |
 
-## Commands (1 shipped)
+## Commands (2 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
 | `roundtable` | `runtimes/claude/commands/zhuzi/roundtable.md` | Claude 薄入口，负责装载 roundtable workflow 与共享资产 |
+| `quick` | `runtimes/claude/commands/zhuzi/quick.md` | Claude 多视角短读入口，装载 quick-multi workflow |
 
-## Workflows (1 shipped)
+## Workflows (2 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
 | `roundtable` | `zhuzi/workflows/roundtable.md` | Roundtable 阶段编排、gate 规则与实施分支 |
+| `quick-multi` | `zhuzi/workflows/quick-multi.md` | 多视角短读流程：N 席位平行说一段话，不走 must_haves / gate / verdict schema |
 
 ## Seats (6 shipped)
 
@@ -73,11 +76,12 @@
 | `seat-registry` | `zhuzi/references/seat-registry.md` | 当前席位权威表、默认 `stages` 规则、扩席位维护边界 |
 | `verdict-schema` | `zhuzi/references/verdict-schema.md` | roundtable 共同 YAML verdict 契约与 route 映射 |
 
-## Templates (1 shipped)
+## Templates (2 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
-| `roundtable-quick` | `zhuzi/templates/roundtable-quick.md` | Quick Roundtable 输出骨架 |
+| `roundtable-quick` | `zhuzi/templates/roundtable-quick.md` | Quick Roundtable 输出骨架与渲染约定（输出形态真相源） |
+| `quick-multi` | `zhuzi/templates/quick-multi.md` | 多视角短读输出骨架 |
 
 ## Manifests (2 shipped)
 
@@ -86,11 +90,15 @@
 | `roundtable-contract` | `zhuzi/manifests/roundtable-contract.json` | roundtable 机器执行合同，覆盖 Quick headings、seat/stages/route 与 seat-specific 字段 |
 | `shipped-surface` | `zhuzi/manifests/shipped-surface.json` | 机器可读 shipped surface 真相源 |
 
-## Examples (1 shipped)
+## Examples (5 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
 | `roundtable-quick` | `examples/roundtable-quick.md` | 默认短读圆桌输出示例 |
+| `roundtable-disagreement` | `examples/roundtable-disagreement.md` | 多席位真分歧示例（Munger vs Taleb 路径相反，不强行收敛） |
+| `roundtable-revision-gate` | `examples/roundtable-revision-gate.md` | 阶段 1.5 修订 gate 触发示例（席位推翻刚拍板的 must_haves） |
+| `roundtable-broken-veto` | `examples/roundtable-broken-veto.md` | Linus 阶段 2 broken 单边否决示例 |
+| `quick-multi` | `examples/quick-multi.md` | 多视角短读输出示例 |
 
 ## Tools (4 shipped)
 

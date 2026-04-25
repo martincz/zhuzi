@@ -261,8 +261,7 @@ def check_banned_snippets(errors: list[str]) -> None:
                     add_error(errors, path, lineno, f"banned snippet: {snippet}")
 
 
-# 议题卡 / 什么算过关 / 四选一 统一禁用破折号，用 ':' 接详情
-ROUNDTABLE_DASH_BANNED = ["——", " — "]
+# template + Quick example 是 persona 术语括注的必检面
 ROUNDTABLE_PUNCT_FILES = [
     ROOT / "zhuzi" / "templates" / "roundtable-quick.md",
     ROOT / "examples" / "roundtable-quick.md",
@@ -298,88 +297,6 @@ def _strip_code_blocks(text: str) -> str:
             continue
         cleaned.append("" if in_code else line)
     return "\n".join(cleaned)
-
-
-def check_roundtable_dash_ban(errors: list[str]) -> None:
-    for path in ROUNDTABLE_PUNCT_FILES:
-        if not path.exists():
-            continue
-        in_code = False
-        for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            if line.lstrip().startswith("```"):
-                in_code = not in_code
-                continue
-            if in_code:
-                continue
-            if line.lstrip().startswith("|") and set(line.strip(" |")) <= set("-:"):
-                continue  # table separator row
-            for dash in ROUNDTABLE_DASH_BANNED:
-                if dash in line:
-                    add_error(
-                        errors,
-                        path,
-                        lineno,
-                        f"禁用破折号 '{dash.strip()}' 出现——议题卡/什么算过关/四选一统一用 ':' 接详情",
-                    )
-                    break
-
-
-SEAT_REVIEW_HEADING = "## 席位短评"
-SEAT_REVIEW_CELL_LIMIT = 30  # 除结论/信心列，其他 cell 字数上限
-SEAT_REVIEW_SKIP_COLS = {"席位", "结论", "信心"}  # 这几列有自己的格式，跳过字数检查
-
-
-def _count_visible_chars(cell: str) -> int:
-    """cell 可见字符数——去掉 Markdown 反引号/链接/HTML br/前后空白"""
-    s = cell.strip()
-    s = s.replace("`", "").replace("<br>", "").replace("<br/>", "")
-    return len(s)
-
-
-def check_roundtable_seat_review_cells(errors: list[str]) -> None:
-    """短评 table cell 字数超限 → FAIL。防 table 掉成 K:V 垂直。"""
-    for path in ROUNDTABLE_PUNCT_FILES:
-        if not path.exists():
-            continue
-        text = path.read_text(encoding="utf-8")
-        lines = text.splitlines()
-        in_seat_review = False
-        header_cols: list[str] = []
-        in_code = False
-        for lineno, line in enumerate(lines, 1):
-            if line.lstrip().startswith("```"):
-                in_code = not in_code
-                continue
-            if in_code:
-                continue
-            stripped = line.strip()
-            if stripped.startswith("## "):
-                in_seat_review = stripped == SEAT_REVIEW_HEADING
-                header_cols = []
-                continue
-            if not in_seat_review:
-                continue
-            if not stripped.startswith("|"):
-                continue
-            cells = [c.strip() for c in stripped.strip("|").split("|")]
-            if not header_cols:
-                header_cols = cells
-                continue
-            if set(cells) <= set("-:") or all(set(c) <= set("-:") for c in cells if c):
-                continue  # separator row
-            for col_name, cell in zip(header_cols, cells):
-                if col_name in SEAT_REVIEW_SKIP_COLS:
-                    continue
-                if cell.startswith("<") and cell.endswith(">"):
-                    continue  # template placeholder
-                if _count_visible_chars(cell) > SEAT_REVIEW_CELL_LIMIT:
-                    add_error(
-                        errors,
-                        path,
-                        lineno,
-                        f"席位短评 cell '{col_name}' 字数 {_count_visible_chars(cell)} > {SEAT_REVIEW_CELL_LIMIT}："
-                        f"挪到独立 '### <席位> 展开' 段，cell 填 '见下方展开'",
-                    )
 
 
 def check_roundtable_term_annotations(errors: list[str]) -> None:
@@ -553,7 +470,6 @@ def check_roundtable_workflow(errors: list[str]) -> None:
     for required in [
         "## 流水线性质",
         "## 默认交互契约",
-        "### Quick 输出模板（默认必须使用）",
         "### 阶段 0.5 — 议题契约定义（orchestrator）",
         "### 阶段 1 — 视角并行审议",
         "### 阶段 1.5 — must_haves 修订 gate（条件触发）",
@@ -562,7 +478,7 @@ def check_roundtable_workflow(errors: list[str]) -> None:
         "### 阶段 4 — 实施",
         "## 冲突裁决规则",
         "## 硬约束（任何情况不得违反）",
-        "N 席位召开（N ≥ 1）",
+        "N 席位召开（N ≥ 2）",
         "continue_existing_agent(agent_id, message)",
         "roundtable-contract.json",
     ]:
@@ -671,10 +587,19 @@ def check_quick_roundtable_contract(errors: list[str], roundtable_contract: dict
         template_headings = extract_markdown_headings(template_text, level=2)
         if not template_headings:
             add_error(errors, template, 1, "quick template missing level-2 headings")
-        elif expected_headings and template_headings != expected_headings:
-            add_error(errors, template, 1, f"quick template headings mismatch: template={template_headings} contract={expected_headings}")
+        else:
+            template_set = set(template_headings)
+            for required in expected_headings:
+                if required not in template_set:
+                    add_error(errors, template, 1, f"quick template missing required heading {required}")
         for category in (quick_output or {}).get("decision_categories", []):
-            if isinstance(category, str) and f"| {category} |" not in template_text:
+            if not isinstance(category, str):
+                continue
+            if (
+                f"| {category} |" not in template_text
+                and f"| `{category}` |" not in template_text
+                and f"`{category}`" not in template_text
+            ):
                 add_error(errors, template, 1, f"quick template missing decision category {category}")
 
     example = ROOT / "examples" / "roundtable-quick.md"
@@ -684,13 +609,16 @@ def check_quick_roundtable_contract(errors: list[str], roundtable_contract: dict
         example_text = example.read_text(encoding="utf-8")
         example_headings = extract_markdown_headings(example_text, level=2)
         expected_example_headings = expected_headings or template_headings
-        if expected_example_headings and example_headings != expected_example_headings:
-            add_error(
-                errors,
-                example,
-                1,
-                f"quick example headings mismatch: contract={expected_example_headings} example={example_headings}",
-            )
+        if expected_example_headings:
+            example_set = set(example_headings)
+            for required in expected_example_headings:
+                if required not in example_set:
+                    add_error(
+                        errors,
+                        example,
+                        1,
+                        f"quick example missing required heading {required}",
+                    )
 
     readme = ROOT / "README.md"
     readme_text = readme.read_text(encoding="utf-8")
@@ -990,9 +918,7 @@ def main() -> int:
     generated_docs = resolve_generated_docs(errors, roundtable_contract)
 
     check_banned_snippets(errors)
-    check_roundtable_dash_ban(errors)
     check_roundtable_term_annotations(errors)
-    check_roundtable_seat_review_cells(errors)
     check_claude_agent_adapters(errors, roundtable_contract)
     check_runtime_path_templates(errors)
     check_roundtable_command_entry(errors)

@@ -111,6 +111,11 @@
         "entry": "zhuzi-roundtable",
         "path": "runtimes/codex/skills/zhuzi-roundtable/SKILL.md",
         "role": "Codex roundtable orchestrator skill，薄入口负责装载共享 workflow 与 schema"
+      },
+      {
+        "entry": "zhuzi-quick",
+        "path": "runtimes/codex/skills/zhuzi-quick/SKILL.md",
+        "role": "Codex 多视角短读 orchestrator skill，不走 must_haves / gate / verdict schema"
       }
     ],
     "commands": [
@@ -118,6 +123,11 @@
         "entry": "roundtable",
         "path": "runtimes/claude/commands/zhuzi/roundtable.md",
         "role": "薄入口，负责装载 roundtable workflow 与共享资产"
+      },
+      {
+        "entry": "quick",
+        "path": "runtimes/claude/commands/zhuzi/quick.md",
+        "role": "Claude 多视角短读入口，装载 quick-multi workflow"
       }
     ],
     "workflows": [
@@ -125,6 +135,11 @@
         "entry": "roundtable",
         "path": "zhuzi/workflows/roundtable.md",
         "role": "Roundtable 阶段编排、gate 规则与实施分支"
+      },
+      {
+        "entry": "quick-multi",
+        "path": "zhuzi/workflows/quick-multi.md",
+        "role": "多视角短读流程：N 席位平行说一段话，不走 must_haves / gate / verdict schema"
       }
     ],
     "seats": [
@@ -175,7 +190,12 @@
       {
         "entry": "roundtable-quick",
         "path": "zhuzi/templates/roundtable-quick.md",
-        "role": "Quick Roundtable 输出骨架"
+        "role": "Quick Roundtable 输出骨架与渲染约定（输出形态真相源）"
+      },
+      {
+        "entry": "quick-multi",
+        "path": "zhuzi/templates/quick-multi.md",
+        "role": "多视角短读输出骨架"
       }
     ],
     "manifests": [
@@ -195,6 +215,26 @@
         "entry": "roundtable-quick",
         "path": "examples/roundtable-quick.md",
         "role": "默认短读圆桌输出示例"
+      },
+      {
+        "entry": "roundtable-disagreement",
+        "path": "examples/roundtable-disagreement.md",
+        "role": "多席位真分歧示例（Munger vs Taleb 路径相反，不强行收敛）"
+      },
+      {
+        "entry": "roundtable-revision-gate",
+        "path": "examples/roundtable-revision-gate.md",
+        "role": "阶段 1.5 修订 gate 触发示例（席位推翻刚拍板的 must_haves）"
+      },
+      {
+        "entry": "roundtable-broken-veto",
+        "path": "examples/roundtable-broken-veto.md",
+        "role": "Linus 阶段 2 broken 单边否决示例"
+      },
+      {
+        "entry": "quick-multi",
+        "path": "examples/quick-multi.md",
+        "role": "多视角短读输出示例"
       }
     ],
     "tools": [

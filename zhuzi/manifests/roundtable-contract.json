@@ -24,7 +24,12 @@
     "max_review_seats": 3
   },
   "dispatch_rules": {
-    "min_invoked_seats": 1
+    "min_invoked_seats": 1,
+    "auto_short_circuit_on_single_seat": true,
+    "short_circuit_override_phrases": [
+      "强制开圆桌",
+      "force roundtable"
+    ]
   },
   "verdict_schema": {
     "layers": [
