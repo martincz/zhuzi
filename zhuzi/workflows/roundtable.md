@@ -120,7 +120,16 @@ Step 0 的议题卡 + Step 1 的"什么算过关"段**一次性呈现**给用户
 
 **Linus 在阶段 1 出场时**（`stages=[1,2]`）：spawn prompt 明确他做"工程视角评议题"——good taste / 数据结构合理性 / bikeshedding / premature abstraction / anti-pattern 扫描，**不关心当前 codebase 能否承载**（那是阶段 2 的事）。阶段 2 的 Linus spawn 另起，prompt 明确"吸收阶段 1 所有席位结论 + must_haves → 可行性 gate"。两次 spawn 工作不同，不是重复。
 
-下面是**非代码评议席位全召开**时的 spawn 模板，实际运行时**按召开名单裁剪**——召开名单不含某席位时，对应 Agent block 删去；若 Linus `stages` 含 `1` 也要在此阶段加一个 Linus 的 spawn block（prompt 按"工程视角评议题"写）：
+**spawn 结构**——所有阶段 1 席位的 spawn prompt 共享同一骨架。**具体话术**（fragility check / 愚蠢清单 / Research Integrity Audit / 解释清晰度审议 / Maker taste / UI 认知诊断 等）**由各席位 seat contract 的「## 审议动作」承载，本 workflow 不复制维护一份**。
+
+每个被召开席位的 spawn prompt 必含：
+
+1. 议题原文（如有相关回测 / 数据 / 研究上下文一并贴上）
+2. 阶段 0.5 must_haves YAML（完整粘贴，不摘要）
+3. 执行指令："按你启动时读到的 skill + seat contract 的『## 审议动作』执行评议；对每条 `must_haves.truth` 走完审议动作要求的所有维度；原文结尾必须带 YAML verdict block，格式按 seat contract 的『## 输出契约』。"
+4. 通用纪律：与其他席位分歧时写入 `peer_disagreements`，不强行收敛；不替主持人拍板。
+
+**最小示例**（taleb-reviewer；其它席位同构，只换 `subagent_type` 与读取的 seat contract）：
 
 ```text
 Agent(subagent_type="taleb-reviewer", prompt="""
@@ -130,47 +139,11 @@ Agent(subagent_type="taleb-reviewer", prompt="""
 阶段 0.5 must_haves:
 <完整粘贴阶段 0.5 产出的 YAML 块>
 
-请做 fragility check：
-- 10 步 Pre-Trade Fragility Check 逐条过
-- tail event 下破裂点
-- 针对 must_haves 的每条 truth，判断是否 fragile（tail event 下 truth 是否会塌）
-- route verdict: fragile / robust / antifragile
-- 原文结尾必须带 YAML verdict block（见 agent 定义）
-""")
-
-Agent(subagent_type="munger-reviewer", prompt="""
-议题: <议题原文>
-<同上数据>
-
-阶段 0.5 must_haves:
-<完整粘贴阶段 0.5 产出的 YAML 块>
-
-请做愚蠢清单扫描：
-- 20 条 anti-pattern 逐条过
-- Lollapalooza 扫描（多偏误叠加）
-- 针对 must_haves：truths 和 verify_commands 是否有过拟合 / 指标操纵 / 激励扭曲的隐患
-- verdict: keep / kill / too-hard
-- 若 kill 指明违反第几条
-- 原文结尾必须带 YAML verdict block（见 agent 定义）
-""")
-
-Agent(subagent_type="lopezdeprado-reviewer", prompt="""
-议题: <议题原文>
-<同上数据>
-
-阶段 0.5 must_haves:
-<完整粘贴阶段 0.5 产出的 YAML 块>
-
-请做 Research Integrity Audit：
-- 10 步 Pre-Trade Research Integrity Check 逐条过
-- 对每条 must_haves.truth 做 claim classification（associational / causal / observable_metric / policy_discipline / untestable）
-- 18 条方法论 anti-pattern 扫描，命中的给 AP-N 编号
-- 针对 must_haves：truths 是否是 associational claim 伪装 causal / 是否缺 causal graph / 是否未披露 trial 数 / 是否用 random K-Fold / 是否激励 p-hacking
-- 若发现 truth 本身是 associational / 把 backtest 当 theory / 未披露 trial 数等根本问题 → `must_haves_challenge.triggered: yes`
-- verdict: scientific / associational / pseudo_scientific（三态）
-- 议题若落在 L4 静默清单（量子 / 个股 / 宏观 / 地缘 / LLM agent alpha）→ `domain_limit_flag` 标注 + `core.route: too_hard`
-- 原文结尾必须带 YAML verdict block（见 agent 定义）
-- pattern-level 批评纪律：原文和 YAML 里都不得点名具体公司 / 基金 / PM / ticker
+请按你启动时读到的 skill + seat contract 的「## 审议动作」执行评议：
+- 对每条 must_haves.truth 走完审议动作要求的所有维度
+- 与其他席位分歧时写入 peer_disagreements，不强行收敛
+- 不替主持人拍板
+- 原文结尾必须带 YAML verdict block，格式按 seat contract 的「## 输出契约」
 """)
 ```
 
