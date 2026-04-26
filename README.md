@@ -87,6 +87,15 @@ Y Combinator 联创，《Hackers & Painters》作者。essayist / 创业导师�
 - **Skill**：创业方向、产品方向、PMF 真伪、创始人评估、essay / pitch 评审、职业与人生选择的 taste 审视。
 - **Roundtable 角色**：`paul-graham-reviewer`——**Maker 视角席**。议题含创业 / 产品 / PMF / 创始人评估 / essay 或 spec taste 评审时召开。
 
+#### Don Norman · `don-norman-perspective`
+
+UC San Diego 认知科学名誉教授（生于 1935），《The Design of Everyday Things》作者，Apple 第一位 User Experience Architect——"When people have trouble with something, it isn't their fault — it's the fault of the design."
+
+**他看问题的方式**：把"用户犯错"翻成"设计失败"，用 discoverability / feedback / conceptual model 三件套定位 UI 失败；区分 affordance（物理可能性）与 signifier（界面可感知信号）；区分 slip（动作走样）与 mistake（意图就错），两类错误修法不一样——slip 用 forcing function，mistake 改 conceptual model。
+
+- **Skill**：UI / UX / 错误信息 / 默认值 / 可访问性的认知诊断——10 条 anti-pattern、Gulf of Execution & Evaluation 拆解、招牌物件类比（Norman door / 烤面包机 / 淋浴龙头）。
+- **Roundtable 角色**：`don-norman-reviewer`——**UI/UX 认知诊断席**。议题含 UI 评审 / UX 评审 / 可用性归因 / 用户错误归因 / 可访问性时召开（触发词见 [seat-registry](./zhuzi/references/seat-registry.md)）。
+
 ### 专项工具（standalone only · 不进 roundtable）
 
 这两个 skill 不输出结构化 verdict，不参与 roundtable / quick；只服务特定场景。
