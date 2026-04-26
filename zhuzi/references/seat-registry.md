@@ -20,7 +20,7 @@
 
 - 语义匹配优先于关键词精确命中。`激励结构` 和 `激励设计` 算同一域。
 - Quick 模式下评议席位默认不超过 3 个；超过时优先保留最可能发现 hard blocker 或真实分歧的席位。
-- `N >= 1` 合法。`N = 0` 时停止流水线；`N = 1` 时退化为单席位 roundtable。
+- 召开人数路由由 `roundtable.md` 阶段 0.5 Step 0 落地：`N = 0` 停流水线；`N = 1` 默认短路退出（建议改用对应 standalone skill 或 `/zhuzi:quick`），用户回复"强制开圆桌 / force roundtable" 才继续；`N ≥ 2` 正常进 Step 1。
 
 ## 默认 `stages` 规则
 
