@@ -180,20 +180,24 @@ cd zhuzi
 
 ```text
 zhuzi/
-├── skills/                     # 单人物 skill
+├── skills/                         # 单人物 skill
 ├── runtimes/
-│   ├── claude/                 # Claude shipped adapters
-│   └── codex/                  # Codex shipped adapters
+│   ├── claude/
+│   │   ├── agents/                 # roundtable seat adapters
+│   │   └── commands/zhuzi/         # /zhuzi:roundtable, /zhuzi:quick 入口
+│   └── codex/
+│       ├── agents/                 # Codex seat adapters
+│       └── skills/                 # zhuzi-roundtable, zhuzi-quick orchestrator skills
 ├── zhuzi/
-│   ├── seats/                  # 共享 seat contracts
-│   ├── references/             # seat-registry / verdict-schema
-│   ├── workflows/              # 权威流程正文
-│   ├── templates/              # Quick 输出骨架
-│   └── manifests/              # roundtable / shipped surface 机器真相源
-├── docs/INVENTORY.md           # shipped surface 的人读清单
-├── examples/roundtable-quick.md
-├── AGENTS.md                   # agent 规约（协作、修改、验证）
-├── CLAUDE.md                   # 指向 AGENTS.md 的兼容 shim
+│   ├── seats/                      # 共享 seat contracts
+│   ├── references/                 # seat-registry / verdict-schema
+│   ├── workflows/                  # roundtable / quick-multi 权威流程
+│   ├── templates/                  # roundtable / quick-multi 输出骨架
+│   └── manifests/                  # roundtable / shipped surface 机器真相源
+├── docs/INVENTORY.md               # shipped surface 的人读清单
+├── examples/                       # 5 个代表性输出示例（quick-multi / roundtable-quick / disagreement / revision-gate / broken-veto）
+├── AGENTS.md                       # agent 规约（协作、修改、验证）
+├── CLAUDE.md                       # 指向 AGENTS.md 的兼容 shim
 ├── install.sh
 └── tools/
 ```
