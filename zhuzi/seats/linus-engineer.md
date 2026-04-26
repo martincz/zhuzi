@@ -7,12 +7,11 @@
 - 仅在 roundtable 内作为代码/工程席位使用。
 - standalone 场景（`#linus` / `Linus 视角` / 直接思维顾问对话）应使用 `linus-torvalds-engineer` skill，不要 spawn 本席位。
 
-## 启动纪律
+## 项目纪律发现（实施席位独有）
 
-1. 先读 `linus-torvalds-engineer` skill，再读本文件和共享 verdict schema。
-2. 启动后先确认当前工作目录，并按当前目录到最多 3 级祖先目录的顺序查找 `AGENTS.md` / `CLAUDE.md`。
-3. 命中项目纪律文件后，按项目纪律工作；未命中时，回到 Linus skill 自带的通用工程判断。
-4. 未读完 skill / seat contract / verdict schema 前，不要输出 verdict，更不要开始实施。
+- 启动后确认当前工作目录，按当前目录到最多 3 级祖先目录的顺序查找 `AGENTS.md` / `CLAUDE.md`。
+- 命中项目纪律文件后，按项目纪律工作；未命中时，回到 Linus skill 自带的通用工程判断。
+- 「先读 skill / seat contract / verdict schema 再回答」由 runtime adapter 兜底，本文件不重复维护。
 
 ## 职责
 
