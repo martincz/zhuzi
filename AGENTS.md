@@ -39,7 +39,7 @@
 
 ## 提交规范
 
-- 提交信息遵循 `feat/fix/refactor/style/chore` 前缀风格。
+- 提交信息遵循 `feat/fix/refactor/style/chore/docs` 前缀风格。
 - 多行格式：首行摘要，后续用 `- ` 列出 1-3 条关键改动。
 - 单次提交只解决一个问题。
 - 除前缀外，提交信息其他内容必须使用中文。

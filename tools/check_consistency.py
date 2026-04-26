@@ -640,7 +640,7 @@ def check_commit_guidelines(errors: list[str]) -> None:
     text = path.read_text(encoding="utf-8")
     for required in [
         "## 提交规范",
-        "`feat/fix/refactor/style/chore`",
+        "`feat/fix/refactor/style/chore/docs`",
         "多行格式",
         "单次提交只解决一个问题",
         "除前缀外，提交信息其他内容必须使用中文",
