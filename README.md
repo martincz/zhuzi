@@ -23,7 +23,7 @@
 - **席位独立运行**——每个席位是一个子 agent，按自己的 verdict schema 给结构化判断，不被其他席位的结论污染。
 - **分歧被显式保留**——主持人（orchestrator）做综合，但不擅自收敛；Taleb 认为 fragile、Munger 认为 keep、这两件事会并列呈现，让用户拍板。
 - **议题契约先行**——召开席位前先定义 `must_haves.truths` 和 `verify_commands`，避免"讨论了一圈但不知道什么算成立"。
-- **实施可承接**——若议题涉及代码，Linus 席位在阶段 2 做可行性 gate，阶段 4 按锁定方案实施。
+- **实施可承接**——若议题涉及代码，Linus 席位按议题类型出场：工程决策议题 `stages=[1,2]`（阶段 1 做 good taste / anti-pattern 工程评议，阶段 2 做代码可行性 gate），纯实施议题 `stages=[2]`；阶段 4 按锁定方案实施。
 
 权威流程在 [zhuzi/workflows/roundtable.md](./zhuzi/workflows/roundtable.md)；机器合同在 [zhuzi/manifests/roundtable-contract.json](./zhuzi/manifests/roundtable-contract.json)；默认输出长相见 [Quick Roundtable 示例](./examples/roundtable-quick.md) 与 [模板](./zhuzi/templates/roundtable-quick.md)。
 
@@ -40,7 +40,7 @@ Linux 内核与 Git 的作者。工程实用主义的代表人物——"Talk is 
 **他看问题的方式**：数据结构先行（坏代码救不了烂数据结构），特殊情况必须消失（good taste 的核心），维护者的 bug 响应比代码本身更重要。
 
 - **Skill**：工程、架构、代码审查、技术选型的思维顾问。会点名 premature abstraction、bikeshedding、cargo cult 之类的 anti-pattern，按 4 级表达档位下判断。
-- **Roundtable 角色**：`linus-engineer`——**唯一代码席位**。阶段 2 做代码可行性 gate，代码层判 `broken` 可单边否决；阶段 4 按锁定方案实施。
+- **Roundtable 角色**：`linus-engineer`——**唯一代码席位**。工程决策议题在阶段 1 做 good taste / anti-pattern 评议（`stages=[1,2]`），阶段 2 做代码可行性 gate，代码层判 `broken` 可单边否决；阶段 4 按锁定方案实施。
 
 #### Charlie Munger · `munger-checklist`
 
