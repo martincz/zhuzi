@@ -20,8 +20,7 @@
       "locked",
       "deferred",
       "discretion"
-    ],
-    "max_review_seats": 3
+    ]
   },
   "dispatch_rules": {
     "min_invoked_seats": 1,
@@ -29,7 +28,9 @@
     "short_circuit_override_phrases": [
       "强制开圆桌",
       "force roundtable"
-    ]
+    ],
+    "review_seat_soft_count": 3,
+    "review_seat_soft_count_semantics": "soft hint, not a hard cap; 命中超过时全部 spawn，orchestrator 在议题卡末尾给一行 hint 提示席位数较多，不强制砍席"
   },
   "verdict_schema": {
     "layers": [
