@@ -936,6 +936,39 @@ def iter_skill_entrypoints() -> list[Path]:
     return sorted({path for path in files if path.is_file()})
 
 
+def check_readme_persona_coverage(
+    errors: list[str],
+    manifest_families: dict[str, list[dict[str, str]]] | None,
+) -> None:
+    if manifest_families is None:
+        return
+    skills = manifest_families.get("skills")
+    if not isinstance(skills, list):
+        return
+
+    readme = ROOT / "README.md"
+    if not readme.exists():
+        add_error(errors, readme, 1, "missing README.md")
+        return
+
+    text = readme.read_text(encoding="utf-8")
+    persona_pattern = re.compile(r"^####\s+.+?·\s+`([^`]+)`\s*$", re.MULTILINE)
+    documented = {match.group(1) for match in persona_pattern.finditer(text)}
+
+    for entry in skills:
+        if not isinstance(entry, dict):
+            continue
+        entry_name = entry.get("entry")
+        if isinstance(entry_name, str) and entry_name not in documented:
+            add_error(
+                errors,
+                readme,
+                1,
+                f"README missing skill section for `{entry_name}` "
+                f"(expected an `#### <Name> · `{entry_name}`` heading)",
+            )
+
+
 def main() -> int:
     errors: list[str] = []
     manifest_families = load_manifest(errors)
@@ -952,6 +985,7 @@ def main() -> int:
     check_seat_registry(errors, roundtable_contract, generated_docs)
     check_shared_seat_contracts(errors, roundtable_contract, generated_docs)
     check_quick_roundtable_contract(errors, roundtable_contract)
+    check_readme_persona_coverage(errors, manifest_families)
     check_commit_guidelines(errors)
     check_codex_agent_adapters(errors, roundtable_contract)
     check_schema_reference(errors, roundtable_contract, generated_docs)
