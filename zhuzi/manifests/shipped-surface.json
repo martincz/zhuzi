@@ -137,7 +137,7 @@
       {
         "entry": "roundtable",
         "path": "runtimes/claude/commands/zhuzi/roundtable.md",
-        "role": "薄入口，负责装载 roundtable workflow 与共享资产"
+        "role": "Claude 薄入口，负责装载 roundtable workflow 与共享资产"
       },
       {
         "entry": "quick",
@@ -198,7 +198,7 @@
       {
         "entry": "seat-registry",
         "path": "zhuzi/references/seat-registry.md",
-        "role": "当前席位权威表、默认 stages 规则、扩席位维护边界"
+        "role": "当前席位权威表、默认 `stages` 规则、扩席位维护边界"
       },
       {
         "entry": "verdict-schema",

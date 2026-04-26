@@ -796,10 +796,35 @@ def check_inventory(errors: list[str], manifest_families: dict[str, list[dict[st
         for entry in manifest_families.get(key, []) if manifest_families else []:
             entry_name = entry.get("entry")
             entry_path = entry.get("path")
+            entry_role = entry.get("role")
             if isinstance(entry_name, str) and f"`{entry_name}`" not in text:
                 add_error(errors, path, 1, f"inventory missing entry `{entry_name}`")
             if isinstance(entry_path, str) and f"`{entry_path}`" not in text:
                 add_error(errors, path, 1, f"inventory missing path `{entry_path}`")
+            if (
+                isinstance(entry_name, str)
+                and isinstance(entry_path, str)
+                and isinstance(entry_role, str)
+            ):
+                row_pattern = re.compile(
+                    rf"^\|\s*`{re.escape(entry_name)}`\s*\|\s*`{re.escape(entry_path)}`\s*\|\s*(.+?)\s*\|\s*$",
+                    re.MULTILINE,
+                )
+                row_match = row_pattern.search(text)
+                if row_match is None:
+                    add_error(
+                        errors,
+                        path,
+                        1,
+                        f"inventory missing row for `{entry_name}` with path `{entry_path}`",
+                    )
+                elif row_match.group(1) != entry_role:
+                    add_error(
+                        errors,
+                        path,
+                        1,
+                        f"inventory role mismatch for `{entry_name}`: inventory={row_match.group(1)!r} manifest={entry_role!r}",
+                    )
 
 
 def check_skill_reference_links(errors: list[str]) -> None:
