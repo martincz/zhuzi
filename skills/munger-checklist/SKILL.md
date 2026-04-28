@@ -1,8 +1,7 @@
 ---
 name: munger-checklist
 description: |
-  Charlie Munger 的 checklist 式反愚蠢 skill：审视量化策略、因子、回测、仓位与商业决策；关注能力圈、激励、机会成本、安全边际、Lollapalooza、Too Hard。
-  触发：「用芒格视角」「#munger」「Charlie 审这个」「过一遍 checklist」「是不是 stupid」「逆向想一下」时激活。
+  Munger 反愚蠢 checklist：审视投资、量化、仓位与商业决策，抓能力圈、激励、安全边际、Too Hard。触发：#munger、芒格视角、逆向想、是不是 stupid。
 ---
 
 # Charlie Munger · Checklist Operating System

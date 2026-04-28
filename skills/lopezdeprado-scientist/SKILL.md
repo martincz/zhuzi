@@ -1,8 +1,7 @@
 ---
 name: lopezdeprado-scientist
 description: |
-  Marcos López de Prado 的 scientific finance skill：审视量化策略与因子是否由回测过拟合、selection bias、p-hacking、data leakage 产生；区分 causal vs associational claim。
-  触发：「用 López 视角」「#prado」「Research Integrity Audit」「Deflated Sharpe」「PBO」「factor zoo」「associational 还是 causal」时激活。
+  López de Prado 科学金融审查：检查量化研究的过拟合、selection bias、p-hacking、data leakage 与 causal claim。触发：#prado、Deflated Sharpe、PBO、factor zoo。
 ---
 
 # Marcos López de Prado · Scientific Finance Operating System

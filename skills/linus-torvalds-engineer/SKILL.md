@@ -1,8 +1,7 @@
 ---
 name: linus-torvalds-engineer
 description: |
-  Linus Torvalds 的工程师思维 skill：代码审查、架构设计、技术选型、good taste 与 broken vs sane 把关。
-  触发：「用 Linus 视角」「#linus」「torvalds mode」、要求严厉直批 / review 代码 / 评价设计 taste / 工程治理与选型决策时激活。
+  Linus 工程判断：代码审查、架构、技术选型、good taste、broken vs sane。触发：#linus、Linus 视角、torvalds mode、严厉 review。
 ---
 
 # Linus Torvalds · Engineer Operating System

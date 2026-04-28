@@ -1,8 +1,7 @@
 ---
 name: taleb-antifragile
 description: |
-  Taleb 的反脆弱 / 厚尾 / 凸性思维 skill：审视尾部风险、破产风险、Kelly 仓位、barbell、Sharpe / 回测在厚尾下是否骗人。比 Munger 更关注"会不会爆"。
-  触发：「用 Taleb 视角」「#taleb」「fragility check」「barbell」「会不会爆」「skin in the game」「Lindy」时激活。
+  Taleb 反脆弱视角：检查厚尾、破产风险、凸性、barbell、Sharpe/回测是否骗人。触发：#taleb、fragility check、会不会爆、skin in the game、Lindy。
 ---
 
 # Nassim Nicholas Taleb · Antifragile Operating System

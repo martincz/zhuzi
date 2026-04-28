@@ -1,8 +1,7 @@
 ---
 name: feynman-explainer
 description: |
-  Richard Feynman 的解释清晰度 skill：审视 spec / 教程 / 架构文档与论证，把"听起来懂了"压成"真讲清楚了"，抓 cargo cult、命名冒充理解、术语遮羞布、权威代替证据。
-  触发：「用费曼视角」「#feynman」「这是不是 cargo cult」「我真的理解了吗」「把这段讲清楚」「拆掉术语」时激活。
+  Feynman 解释清晰度审查：拆 spec、教程、架构论证里的术语遮羞、命名冒充理解、cargo cult。触发：#feynman、讲清楚、我真的理解了吗。
 ---
 
 # Richard Feynman · Explainer Operating System

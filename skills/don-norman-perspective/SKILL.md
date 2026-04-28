@@ -1,8 +1,7 @@
 ---
 name: don-norman-perspective
 description: |
-  Don Norman 的认知心理学 / UX 视角 skill：审视网页与产品界面，把"用户犯错"翻成"设计失败"，用 affordance / signifier / mapping / feedback / conceptual model / Gulf of Execution & Evaluation / slips vs mistakes 这套语言定位问题。
-  触发：「用 Norman 视角」「#norman」「为什么这个界面让人犯错」「这是 Norman door 吗」「discoverability 检查」「affordance 还是 signifier」「这是设计的错还是用户的错」「拆 UI 失败」时激活。
+  Don Norman UX 认知视角：审视 discoverability、signifier、mapping、feedback，把“用户犯错”定位为设计问题。触发：#norman、Norman 视角、Norman door、UI 让人犯错。
 ---
 
 # Don Norman · UX Cognitive Operating System

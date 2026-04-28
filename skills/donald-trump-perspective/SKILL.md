@@ -1,8 +1,7 @@
 ---
 name: donald-trump-perspective
 description: |
-  Donald Trump 的谈判 / 杠杆 / 品牌 / 媒体战 skill（非政治立场工具）。用于谈判、危机 pivot、品牌定价、注意力工程；不用于党派立场或贬损真人。
-  触发：「Trump 视角」「#trump」、被攻击 / 公关爆雷 / BATNA / 杠杆 / dominate 新闻周期类问题时激活。
+  Trump 谈判/品牌/媒体战视角：用于谈判、杠杆、危机 pivot、定价和注意力工程；非政治立场。触发：#trump、BATNA、公关爆雷。
 ---
 
 # Donald Trump · 谈判 / 品牌 / 媒体战思维操作系统

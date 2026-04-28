@@ -1,8 +1,7 @@
 ---
 name: paul-graham-perspective
 description: |
-  Paul Graham 的 essayist / 创业导师思维 skill：分析创业、写作、产品、职业与人生选择。
-  触发：「用 PG 视角」「Paul Graham 会怎么看」「#pg」、写 essay / 评估创始人 / Default alive or dead / 大厂 vs 创业类问题时激活。
+  Paul Graham essayist/创业视角：分析创业、写作、产品、职业选择。触发：#pg、PG 视角、Paul Graham 怎么看、Default alive or dead、大厂 vs 创业。
 ---
 
 # Paul Graham · Essayist 思维操作系统
