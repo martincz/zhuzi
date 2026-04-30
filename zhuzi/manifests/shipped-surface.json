@@ -50,6 +50,11 @@
         "entry": "steve-jobs-perspective",
         "path": "skills/steve-jobs-perspective/SKILL.md",
         "role": "产品 / 设计 / 聚焦 / 极致体验思维顾问（whole widget / focus = saying no / insanely great）"
+      },
+      {
+        "entry": "elon-musk-perspective",
+        "path": "skills/elon-musk-perspective/SKILL.md",
+        "role": "工程实用主义 / 第一性原理 / 渐近极限 / 五步算法思维顾问（白痴指数 / 垂直整合 / 激进迭代）"
       }
     ],
     "agents": [

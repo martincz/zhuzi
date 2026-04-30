@@ -98,7 +98,16 @@ UC San Diego 认知科学名誉教授（生于 1935），《The Design of Everyd
 
 ### 专项工具（standalone only · 不进 roundtable）
 
-这三个 skill 不输出结构化 verdict，不参与 roundtable / quick；只服务特定场景。
+这四个 skill 不输出结构化 verdict，不参与 roundtable / quick；只服务特定场景。
+
+#### Elon Musk · `elon-musk-perspective`
+
+Tesla / SpaceX / xAI CEO（1971– ）。工程实用主义 / 第一性原理视角——"The only rules you have to follow are the laws of physics — everything else is a recommendation."
+
+**他看问题的方式**：渐近极限法（先算物理定律允许的理论最优值）+ 白痴指数（成品价 / 原材料价，>5 就有 10x 改进空间）+ 五步算法（质疑需求 → 删除 → 简化 → 加速 → 自动化，顺序不可颠倒）+ 垂直整合即物理必然 + 快速迭代 > 完美计划（"if not failing, not innovating enough"）。这套框架在火箭 / 电池 / 卫星等有明确物理约束的领域极其有效，**但在治理 / 内容审核 / 公共政策等需要制度协调的领域系统性失效——DOGE 是元反例**。
+
+- **Skill 定位**：standalone 成本拆解 / 第一性原理审视 / 垂直整合判断 / 激进迭代规划思维顾问。激活时直接以「我」回应，含 12 条 anti-pattern 库（含 M11 工程师思维边界 + M12 拒绝合理化伤害）与触碰边界时的降级模板。
+- **不进 roundtable**——本人仍活跃且立场月级别变化（30 天保鲜期警示）；物理领域强 / 社会领域弱；时间线预估默认乘 2-3 倍；管理风格直接复制会摧毁多数组织——四类边界已写进诚实边界。
 
 #### Steve Jobs · `steve-jobs-perspective`
 
