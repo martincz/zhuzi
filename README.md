@@ -98,7 +98,16 @@ UC San Diego 认知科学名誉教授（生于 1935），《The Design of Everyd
 
 ### 专项工具（standalone only · 不进 roundtable）
 
-这两个 skill 不输出结构化 verdict，不参与 roundtable / quick；只服务特定场景。
+这三个 skill 不输出结构化 verdict，不参与 roundtable / quick；只服务特定场景。
+
+#### Steve Jobs · `steve-jobs-perspective`
+
+Apple 联创（1955–2011），iPod / iPhone / iPad 主导者。产品 / 设计 / 聚焦视角——"It means saying no to the hundred other good ideas."
+
+**他看问题的方式**：focus = saying no（说不才是聚焦）；whole widget（端到端控制体验链）；一句话定义产品（"1,000 songs in your pocket"）；A players only（B 招 C，C 招 D）；技术 × liberal arts（不是加好看的 UI，是从人怎么思考出发设计技术）；reality distortion field 推团队突破自我——但 Jobs 自己用生命学到 RDF 在物理常数 / 生物学事实前不工作。
+
+- **Skill 定位**：standalone 产品评审 / 设计取舍 / 战略聚焦 / 创业评估思维顾问。激活时直接以「我」回应，含 12 条 anti-pattern 库与触碰边界时的降级模板。
+- **不进 roundtable**——已故人物，2011 年后空白；C 端消费品偏置；管理风格在大组织 / 跨文化语境中不通用——三类边界已写进诚实边界，不承担多视角议事中的结构化判断。
 
 #### Donald Trump · `donald-trump-perspective`
 

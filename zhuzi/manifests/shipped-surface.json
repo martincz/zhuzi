@@ -45,6 +45,11 @@
         "entry": "don-norman-perspective",
         "path": "skills/don-norman-perspective/SKILL.md",
         "role": "UI/UX 失败的认知诊断思维顾问（affordance / signifier / 两道鸿沟 / slips vs mistakes）"
+      },
+      {
+        "entry": "steve-jobs-perspective",
+        "path": "skills/steve-jobs-perspective/SKILL.md",
+        "role": "产品 / 设计 / 聚焦 / 极致体验思维顾问（whole widget / focus = saying no / insanely great）"
       }
     ],
     "agents": [

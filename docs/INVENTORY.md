@@ -2,7 +2,7 @@
 
 > 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json` 与 `zhuzi/manifests/roundtable-contract.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
 
-## Skills (9 shipped)
+## Skills (10 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
@@ -15,6 +15,7 @@
 | `paul-graham-perspective` | `skills/paul-graham-perspective/SKILL.md` | essay 写作、创业评估、人生选择思维顾问（Maker 半边） |
 | `donald-trump-perspective` | `skills/donald-trump-perspective/SKILL.md` | 谈判、品牌、媒体战、对抗性博弈思维顾问（非政治立场工具） |
 | `don-norman-perspective` | `skills/don-norman-perspective/SKILL.md` | UI/UX 失败的认知诊断思维顾问（affordance / signifier / 两道鸿沟 / slips vs mistakes） |
+| `steve-jobs-perspective` | `skills/steve-jobs-perspective/SKILL.md` | 产品 / 设计 / 聚焦 / 极致体验思维顾问（whole widget / focus = saying no / insanely great） |
 
 ## Agents (7 shipped)
 
