@@ -8,7 +8,12 @@ import re
 import sys
 from pathlib import Path
 
-from render_roundtable_contract_docs import STATIC_GENERATED_DOCS, get_generated_docs, render_doc_text
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
+from render_roundtable_contract_docs import STATIC_GENERATED_DOCS, build_schema, get_generated_docs, render_doc_text
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +28,7 @@ ACTIVE_TEXT_GLOBS = [
     "docs/**/*.md",
     "examples/**/*.md",
     "runtimes/**/*.md",
+    "runtimes/**/*.toml",
     "zhuzi/**/*.md",
     "skills/*/SKILL.md",
 ]
@@ -84,7 +90,7 @@ SURFACE_FAMILIES = [
     (
         "Codex Agents",
         "codex_agents",
-        lambda: sorted((CODEX_RUNTIME_ROOT / "agents").glob("*.md")),
+        lambda: sorted((CODEX_RUNTIME_ROOT / "agents").glob("*.toml")),
         lambda path: path.stem,
     ),
     (
@@ -133,6 +139,21 @@ SURFACE_FAMILIES = [
         "Examples",
         "examples",
         lambda: sorted((ROOT / "examples").glob("*.md")),
+        lambda path: path.stem,
+    ),
+    (
+        "Schemas", "schemas",
+        lambda: sorted((ROOT / "zhuzi" / "schemas").glob("*.json")),
+        lambda path: path.stem,
+    ),
+    (
+        "Validators", "validators",
+        lambda: sorted((ROOT / "zhuzi" / "validators").glob("*.py")),
+        lambda path: path.stem,
+    ),
+    (
+        "Evals", "evals",
+        lambda: sorted((ROOT / "evals").glob("*.json")),
         lambda path: path.stem,
     ),
     (
@@ -353,6 +374,7 @@ def check_claude_agent_adapters(errors: list[str], roundtable_contract: dict[str
 
 def check_runtime_path_templates(errors: list[str]) -> None:
     template_files = list((ROOT / "runtimes").glob("**/*.md"))
+    template_files.extend((ROOT / "runtimes").glob("**/*.toml"))
     template_files.extend((ROOT / "zhuzi" / "workflows").glob("*.md"))
     template_files.extend((ROOT / "zhuzi" / "seats").glob("*.md"))
 
@@ -415,7 +437,7 @@ def check_roundtable_command_entry(errors: list[str]) -> None:
         "<execution_context>",
         "<context>",
         "<process>",
-        'Agent(subagent_type="X", prompt="Y")',
+        'invoke_seat(seat="X", message="Y")',
         "continue_existing_agent(agent_id, message)",
         'SendMessage(to=agent_id, message="Y")',
         *ROUNDTABLE_EXECUTION_CONTEXTS,
@@ -439,9 +461,9 @@ def check_codex_roundtable_skill(errors: list[str]) -> None:
     text = path.read_text(encoding="utf-8")
     for required in [
         "<codex_skill_adapter>",
-        'spawn_agent(agent_type="X", message="Y")',
+        "invoke_seat",
         "continue_existing_agent(agent_id, message)",
-        'send_input(target=agent_id, message="Y")',
+        "实际工具参数",
         "先确定共享根目录，只能选一个：",
         "{{ZHUZI_SHARED_ROOT}}",
         "./zhuzi",
@@ -650,46 +672,34 @@ def check_commit_guidelines(errors: list[str]) -> None:
 
 
 def check_codex_agent_adapters(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
-    if not CODEX_RUNTIME_ROOT.exists():
-        return
-
     agent_dir = CODEX_RUNTIME_ROOT / "agents"
-    actual_files = {path.name for path in agent_dir.glob("*.md")}
-    expected_files = {f"{seat_name}.md" for seat_name, _ in iter_roundtable_seats(roundtable_contract)}
-    if actual_files != expected_files:
-        add_error(
-            errors,
-            agent_dir,
-            1,
-            f"Codex agent set mismatch: expected={sorted(expected_files)} actual={sorted(actual_files)}",
-        )
-
+    expected = {f"{name}.toml" for name, _ in iter_roundtable_seats(roundtable_contract)}
+    if {p.name for p in agent_dir.glob("*.toml")} != expected or list(agent_dir.glob("*.md")):
+        add_error(errors, agent_dir, 1, "Codex agents must match the manifest as native TOML files")
     for seat_name, config in iter_roundtable_seats(roundtable_contract):
-        path = agent_dir / f"{seat_name}.md"
+        path = agent_dir / f"{seat_name}.toml"
         if not path.exists():
             continue
-
-        text = path.read_text(encoding="utf-8")
-        skill_name = config.get("skill")
-        if not isinstance(skill_name, str):
-            add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing string skill")
+        try:
+            payload = tomllib.loads(path.read_text(encoding="utf-8"))
+        except (ValueError, tomllib.TOMLDecodeError) as exc:
+            add_error(errors, path, 1, f"invalid native agent: {exc}")
             continue
-        for required in [
-            "<codex_agent_role>",
-            "<required_reading>",
-            AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name),
-            AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=f"{seat_name}.md"),
-            AGENT_VERDICT_REFERENCE_PATH,
-            f"./skills/{skill_name}/SKILL.md",
-            f"./zhuzi/seats/{seat_name}.md",
-            "./zhuzi/references/verdict-schema.md",
-        ]:
-            if required not in text:
-                add_error(errors, path, 1, f"Codex agent missing {required}")
-
+        if set(payload) != {"name", "description", "developer_instructions"}:
+            add_error(errors, path, 1, "thin agent must contain only name, description and developer_instructions")
+        if payload.get("name") != seat_name or not payload.get("description"):
+            add_error(errors, path, 1, "invalid native agent identity")
+        instructions = payload.get("developer_instructions", "")
+        skill_name = config["skill"]
+        for required in [AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name),
+                         AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=f"{seat_name}.md"),
+                         AGENT_VERDICT_REFERENCE_PATH, f"./skills/{skill_name}/SKILL.md",
+                         f"./zhuzi/seats/{seat_name}.md"]:
+            if required not in instructions:
+                add_error(errors, path, 1, f"missing shared asset reference {required}")
         for banned in ADAPTER_INLINE_SCHEMA_SNIPPETS:
-            if banned in text:
-                add_error(errors, path, 1, f"Codex agent should not inline shared schema snippet {banned}")
+            if banned in instructions:
+                add_error(errors, path, 1, f"native agent inlines shared schema: {banned}")
 
 
 def check_schema_reference(
@@ -884,12 +894,11 @@ def check_codex_install(errors: list[str]) -> None:
     text = path.read_text(encoding="utf-8")
     for required in [
         "CODEX_HOME",
-        "render_root_literal",
         "CLAUDE_RENDER_ROOT",
-        "$CODEX/skills",
+        "$CODEX_SKILLS",
         "$CLAUDE/skills",
         "$CLAUDE/zhuzi",
-        "$CODEX/zhuzi",
+        "--codex-only",
         "MANIFEST_PATH",
         "manifest_paths",
         "shipped-surface.json",
@@ -916,11 +925,13 @@ def check_codex_source_installer(errors: list[str]) -> None:
         "manifest_family_paths",
         "collapse_repo_fallbacks",
         "render_text",
-        "render_root_literal",
         "install_source_only_adapters",
-        "render_concrete",
-        "$HOME/.codex/skills",
-        "$HOME/.codex/zhuzi",
+        "install_codex_assets",
+        "migration_candidates",
+        "previous_skill_names",
+        "apply_install",
+        "resolve_skill_root",
+        "tomllib.loads",
         "{{ZHUZI_SKILL_ROOT}}",
         "{{ZHUZI_SHARED_ROOT}}",
         "codex_agents",

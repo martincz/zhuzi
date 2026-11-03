@@ -19,7 +19,7 @@
 **议事侧硬约束**（不在 template 里说的部分）：
 
 - 第一屏先给主持人结论，不先铺流程。
-- 阶段 1 评议席位默认期望 3 个（`review_seat_soft_count`）；命中超过时**全部并行 spawn，不砍席**——选席判断本来就在 orchestrator 看 verdict 之前不可执行。命中 ≥ 4 时议题卡末尾加一行 hint「本议题命中 N 席评议（默认期望 3），Quick 短评 table 会变长」让用户知道而已。
+- 阶段 1 评议席位默认期望 3 个（`review_seat_soft_count`）；命中超过时**全部审议，按运行时并发容量排队，不砍席**。命中 ≥ 4 时议题卡末尾加一行 hint「本议题命中 N 席评议（默认期望 3），Quick 短评 table 会变长」让用户知道而已。
 - 默认 `must_haves.truths` 1-3 条；只有 full 模式或议题天然很大时才放宽到 5 条。
 - agent 原文和 YAML 是机读证据，不是默认阅读材料；默认只在"展开原文 / 调试 / 审计"请求下显示。
 - **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker。
@@ -45,7 +45,7 @@ spawn 任何席位**之前**，orchestrator 完成三步。
 **议事侧约束**：
 
 - 席位语义匹配 ≠ 关键词精确命中——"激励结构"和"激励设计"算同一域，orchestrator 按语义判断。
-- 阶段 1 评议席位默认期望 3 个；语义命中超过 3 个时**全部召开**，不在 spawn 之前砍席（哪个席位会发现 hard blocker 必须 spawn 后才知道）。
+- 阶段 1 评议席位默认期望 3 个；语义命中超过 3 个时**全部召开**，按运行时容量分批调度；首轮各席只读同一议题材料，不注入其他席位的结论。
 - **目标行 = 可交付产出**——议题卡的"目标"必须是本轮结束时可指给别人看的产物（决策表 + 验证信号 / contract 修订锁定 / 参数值锁定 / 议题拆分结果）。禁止以"判断 / 讨论 / 评估 / 决定是否 / 审视"开头——那些是**正在做什么**而不是**做完有什么**。若实在写不出产物，多半议题粒度太粗，拆成两条再开。
 
 `stages` 的默认路由、López / Paul Graham 必召开触发词，以及 Linus `stages=[1,2]` 的双阶段语义都以 `roundtable-contract.json` 为机读真相源，并以 `seat-registry.md` 作为人读解释层。
@@ -104,6 +104,8 @@ must_haves:
 
 #### Step 2 · 用户确认
 
+已有明确授权覆盖当前席位、合同和范围时直接沿用并说明，不重复确认；新增实质约束、争议取舍或扩大范围时仍须取得对应确认。
+
 Step 0 的议题卡 + Step 1 的"什么算过关"段**一次性呈现**给用户（按 template 骨架渲染）。YAML 机读合同仍在内部保留，用户要才展示。用户四选一：
 
 - **接受全部** → 进阶段 1
@@ -113,7 +115,7 @@ Step 0 的议题卡 + Step 1 的"什么算过关"段**一次性呈现**给用户
 
 ### 阶段 1 — 视角并行审议（dispatch: 召开名单有席位 `stages` 含 `1` 时触发）
 
-**按阶段 0.5 Step 0 产出的召开名单**动态 spawn——在同一条消息内**并行** spawn 所有 `stages` 含 `1` 的被召开席位。
+**按阶段 0.5 Step 0 产出的召开名单**动态 spawn——在运行时并发容量内 spawn 所有 `stages` 含 `1` 的被召开席位，超出的排队；等待全部返回后再进入依赖它们的阶段。
 
 - **召开名单有席位 `stages` 含 `1`** → spawn 所有此类席位；弃权席位和 `stages` 不含 1 的席位**都不 spawn**。
 - **无席位 `stages` 含 `1`**（纯实施议题，只召开 Linus 且 `stages=[2]`）→ **跳过本阶段**，直接进阶段 2。
@@ -126,13 +128,14 @@ Step 0 的议题卡 + Step 1 的"什么算过关"段**一次性呈现**给用户
 
 1. 议题原文（如有相关回测 / 数据 / 研究上下文一并贴上）
 2. 阶段 0.5 must_haves YAML（完整粘贴，不摘要）
-3. 执行指令："按你启动时读到的 skill + seat contract 的『## 审议动作』执行评议；对每条 `must_haves.truth` 走完审议动作要求的所有维度；原文结尾必须带 YAML verdict block，格式按 seat contract 的『## 输出契约』。"
-4. 通用纪律：与其他席位分歧时写入 `peer_disagreements`，不强行收敛；不替主持人拍板。
+3. 显式传入 `mode: roundtable`；执行指令："按你启动时读到的 skill + seat contract 的『## 审议动作』执行评议；对每条 `must_haves.truth` 走完审议动作要求的所有维度；原文结尾必须带 YAML verdict block，格式按 seat contract 的『## 输出契约』。"
+4. 通用纪律：首轮未见其他席位原文，`peer_disagreements` 置空，不猜测别席立场；有原文的复议才记录实际分歧。不替主持人拍板。
 
 **最小示例**（taleb-reviewer；其它席位同构，只换 `subagent_type` 与读取的 seat contract）：
 
 ```text
-Agent(subagent_type="taleb-reviewer", prompt="""
+invoke_seat(seat="taleb-reviewer", message="""
+mode: roundtable
 议题: <议题原文>
 <若有相关回测/数据/研究上下文一并贴上>
 
@@ -141,13 +144,13 @@ Agent(subagent_type="taleb-reviewer", prompt="""
 
 请按你启动时读到的 skill + seat contract 的「## 审议动作」执行评议：
 - 对每条 must_haves.truth 走完审议动作要求的所有维度
-- 与其他席位分歧时写入 peer_disagreements，不强行收敛
+- 首轮盲审 peer_disagreements 置空，不猜测其他席位的判断
 - 不替主持人拍板
 - 原文结尾必须带 YAML verdict block，格式按 seat contract 的「## 输出契约」
 """)
 ```
 
-agent 返回后，orchestrator **先机读 YAML verdict**，默认按 template 的"席位短评"骨架呈现。结论列译表、信心列判据格式、cell 超长拆 `### <席位名> 展开` 段——全部按 template 渲染约定执行，本 workflow 不再列具体形态。
+agent 返回后，orchestrator **先按共享 JSON Schema 和校验器检查 verdict 的结构、路由及 truth 覆盖**。格式失败时只要求原席位修正格式，不代写结论；仍失败则标记该席未完成，停止依赖该席结果的推进。有效 verdict 再机读，默认按 template 的"席位短评"骨架呈现。结论列译表、信心列判据格式、cell 超长拆 `### <席位名> 展开` 段——全部按 template 渲染约定执行，本 workflow 不再列具体形态。
 
 **议事侧呈现底线**：
 
@@ -159,12 +162,12 @@ agent 返回后，orchestrator **先机读 YAML verdict**，默认按 template �
 
 扫描阶段 1 所有席位 verdict block 的 `must_haves_challenge.triggered` 字段：
 
-- **全部 `triggered: no`** → 直接进阶段 2，Linus 拿 must_haves v1。
-- **任一 `triggered: yes`** → **暂停，走修订流程**。
+- **全部 `triggered: false`** → 直接进阶段 2，Linus 拿 must_haves v1。
+- **任一 `triggered: true`** → **暂停，走修订流程**。
 
 #### 修订流程
 
-1. orchestrator 汇总所有 `triggered: yes` 席位的 `proposed_revision`，合并成 must_haves v2（多席位冲突时显式标注差异，不擅自取舍）。
+1. orchestrator 汇总所有 `triggered: true` 席位的 `proposed_revision`，合并成 must_haves v2（多席位冲突时显式标注差异，不擅自取舍）。
 
 2. 按 template 的"阶段 1.5 修订对照表骨架"呈现 v1 vs v2 给用户。
 
@@ -196,8 +199,12 @@ orchestrator 若基于席位 `spawn_sub_topic` 字段给子议题候选列表，
 若 Linus `stages=[1,2]`，他在阶段 1 已有独立 verdict block（`linus_feasibility` with `phase: 1`）——阶段 2 的 spawn prompt 显式提醒他"你阶段 1 已给出工程视角初判，本阶段吸收所有席位结论做可行性 gate，不要重复阶段 1 的 good taste 论证"。
 
 ```text
-linus_id = Agent(subagent_type="linus-engineer", prompt="""
+linus_id = invoke_seat(seat="linus-engineer", message="""
+mode: roundtable
 议题: <议题原文>
+
+当前锁定的 must_haves（含版本、完整 truths、verify_commands 和 pass_criterion）：
+<完整粘贴当前合同，不得只给阶段 1 的旧版>
 
 阶段 1 席位原文（按本次实际召开名单逐个粘贴）：
 
@@ -222,7 +229,9 @@ linus_id = Agent(subagent_type="linus-engineer", prompt="""
 
 Linus 会在启动时自动发现当前项目的 `AGENTS.md` / `CLAUDE.md` 并按项目纪律工作——**不需要在 prompt 里硬编码项目特定规则**。
 
-Linus 返回后默认按 template 的代码席短评骨架呈现。完整原文只在用户要求展开或进入 full 模式时显示。
+Linus 返回后先按当前阶段和当前 truths 校验 verdict。若再次触发 challenge 或路由为 `revise_must_haves`，回阶段 1.5，锁定修订后重新做阶段 2；不得直接进入阶段 3。相同根因反复出现且无新证据时，停止循环并呈现尚未解决的取舍。
+
+有效 Linus verdict 默认按 template 的代码席短评骨架呈现。完整原文只在用户要求展开或进入 full 模式时显示。
 
 ### 阶段 3 — 综合对齐（orchestrator 主持）
 
@@ -233,7 +242,7 @@ orchestrator 做综合，**优先读每个席位原文末尾的 YAML verdict blo
 1. **先扫 `core.route`**——聚合所有席位的路由
 2. **读 `seat_native_verdict`**——保留人物 DNA
 3. **汇总所有 `core.hard_blockers`**——列成综合 blocker 列表
-4. **合并 `must_haves_review`**——同一 truth 多席位 flag 冲突时，取最严的 `proposed_criterion`
+4. **合并 `must_haves_review`**——同一 truth 的标准在相同指标、相同验证方法下可比较时，保留更严格条件并说明来源；指标、方法或目标不兼容时列出冲突交用户选择，不自行拼成“最严”条件
 5. **读 `seat_specific`**——补充细节（tail_events / anti_patterns / broken_evidence 等）作为人读补充
 6. **读 `core.peer_disagreements`**——显式列分歧，不在综合时强行收敛
 
@@ -245,7 +254,7 @@ orchestrator 做综合，**优先读每个席位原文末尾的 YAML verdict blo
 4. **做完会怎样**——必填人话段：用户日常工作里会经历什么具体变化、做不到什么。**段末必须以 `**验证信号**：<…>` 收尾**——验证信号缺失 = 愿景式散文，退回重写；写不出就说明议题不可证伪，回阶段 0.5 重定义
 5. **DECISIONS 表**——`locked` + `deferred`；`discretion` 默认不渲染（用户说"展开 discretion"才显示）
 6. **主持人观察（可选）**——只在能直接帮助用户拍板时才出（结论一致性 / 分歧集中点 / 信心分布）。**禁止**建议"推荐选哪个"——只陈述客观信号，不替用户选
-7. **等用户确认**——用户未明示 go 之前，禁止进入阶段 4
+7. **确认实施授权和最终合同**——所有 observable_metric 的阈值、验证命令与 `pass_criterion` 必须落定，不能残留 TBD。校验锁定 must_haves 后，依用户本轮或此前已明确给出的对应实施授权进入阶段 4；授权缺失才等待回复，不能把沉默当接受
 
 full 模式可额外展示完整 YAML、非代码评议表、代码层表、候选方案表；Quick 模式只在用户要求时展开。
 
@@ -263,6 +272,7 @@ orchestrator 在阶段 4 先检查当前 runtime 是否支持 `continue_existing
 续跑消息最少包含：
 
 - 方案已锁定：`<细到文件/函数级别>`
+- 当前锁定的完整 must_haves（truths、全部 verify_commands、pass_criterion 和版本）
 - 按阶段 2 的可行性建议实施
 - 完成后按当前项目 `AGENTS.md` / `CLAUDE.md` 定义的自审清单执行
 - 实施后不要 commit，等用户验证通过
@@ -277,6 +287,7 @@ orchestrator 在阶段 4 先检查当前 runtime 是否支持 `continue_existing
 
 - 议题原文
 - 已锁定方案：`<细到文件/函数级别>`
+- 当前锁定的完整 must_haves（含版本与全部验证命令、通过标准）
 - 阶段 2 Linus 可行性评审原文
 - 非代码评议席位结论摘要
 - 完成后按当前项目 `AGENTS.md` / `CLAUDE.md` 自审
@@ -288,7 +299,7 @@ orchestrator 在阶段 4 先检查当前 runtime 是否支持 `continue_existing
 
 两路径语义等价。入口 adapter 负责把抽象动作翻译成各 runtime 的 primitive；共享 workflow 不再为运行时差异单独改文案。
 
-Linus 返回实施报告后默认给用户短报告：改了什么、验证结果、是否有缺口、是否需要回流圆桌。完整实施原文和 `linus_execution` block 只在用户要求展开时显示。
+Linus 返回实施报告后，按锁定 must_haves 校验 `linus_execution` 的 truth 与命令覆盖、实际证据和状态。命令失败、跳过、越界或仍有缺口都不能报 done；未执行验证不能报告通过。再默认给用户短报告：改了什么、验证结果、是否有缺口、是否需要回流圆桌。完整实施原文和 `linus_execution` block 只在用户要求展开时显示。
 
 ## 冲突裁决规则
 
@@ -301,8 +312,8 @@ Linus 返回实施报告后默认给用户短报告：改了什么、验证结�
 
 ## 硬约束（任何情况不得违反）
 
-1. **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker；用户要求展开时必须提供完整原文和 YAML。
-2. **绝不跳阶段**：阶段 3 用户未确认前不得进阶段 4。
+1. **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker；用户要求展开时必须提供完整原文和 YAML。原文应随当前会话保留；发生上下文压缩前保存或明确交接可访问的原文，无法恢复时如实标注，不伪造原始记录。
+2. **绝不跳阶段**：阶段 3 未有覆盖当前锁定方案的实施授权前不得进阶段 4。
 3. **实施阶段优先续跑同一 agent**：runtime 若支持 `continue_existing_agent(agent_id, message)` 就走阶段 4 路径 A；没有则走路径 B（新起同 seat agent + 阶段 2 原文**完整注入**，不得摘要）。
 4. **项目纪律由 agent 自己发现**：不在 workflow 里硬编码项目特定规则。Linus 启动时会自动 Read 当前项目的 `AGENTS.md` / `CLAUDE.md`。
 5. **输出形态以 template 为准**：本 workflow 不维护排版规则。改 Quick 输出形态请改 `templates/roundtable-quick.md`，不要在本文件加 prose 补丁。

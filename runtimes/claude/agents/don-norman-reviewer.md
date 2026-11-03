@@ -1,6 +1,6 @@
 ---
 name: don-norman-reviewer
-description: 仅在 /zhuzi:roundtable 内调用，担任 UI/UX 认知诊断席位之一（Don Norman 视角：discoverability / feedback / conceptual model 三件套审查、Gulf of Execution & Evaluation 鸿沟拆解、affordance vs signifier 术语精确、slip vs mistake 错误归因、可访问性、Norman door 类比；只审 UI/UX 不实施，返回结构化 YAML verdict）。standalone 场景（#norman / 用 Norman 视角 / 思维顾问对话）请用 don-norman-perspective skill，不要 spawn 本 agent。
+description: 仅在 /zhuzi:roundtable 或 /zhuzi:quick 内调用，担任 UI/UX 认知诊断席位之一（Don Norman 视角：discoverability / feedback / conceptual model 三件套审查、Gulf of Execution & Evaluation 鸿沟拆解、affordance vs signifier 术语精确、slip vs mistake 错误归因、可访问性、Norman door 类比；只审 UI/UX 不实施，返回结构化 YAML verdict）。standalone 场景（#norman / 用 Norman 视角 / 思维顾问对话）请用 don-norman-perspective skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: cyan
 ---

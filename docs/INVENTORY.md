@@ -1,6 +1,6 @@
 # zhuzi Shipped Surface Inventory
 
-> 这是 `zhuzi` 当前 shipped surface 的人读视图。机器可读真相源在 `zhuzi/manifests/shipped-surface.json` 与 `zhuzi/manifests/roundtable-contract.json`；若 README、AGENTS、agent 示例段与文件系统出现漂移，以 manifest、本文件和仓库树交叉校验结果为准。
+> 人读清单与 `zhuzi/manifests/shipped-surface.json` 同步维护；机器合同另见 `zhuzi/manifests/roundtable-contract.json`。
 
 ## Skills (12 shipped)
 
@@ -35,13 +35,13 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `linus-engineer` | `runtimes/codex/agents/linus-engineer.md` | Codex roundtable 代码席 adapter |
-| `munger-reviewer` | `runtimes/codex/agents/munger-reviewer.md` | Codex roundtable 决策质量席 adapter |
-| `taleb-reviewer` | `runtimes/codex/agents/taleb-reviewer.md` | Codex roundtable 风险结构席 adapter |
-| `lopezdeprado-reviewer` | `runtimes/codex/agents/lopezdeprado-reviewer.md` | Codex roundtable 证据质量席 adapter |
-| `feynman-reviewer` | `runtimes/codex/agents/feynman-reviewer.md` | Codex roundtable 解释清晰度席 adapter |
-| `paul-graham-reviewer` | `runtimes/codex/agents/paul-graham-reviewer.md` | Codex roundtable Maker 视角席 adapter |
-| `don-norman-reviewer` | `runtimes/codex/agents/don-norman-reviewer.md` | Codex roundtable UI/UX 认知诊断席 adapter |
+| `linus-engineer` | `runtimes/codex/agents/linus-engineer.toml` | Codex roundtable 代码席 adapter |
+| `munger-reviewer` | `runtimes/codex/agents/munger-reviewer.toml` | Codex roundtable 决策质量席 adapter |
+| `taleb-reviewer` | `runtimes/codex/agents/taleb-reviewer.toml` | Codex roundtable 风险结构席 adapter |
+| `lopezdeprado-reviewer` | `runtimes/codex/agents/lopezdeprado-reviewer.toml` | Codex roundtable 证据质量席 adapter |
+| `feynman-reviewer` | `runtimes/codex/agents/feynman-reviewer.toml` | Codex roundtable 解释清晰度席 adapter |
+| `paul-graham-reviewer` | `runtimes/codex/agents/paul-graham-reviewer.toml` | Codex roundtable Maker 视角席 adapter |
+| `don-norman-reviewer` | `runtimes/codex/agents/don-norman-reviewer.toml` | Codex roundtable UI/UX 认知诊断席 adapter |
 
 ## Codex Skills (2 shipped)
 
@@ -107,11 +107,30 @@
 | `roundtable-broken-veto` | `examples/roundtable-broken-veto.md` | Linus 阶段 2 broken 单边否决示例 |
 | `quick-multi` | `examples/quick-multi.md` | 多视角短读输出示例 |
 
-## Tools (4 shipped)
+## Tools (5 shipped)
 
 | Entry | Path | Role |
 |---|---|---|
 | `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 manifest、inventory、生成段、shared seats、runtime adapter 路径与安装面 |
-| `install_codex_source_adapters.py` | `tools/install_codex_source_adapters.py` | 渲染并安装 Codex roundtable adapters 到 Codex 安装根，由 install.sh [5/5] 调用 |
+| `install_codex_source_adapters.py` | `tools/install_codex_source_adapters.py` | Codex 完整安装、旧技能归属检查、备份迁移与失败回滚，由 install.sh [5/5] 调用 |
 | `render_roundtable_contract_docs.py` | `tools/render_roundtable_contract_docs.py` | 从 roundtable-contract manifest 生成 seat-registry、verdict-schema 与 seat 输出契约的投影段 |
-| `smoke_test_codex_roundtable.py` | `tools/smoke_test_codex_roundtable.py` | 手动 Codex roundtable 烟雾测试：刷新安装、验证 adapter 与 skill 激活 |
+| `smoke_test_codex_roundtable.py` | `tools/smoke_test_codex_roundtable.py` | 隔离安装与在线验收：两席真实调用、verdict 校验及同一实现席位续跑 |
+| `run_behavioral_evals.py` | `tools/run_behavioral_evals.py` | 记录普通回答、单 agent 多视角与真实圆桌的可比较模型运行 |
+
+## Schemas (1 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `verdict.schema` | `zhuzi/schemas/verdict.schema.json` | 从 manifest 生成的正式圆桌 JSON Schema |
+
+## Validators (1 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `verdict` | `zhuzi/validators/verdict.py` | 校验 verdict、truth 覆盖、条件路由与实施验证记录 |
+
+## Evals (1 shipped)
+
+| Entry | Path | Role |
+|---|---|---|
+| `cases` | `evals/cases.json` | 20 个合成回归场景与人工评分依据 |

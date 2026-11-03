@@ -2,6 +2,14 @@
 
 > 这是 `/zhuzi:roundtable` 所有席位共享的 YAML verdict 契约人读权威源。route 映射、seat-specific 注册和 Quick/seat/stages 机器合同以 `zhuzi/manifests/roundtable-contract.json` 为准；若 `roundtable.md`、agent 示例段或 README 漂移，以 manifest 与本文件交叉校验结果为准。
 
+## 输出模式
+
+<!-- GENERATED:verdict_schema_modes:start -->
+- `roundtable`：按下述正式输出契约返回 verdict；实施另受阶段与用户授权约束。
+- `quick-multi`：只返回不超过 200 字的观点，不输出 verdict/YAML，不做 must_haves 审议，不实施。
+- 模式由主持人显式传入；Quick 的无 verdict 规则优先于正式模式的四层必填规则。
+<!-- GENERATED:verdict_schema_modes:end -->
+
 ## 层级结构
 
 所有席位（Taleb / Munger / López / Linus / 未来扩展）在 verdict 阶段统一输出四层：
@@ -22,9 +30,11 @@
 | `phase` | `1` / `2` / `4` | 当前阶段 |
 | `route` | `go` / `go_with_conditions` / `revise_must_haves` / `kill` / `too_hard` | 主持人机读统一路由空间 |
 | `seat_native_verdict` | 各席位原生 verdict | 保留人物 DNA |
-| `confidence` | `low` / `medium` / `high` | 信心 |
-| `hard_blockers` | `[]` | 转 `go` 的必要条件 |
-| `peer_disagreements` | `[{peer, point}]` | 跨席位分歧，主持人阶段 3 直接呈现 |
+| `confidence` | `low` / `medium` / `high` | 证据支持程度，与席位是否一致分开 |
+| `hard_blockers` | `array` | 转 go 前必须解决的条件 |
+| `peer_disagreements` | `array` | 见过对方原文后记录的分歧；盲审首轮为空 |
+| `evidence` | `array` | 每项含 claim/source/kind 的可追溯依据 |
+| `missing_evidence` | `array` | 尚缺的关键资料或未核实的前提 |
 <!-- GENERATED:verdict_schema_core_table:end -->
 
 ## `must_haves_review`
@@ -50,7 +60,7 @@
 
 ```yaml
 must_haves_challenge:
-  triggered: yes | no
+  triggered: true | false
   challenged_truths: [1, 3]
   fundamental_issue: "<为何 must_haves 框架从根本跑偏>"
   proposed_revision:
@@ -67,7 +77,19 @@ must_haves_challenge:
 - `spawn_sub_topic` 只放拆分出去的新议题。
 - 严禁回退成旧式字符串字面量 `proposed_revision: | ...`。
 
-任一席位 `triggered: yes`，阶段 1.5 must_haves 修订 gate 必触发。orchestrator 不得忽略。
+任一席位 `triggered: true`，修订 gate 必触发，包括阶段 2 再次提出的 challenge。orchestrator 不得忽略。
+
+## 证据与机读验证
+
+`core.evidence` 每项含 `claim`、`source`、`kind`。`kind` 分 `provided`（议题材料）、`observed`（实际工具观察）、`primary_source`（核对过的一手来源）、`inference`（框架推演）；推演不得伪装成已观察事实。`missing_evidence` 明列仍缺的关键资料，不能用人格化语气补齐。
+
+信心说明证据质量和适用边界；席位是否一致单独呈现。独立线程保证上下文隔离，不保证统计独立。首轮没有其他席位原文时，`peer_disagreements` 必须为空；主持人基于实际返回值记录分歧，后续有对方原文的复议才填写该字段。
+
+JSON Schema 在 `zhuzi/schemas/verdict.schema.json`，由 manifest 生成，不手改。JSON 对象和 YAML 均可用于机读 verdict；布尔值写 `true` / `false`，字符串枚举 `yes` / `no` 在 YAML 中须加引号。
+
+在有 Python 验证环境时执行共享根目录下的 `validators/verdict.py`：`<verdict-file> --seat <seat-id> --phase <1|2|4> --truth-count <N>`。还会检查路由映射、truth 覆盖、challenge 和实施结果的一致性。无验证工具时必须明确标注“未做机器校验”，不能报告已通过。校验器只判断协议一致性，不证明内容为真。
+
+实施前对锁定的 must_haves 文件运行同一脚本（不传 `--seat`），每条命令和通过标准均须明确。验证阶段 4 时加 `--must-haves <locked-file>`，将实际执行的命令与锁定合同逐条比对。
 
 ## `seat_specific`
 
@@ -86,7 +108,7 @@ must_haves_challenge:
 
 ## route 映射规则
 
-本表只列 native verdict → route 的通用映射。特殊条件 route（例：López `domain_limit_flag` 非空 → `too_hard`）由各席位在自己的 `## 输出契约` 段定义，不收入此表。
+本表只列 native verdict → route 的通用映射。条件路由由 manifest 的 `conditional_routes` 声明并投影到席位输出契约：`mode: add` 追加可选路由，`mode: override` 命中时替代原生允许范围。覆盖条件不能被之后的追加规则放宽；多个覆盖条件冲突时拒绝放行。JSON Schema 同步强制覆盖条件，完整路由与跨字段校验由共享校验器执行。
 
 <!-- GENERATED:verdict_schema_route_rules:start -->
 | 席位 | native | → `core.route` |
@@ -94,7 +116,7 @@ must_haves_challenge:
 | Taleb | `fragile` | `go_with_conditions` / `revise_must_haves` / `kill` |
 | Taleb | `robust` | `go` |
 | Taleb | `antifragile` | `go` |
-| Munger | `keep` | `go` |
+| Munger | `keep` | `go` / `go_with_conditions` |
 | Munger | `kill` | `kill` |
 | Munger | `too_hard` | `too_hard` |
 | López | `scientific` | `go` |

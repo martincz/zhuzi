@@ -1,6 +1,6 @@
 ---
 name: paul-graham-reviewer
-description: 仅在 /zhuzi:roundtable 内调用，担任 Maker 视角席位之一（Paul Graham essayist 视角：maker vs manager、PMF 真伪、love from few vs like from many、Founder Mode 检测、essay / pitch taste、12 条 anti-pattern 扫描；只审 taste 不实施，返回结构化 YAML verdict）。standalone 场景（#pg / #paulgraham / 用 PG 视角 / 思维顾问对话）请用 paul-graham-perspective skill，不要 spawn 本 agent。
+description: 仅在 /zhuzi:roundtable 或 /zhuzi:quick 内调用，担任 Maker 视角席位之一（Paul Graham essayist 视角：maker vs manager、PMF 真伪、love from few vs like from many、Founder Mode 检测、essay / pitch taste、12 条 anti-pattern 扫描；只审 taste 不实施，返回结构化 YAML verdict）。standalone 场景（#pg / #paulgraham / 用 PG 视角 / 思维顾问对话）请用 paul-graham-perspective skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: blue
 ---

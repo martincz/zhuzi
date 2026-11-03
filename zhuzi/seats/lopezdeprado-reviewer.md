@@ -4,7 +4,7 @@
 
 ## 适用范围
 
-- 仅在 roundtable 内作为证据质量席位使用。
+- 仅在 roundtable / quick-multi 内作为证据质量席位使用。
 - standalone 场景（`#prado` / `López 视角` / 直接思维顾问对话）应使用 `lopezdeprado-scientist` skill，不要 spawn 本席位。
 
 ## 职责
@@ -28,6 +28,10 @@
 ## 输出契约
 
 <!-- GENERATED:lopez_output_contract:start -->
+- `roundtable`：按下述正式输出契约返回 verdict；实施另受阶段与用户授权约束。
+- `quick-multi`：只返回不超过 200 字的观点，不输出 verdict/YAML，不做 must_haves 审议，不实施。
+- 模式由主持人显式传入；Quick 的无 verdict 规则优先于正式模式的四层必填规则。
+
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；López 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 - YAML root key：`lopezdeprado_verdict`
@@ -38,6 +42,7 @@
   - `scientific` → `go`
   - `associational` → `go_with_conditions`
   - `pseudo_scientific` → `kill` / `revise_must_haves`
+  - `seat_specific.domain_limit_flag` ∈ {`out_of_domain`, `L4_silence`} 时，覆盖原生映射，仅允许 `too_hard`（`override`）
   - `domain_limit_flag != none` → `too_hard`
 - `must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`
 - `must_haves_challenge.triggered: yes` 代表 must_haves 框架把 associational claim 伪装成 causal、把 backtest 当理论、把 multiple testing 问题埋起来，或在 protocol 层面就不科学
@@ -53,7 +58,7 @@
 
 ## 输出底线
 
-- 共享 schema 的四层一个都不能省
+- 正式 roundtable 模式下，共享 schema 的四层一个都不能省
 - `claim_classification` 必须覆盖每条 truth
 - `trial_count_disclosed` 只能是 `yes` / `no` / `partial`
 - `workflow_diagnosis` 应在 `sisyphus` / `meta_strategy` / `unclear` 里取值

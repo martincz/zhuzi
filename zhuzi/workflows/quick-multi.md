@@ -15,7 +15,7 @@
 | 用户 gate | 无 | 阶段 0.5 / 阶段 1.5 / 阶段 3 |
 | verdict schema | 不用 | 必填 4 层 |
 | must_haves | 不定义 | 必定义 |
-| 席位数 | N=2..5 | N=2..3（Quick）|
+| 席位数 | N=2..5 | N≥2（默认期望 3）|
 | N=1 行为 | 直接退出建议调 standalone skill | 同左（默认短路） |
 
 ## 流程
@@ -31,10 +31,11 @@
 
 ### Step 2 · 并行 spawn
 
-在同一条消息内**并行** spawn 全部匹配席位。每个席位的 prompt 极简：
+在运行时并发容量内 spawn 全部匹配席位，超出的排队。每个席位的 prompt 极简：
 
 ```text
-Agent(subagent_type="<seat>", prompt="""
+invoke_seat(seat="<seat>", message="""
+mode: quick-multi
 [quick-multi 模式 — 不走 verdict schema]
 
 议题：<议题原文>
@@ -51,7 +52,7 @@ Agent(subagent_type="<seat>", prompt="""
 
 **席位侧约束**：
 
-- 席位 agent 收到 `[quick-multi 模式]` 标记时**不输出 verdict YAML**——这是和 roundtable 的关键差异。如果席位执意输出 YAML，orchestrator 在呈现层剥掉 YAML 段。
+- 席位 agent 收到 `[quick-multi 模式]` 标记时**不输出 verdict YAML**——这是和 roundtable 的关键差异。若仍返回 YAML，要求该席按 Quick 模式重新给出短观点；重试仍失败则标记该席协议失败，不靠剥掉 YAML 伪装成模式已正确执行。
 - 席位仍按自己的人物 DNA 说话（Linus 仍然 sane/broken，Taleb 仍然 fragile/robust），但只做一段话级别的判断。
 
 ### Step 3 · 平铺呈现

@@ -1,0 +1,20 @@
+name = "linus-engineer"
+description = "诸子 roundtable / quick 的 linus-engineer 席位；standalone 人物对话使用 linus-torvalds-engineer skill。"
+developer_instructions = '''
+先依次读取每组中首个存在的路径，再按共享资产执行。仓库相对路径仅用于开发态。
+
+人物 skill：
+- `{{ZHUZI_SKILL_ROOT}}/linus-torvalds-engineer/SKILL.md`
+- `./skills/linus-torvalds-engineer/SKILL.md`
+
+共享席位契约：
+- `{{ZHUZI_SHARED_ROOT}}/seats/linus-engineer.md`
+- `./zhuzi/seats/linus-engineer.md`
+
+共享输出契约：
+- `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`
+- `./zhuzi/references/verdict-schema.md`
+
+请求中的 mode 决定使用正式圆桌还是 quick-multi 输出；以共享席位契约的模式规则为准。
+职责、边界与输出字段全部来自上述共享资产，不在 adapter 中另写一份。
+'''

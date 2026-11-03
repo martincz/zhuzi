@@ -4,7 +4,7 @@
 
 ## 适用范围
 
-- 仅在 roundtable 内作为风险结构席位使用。
+- 仅在 roundtable / quick-multi 内作为风险结构席位使用。
 - standalone 场景（`#taleb` / `Taleb 视角` / 直接思维顾问对话）应使用 `taleb-antifragile` skill，不要 spawn 本席位。
 
 ## 职责
@@ -29,6 +29,10 @@
 ## 输出契约
 
 <!-- GENERATED:taleb_output_contract:start -->
+- `roundtable`：按下述正式输出契约返回 verdict；实施另受阶段与用户授权约束。
+- `quick-multi`：只返回不超过 200 字的观点，不输出 verdict/YAML，不做 must_haves 审议，不实施。
+- 模式由主持人显式传入；Quick 的无 verdict 规则优先于正式模式的四层必填规则。
+
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Taleb 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 - YAML root key：`taleb_verdict`
@@ -51,7 +55,7 @@
 
 ## 输出底线
 
-- 共享 schema 的四层一个都不能省
+- 正式 roundtable 模式下，共享 schema 的四层一个都不能省
 - `tail_events_breaking_must_haves` 要写具体情境和 `breaks_because`
 - `distribution_class` 只能是 `mediocristan` / `extremistan` / `unclear`
 - `payoff_convexity` 只能是 `concave` / `linear` / `convex` / `unclear`

@@ -1,6 +1,6 @@
 ---
 name: munger-reviewer
-description: 仅在 /zhuzi:roundtable 内调用，担任决策质量席位之一（Munger 愚蠢清单视角：认知偏误、能力圈、机会成本、安全边际、激励结构、商业质量、护城河、Lollapalooza；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#munger / 芒格视角 / 思维顾问对话）请用 munger-checklist skill，不要 spawn 本 agent。
+description: 仅在 /zhuzi:roundtable 或 /zhuzi:quick 内调用，担任决策质量席位之一（Munger 愚蠢清单视角：认知偏误、能力圈、机会成本、安全边际、激励结构、商业质量、护城河、Lollapalooza；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#munger / 芒格视角 / 思维顾问对话）请用 munger-checklist skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: blue
 ---

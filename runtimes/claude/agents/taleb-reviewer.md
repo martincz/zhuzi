@@ -1,6 +1,6 @@
 ---
 name: taleb-reviewer
-description: 仅在 /zhuzi:roundtable 内调用，担任不确定性/风险结构席位之一（Taleb 反脆弱视角：尾部风险、fragility、凸性/凹性、barbell、ruin risk、冗余、选择权、skin in the game；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#taleb / Taleb 视角 / 思维顾问对话）请用 taleb-antifragile skill，不要 spawn 本 agent。
+description: 仅在 /zhuzi:roundtable 或 /zhuzi:quick 内调用，担任不确定性/风险结构席位之一（Taleb 反脆弱视角：尾部风险、fragility、凸性/凹性、barbell、ruin risk、冗余、选择权、skin in the game；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#taleb / Taleb 视角 / 思维顾问对话）请用 taleb-antifragile skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: orange
 ---

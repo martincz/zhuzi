@@ -11,6 +11,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from zhuzi.validators.verdict import build_schema
 ROUNDTABLE_CONTRACT_PATH = ROOT / "zhuzi" / "manifests" / "roundtable-contract.json"
 
 SEAT_REGISTRY_PATH = "zhuzi/references/seat-registry.md"
@@ -24,6 +26,7 @@ STATIC_GENERATED_DOCS = {
         "seat_registry_linus_dual_stage",
     ],
     VERDICT_SCHEMA_PATH: [
+        "verdict_schema_modes",
         "verdict_schema_layers",
         "verdict_schema_core_table",
         "verdict_schema_review_flags",
@@ -198,6 +201,15 @@ def render_verdict_schema_layers(contract: dict[str, object]) -> str:
     return "\n".join(f"- `{layer}`" for layer in layers)
 
 
+def render_verdict_schema_modes(contract: dict[str, object]) -> str:
+    quick = contract["modes"]["quick-multi"]
+    return (
+        "- `roundtable`：按下述正式输出契约返回 verdict；实施另受阶段与用户授权约束。\n"
+        f"- `quick-multi`：只返回不超过 {quick['max_characters']} 字的观点，不输出 verdict/YAML，不做 must_haves 审议，不实施。\n"
+        "- 模式由主持人显式传入；Quick 的无 verdict 规则优先于正式模式的四层必填规则。"
+    )
+
+
 def render_verdict_schema_core_table(contract: dict[str, object]) -> str:
     verdict_schema = contract.get("verdict_schema")
     if not isinstance(verdict_schema, dict):
@@ -221,10 +233,10 @@ def render_verdict_schema_core_table(contract: dict[str, object]) -> str:
         ["`phase`", "`1` / `2` / `4`", "当前阶段"],
         ["`route`", route_value, "主持人机读统一路由空间"],
         ["`seat_native_verdict`", "各席位原生 verdict", "保留人物 DNA"],
-        ["`confidence`", "`low` / `medium` / `high`", "信心"],
-        ["`hard_blockers`", "`[]`", "转 `go` 的必要条件"],
-        ["`peer_disagreements`", "`[{peer, point}]`", "跨席位分歧，主持人阶段 3 直接呈现"],
     ]
+    for name, definition in verdict_schema["core_fields"].items():
+        values = " / ".join(f"`{v}`" for v in definition.get("enum", [])) or f"`{definition['type']}`"
+        rows.append([f"`{name}`", values, definition.get("description", name)])
     return render_markdown_table(headers, rows)
 
 
@@ -251,8 +263,8 @@ def render_verdict_schema_seat_specific(contract: dict[str, object]) -> str:
             if section.get("schema_mode") == "phase_4_exception":
                 continue
             fields = expect_string_list(
-                section.get("seat_specific_fields"),
-                f"{seat_name}.output_contract.sections[*].seat_specific_fields",
+                list(section.get("field_schemas", {})),
+                f"{seat_name}.output_contract.sections[*].field_schemas",
             )
             heading = section.get("heading")
             label = (
@@ -289,20 +301,14 @@ def render_verdict_schema_route_rules(contract: dict[str, object]) -> str:
 
 
 def render_verdict_schema_phase_4_exception(contract: dict[str, object]) -> str:
-    verdict_schema = contract.get("verdict_schema")
-    if not isinstance(verdict_schema, dict):
-        raise ValueError("roundtable contract missing verdict_schema")
-    phase_4_exception = verdict_schema.get("phase_4_exception")
-    if not isinstance(phase_4_exception, dict):
-        raise ValueError("roundtable contract missing verdict_schema.phase_4_exception")
-
-    root_key = phase_4_exception.get("root_key")
-    fields = phase_4_exception.get("fields")
-    if not isinstance(root_key, str) or not isinstance(fields, list):
-        raise ValueError("phase_4_exception must contain root_key and fields")
-
-    joined = " / ".join(f"`{field}`" for field in fields)
-    return f"`{root_key}` 是实施验证状态输出，不走共同 verdict schema。它保留自己的字段结构：{joined}。"
+    sections = [section for _, seat in iter_seats(contract)
+                for section in seat["output_contract"]["sections"]
+                if section.get("schema_mode") == "phase_4_exception"]
+    if len(sections) != 1:
+        raise ValueError("expected one execution exception contract")
+    section = sections[0]
+    joined = " / ".join(f"`{field}`" for field in section["field_schemas"])
+    return f"`{section['root_key']}` 是实施验证状态输出，不走共同 verdict schema。它保留自己的字段结构：{joined}。"
 
 
 def render_route_targets(routes: list[str]) -> str:
@@ -343,6 +349,15 @@ def render_shared_output_contract_section(
         routes = native_verdict_routes.get(verdict)
         lines.append(f"  - `{verdict}` → {render_route_targets(expect_string_list(routes, f'{seat_name}.native_verdict_routes.{verdict}'))}")
 
+    for rule in config.get("conditional_routes", []):
+        mode = rule.get("mode")
+        if mode not in {"add", "override"}:
+            raise ValueError(f"{seat_name}: conditional route requires add or override mode")
+        when = rule["when"]
+        condition = f"`{when['path']}` " + (f"= `{json.dumps(when['equals'], ensure_ascii=False)}`" if "equals" in when else "∈ {" + ", ".join(f"`{v}`" for v in when["enum"]) + "}")
+        action = "覆盖原生映射，仅允许" if mode == "override" else "在原生映射上追加允许"
+        lines.append(f"  - {condition} 时，{action} `{rule['route']}`（`{mode}`）")
+
     extra_route_lines = section.get("extra_route_lines")
     if extra_route_lines is not None:
         for route_line in expect_string_list(extra_route_lines, f"{seat_name}.output_contract.extra_route_lines"):
@@ -354,8 +369,8 @@ def render_shared_output_contract_section(
             lines.append(f"- {expect_string(note, f'{seat_name}.output_contract.{note_key}')}")
 
     fields = expect_string_list(
-        section.get("seat_specific_fields"),
-        f"{seat_name}.output_contract.sections[*].seat_specific_fields",
+        list(section.get("field_schemas", {})),
+        f"{seat_name}.output_contract.sections[*].field_schemas",
     )
     lines.append("- `seat_specific` 必填字段：")
     for field in fields:
@@ -376,8 +391,8 @@ def render_exception_output_contract_section(
 ) -> str:
     root_key = expect_string(section.get("root_key"), f"{seat_name}.output_contract.root_key")
     fields = expect_string_list(
-        section.get("seat_specific_fields"),
-        f"{seat_name}.output_contract.sections[*].seat_specific_fields",
+        list(section.get("field_schemas", {})),
+        f"{seat_name}.output_contract.sections[*].field_schemas",
     )
 
     lines: list[str] = []
@@ -417,7 +432,7 @@ def render_seat_output_contract(contract: dict[str, object], seat_name: str) -> 
     if not isinstance(sections, list) or not sections:
         raise ValueError(f"{seat_name}.output_contract.sections must be a non-empty list")
 
-    blocks = [shared_intro]
+    blocks = [render_verdict_schema_modes(contract), shared_intro]
     for section in sections:
         if not isinstance(section, dict):
             raise ValueError(f"{seat_name}.output_contract.sections must contain objects")
@@ -434,6 +449,7 @@ def render_seat_output_contract(contract: dict[str, object], seat_name: str) -> 
 
 
 STATIC_BLOCK_RENDERERS = {
+    "verdict_schema_modes": render_verdict_schema_modes,
     "seat_registry_current_seats": render_seat_registry_current_seats,
     "seat_registry_stage_rules": render_seat_registry_stage_rules,
     "seat_registry_lopez_must_call": render_seat_registry_lopez_must_call,
@@ -493,6 +509,17 @@ def render_docs(*, check: bool) -> int:
     generated_docs = get_generated_docs(contract)
     stale: list[str] = []
     changed: list[str] = []
+
+    schema_relative = contract["references"]["verdict_json_schema"]
+    schema_path = ROOT / schema_relative
+    schema_text = json.dumps(build_schema(contract), ensure_ascii=False, indent=2) + "\n"
+    if not schema_path.exists() or schema_path.read_text(encoding="utf-8") != schema_text:
+        if check:
+            stale.append(schema_relative)
+        else:
+            schema_path.parent.mkdir(parents=True, exist_ok=True)
+            schema_path.write_text(schema_text, encoding="utf-8")
+            changed.append(schema_relative)
 
     for relative_path in generated_docs:
         path = ROOT / relative_path

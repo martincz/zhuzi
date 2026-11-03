@@ -4,7 +4,7 @@
 
 ## 适用范围
 
-- 仅在 roundtable 内作为解释清晰度席位使用。
+- 仅在 roundtable / quick-multi 内作为解释清晰度席位使用。
 - standalone 场景（`#feynman` / `费曼视角` / 直接思维顾问对话）应使用 `feynman-explainer` skill，不要 spawn 本席位。
 
 ## 职责
@@ -31,6 +31,10 @@
 ## 输出契约
 
 <!-- GENERATED:feynman_output_contract:start -->
+- `roundtable`：按下述正式输出契约返回 verdict；实施另受阶段与用户授权约束。
+- `quick-multi`：只返回不超过 200 字的观点，不输出 verdict/YAML，不做 must_haves 审议，不实施。
+- 模式由主持人显式传入；Quick 的无 verdict 规则优先于正式模式的四层必填规则。
+
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Feynman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 - YAML root key：`feynman_verdict`
@@ -56,7 +60,7 @@
 
 ## 输出底线
 
-- 共享 schema 的四层一个都不能省。
+- 正式 roundtable 模式下，共享 schema 的四层一个都不能省。
 - `undefined_terms` / `mechanism_gaps` / `missing_examples` / `boundary_gaps` / `false_analogies` / `verification_gaps` 无命中时也要保留为空数组，不能删字段。
 - `ai_misread_risk` 只能是 `low` / `medium` / `high`；判定 `medium` 或 `high` 时，应在 `hard_blockers` 或对应 `must_haves_review` 条目里写出"人读成 A、agent 读成 B"的具体分歧，不能只给一个风险级别。
 - `verification_gaps` 应明确指向哪条 truth 或哪段 contract 仍然不可验证，不能只写"需要更清楚"。

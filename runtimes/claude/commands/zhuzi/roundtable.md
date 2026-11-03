@@ -17,7 +17,7 @@ $ARGUMENTS
 <claude_command_adapter>
 共享 workflow 里的抽象 orchestration 动作用 Claude runtime 这样落地：
 
-- `Agent(subagent_type="X", prompt="Y")`：直接使用 Claude 的 `Agent(...)`
+- `invoke_seat(seat="X", message="Y")`：使用 Claude 当前可用的 `Agent(...)`，按容量调度已发现的同名席位
 - `continue_existing_agent(agent_id, message)`：若 runtime 支持，就用 `SendMessage(to=agent_id, message="Y")`
 - 若 `continue_existing_agent(...)` 不可用，就 fallback 到新的 `Agent(...)`，并完整注入阶段 2 的 Linus 原文
 </claude_command_adapter>
@@ -43,5 +43,5 @@ $ARGUMENTS
 
 <process>
 执行 `@{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md` end-to-end。
-在阶段 3 未收到用户确认前，禁止进入阶段 4。
+阶段 3 须有覆盖当前锁定方案的实施授权，已有明确授权不重复索取。未授权或出现实质变更时才等待对应确认。
 </process>

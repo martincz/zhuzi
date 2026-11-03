@@ -1,23 +1,32 @@
 #!/usr/bin/env bash
 # 把 runtimes/claude/ / zhuzi/ / skills/ 下的内容安装到本机 agent runtime 配置目录。
 # 源码中的 agent / command 保持 runtime-agnostic 占位符。
-# 默认安装时渲染成 $HOME-rooted symbolic path；若显式设置 CLAUDE_DIR / CODEX_HOME，则改渲染为对应 concrete override path。
+# Claude 默认路径保留 $HOME 表达式；Codex 原生 TOML 使用具体安装根，独立于工作目录。
 # 安装源面由 zhuzi/manifests/shipped-surface.json 驱动，避免 install.sh 再手写一套 shipped surface。
-# 覆盖安装，不保留备份。每次修改本仓库后需重跑本脚本。
+# Claude 资产覆盖安装；Codex 由 Python 安装器先备份，再覆盖并迁移旧入口。
 # 覆盖目标：
 #   runtimes/claude/agents/*.md     → ~/.claude/agents/<name>.md （逐文件拷贝，不影响旁边的 gsd-*.md）
 #   runtimes/claude/commands/zhuzi/ → ~/.claude/commands/zhuzi   （命令入口）
 #   zhuzi/                → ~/.claude/zhuzi / ~/.codex/zhuzi    （项目级共享资产，当前含 seats/references/workflows/templates/manifests）
 #   skills/<name>/        → ~/.claude/skills/<name>             （Claude-style skills）
-#   skills/<name>/        → $CODEX_HOME/skills/<name>           （Codex skills，默认 ~/.codex）
-# 环境变量 CLAUDE_DIR 可覆盖 ~/.claude，CODEX_HOME 可覆盖 ~/.codex（测试用）。
+#   skills/<name>/        → ~/.agents/skills/<name>              （Codex 默认发现位置，可单独覆盖）
+# CLAUDE_DIR / CODEX_HOME 覆盖 runtime 根；CODEX_SKILL_DIR 覆盖技能根。仅指定 CODEX_HOME 时技能也随之隔离。
 
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "${1:-}" == "--codex-only" ]]; then
+  shift
+  exec python3 "$REPO/tools/install_codex_source_adapters.py" "$@"
+fi
+if [[ $# -gt 0 ]]; then
+  echo "Usage: ./install.sh [--codex-only [--dry-run] [--json]]" >&2
+  exit 2
+fi
 MANIFEST_PATH="$REPO/zhuzi/manifests/shipped-surface.json"
 CLAUDE="${CLAUDE_DIR:-$HOME/.claude}"
 CODEX="${CODEX_HOME:-$HOME/.codex}"
+CODEX_SKILLS="$(python3 "$REPO/tools/install_codex_source_adapters.py" --print-skill-root)"
 
 render_root_literal() {
   local override_name="$1"
@@ -67,11 +76,11 @@ PY
 }
 
 mkdir -p "$CLAUDE/agents" "$CLAUDE/commands" "$CLAUDE/skills" "$CLAUDE/zhuzi"
-mkdir -p "$CODEX/skills" "$CODEX/zhuzi"
 
 echo "仓库：$REPO"
 echo "Claude 目标：$CLAUDE"
 echo "Codex 目标：$CODEX"
+echo "Codex skills：$CODEX_SKILLS"
 echo
 
 echo "[1/5] agents"
@@ -103,11 +112,6 @@ rm -rf "$claude_runtime_dst"
 cp -r "$REPO/zhuzi" "$claude_runtime_dst"
 echo "  + $claude_runtime_dst"
 
-codex_runtime_dst="$CODEX/zhuzi"
-rm -rf "$codex_runtime_dst"
-cp -r "$REPO/zhuzi" "$codex_runtime_dst"
-echo "  + $codex_runtime_dst"
-
 echo
 echo "[4/5] skills"
 while IFS= read -r rel; do
@@ -119,14 +123,10 @@ while IFS= read -r rel; do
   cp -r "$src_dir" "$dst"
   echo "  + $dst"
 
-  codex_dst="$CODEX/skills/$name"
-  rm -rf "$codex_dst"
-  cp -r "$src_dir" "$codex_dst"
-  echo "  + $codex_dst"
 done < <(manifest_paths "skills")
 
 echo
-echo "[5/5] codex roundtable adapter"
+echo "[5/5] codex roundtable adapter（含技能与旧版本迁移）"
 python3 "$REPO/tools/install_codex_source_adapters.py"
 
 echo

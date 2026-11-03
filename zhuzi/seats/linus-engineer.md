@@ -4,7 +4,7 @@
 
 ## 适用范围
 
-- 仅在 roundtable 内作为代码/工程席位使用。
+- 仅在 roundtable / quick-multi 内作为代码/工程席位使用。
 - standalone 场景（`#linus` / `Linus 视角` / 直接思维顾问对话）应使用 `linus-torvalds-engineer` skill，不要 spawn 本席位。
 
 ## 项目纪律发现（实施席位独有）
@@ -49,6 +49,10 @@
 ## 输出契约
 
 <!-- GENERATED:linus_output_contract:start -->
+- `roundtable`：按下述正式输出契约返回 verdict；实施另受阶段与用户授权约束。
+- `quick-multi`：只返回不超过 200 字的观点，不输出 verdict/YAML，不做 must_haves 审议，不实施。
+- 模式由主持人显式传入；Quick 的无 verdict 规则优先于正式模式的四层必填规则。
+
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 ### 阶段 1
@@ -111,6 +115,6 @@
 
 ## 输出底线
 
-- 阶段 1 与阶段 2 都不能省略共享 schema 的四层：`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`
+- 正式 roundtable 的阶段 1 与阶段 2 都不能省略共享 schema 的四层：`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`
 - 阶段 4 不能省略 `linus_execution` 的任何必填字段
 - 不知道的字段要保留，并用空数组、空字符串或明确 note 说明，不能直接删字段

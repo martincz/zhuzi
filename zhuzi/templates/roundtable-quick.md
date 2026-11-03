@@ -10,7 +10,7 @@
 2. **席位短评每席 1 行**——cell 超长就把该席挪到 `### <席位名> 展开` 段，table 里那行 cell 填"见下方展开"。
 3. **persona 术语首次出现带 1 句机制括注**——例：`Deflated Sharpe`（试 N 次后对观察 Sharpe 打折才算真显著）。判断标准：把术语换成别的词例子还成立 → 是解释；不成立 → 只是翻译，不合格。
 4. **结论列只露中文路由译**——`go` → 过 / `go_with_conditions` → 可做 · <条件> / `revise_must_haves` → 改 must_haves / `kill` → 停 / `too_hard` → 放弃 · <原因>。不露 `fragile` / `cargo_cult` / `broken` 等 native verdict（机读字段，进展开模式才显示）。
-5. **信心列带判据**——`high · 2 席一致` / `medium · 与 Linus 有分歧` / `low · 能力圈外`。不写裸 `high/medium/low`，冲突时就低不就高。
+5. **信心列带证据判据**——`high · 已复现且有一手来源` / `medium · 关键前提待验证` / `low · 缺少关键资料`。席位一致程度放在分歧信息中，不能把“一致”直接当作高信心依据。
 
 不写的规则（避免 bikeshedding）：
 

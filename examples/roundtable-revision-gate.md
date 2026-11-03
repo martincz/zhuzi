@@ -1,108 +1,33 @@
-# Roundtable 示例 · 阶段 1.5 修订 gate 触发
+# Roundtable 示例 · 修订 gate
 
-> 展示 roundtable 的核心价值：**席位有权推翻刚刚锁定的 must_haves**。这是让一份"听起来对"的 must_haves 在实施前被卡住的协议机制。
+> 所有题量、版本与成绩都是假设；示例演示修订过程，不证明任何模型效果。
 
 输入：
 
 ```text
-/zhuzi:roundtable 我在权重搜索里试了 17 种组合，第 12 种回测 walpha +1.8% Sharpe 1.4 显著 vs baseline，建议上线
+/zhuzi:roundtable 我在同一套 30 道题上尝试了 17 个 prompt 版本，第 12 版比 baseline 高 8 个百分点，可以上线吗？
 ```
 
-阶段 0.5 用户确认后的 must_haves（v1）：
+阶段 0.5 的初稿仅要求“当前题集分数高于 baseline”。用户接受的是审议初稿，并没有批准上线。
 
-```yaml
-must_haves:
-  truths:
-    - "组合 12 在 baseline 上 walpha Δ ≥ 1%"
-    - "组合 12 Sharpe ≥ 1.0"
-    - "p-value < 0.05"
-```
+## 阶段 1 · 席位审议
 
----
+López 指出：同一套题同时参与版本选择和效果报告，结果不能直接解释为泛化能力提升。Munger 指出：团队容易把已经投入的工作与选出来的最好成绩当作上线理由。
 
-## 阶段 1 席位短评（截取）
+两个独立首轮均不编造对方的具体立场；以下差异由主持人读完实际返回后整理。
 
-| 席位 | 结论 | 最大风险 | 必须满足 | 分歧 | 信心 |
-|---|---|---|---|---|---|
-| López | 改 must_haves | 见下方展开 | 见下方展开 | 与 Munger 部分一致 | high · 本席位 core 领域 |
-| Munger | 改 must_haves | 见下方展开 | 见下方展开 | 与 López 部分一致 | high · selection bias 是清单第 3 条 |
+## 阶段 1.5 · 修订对照
 
-### López 展开
-
-**最大风险**：
-- `selection bias`（试 N 次后挑最好的 1 个，p < 0.05 在 N=17 下几乎必然命中）· 17 次 trial 下，5% 显著性水平的 false positive 率约 58%
-- `Deflated Sharpe`（试 N 次后要对观察到的 Sharpe 打折才算真显著）· 未做 deflation 的 Sharpe 1.4 在 N=17 下接近无显著
-- `PBO`（probability of backtest overfitting，CSCV 跨验证下方法论是否还有效）· 未披露
-
-**must_haves_challenge.triggered: yes** —— v1 的 truths 把"挑选过的指标"当成"独立指标"，方法论根本错。
-
-### Munger 展开
-
-**最大风险**：
-- `selection bias`（清单第 3 条）· 17 选 1 是经典 cherry pick
-- `deprival super-reaction`（用户已经爱上"组合 12 看起来真好"）
-
-**must_haves_challenge.triggered: yes** —— v1 没要求披露 trial 数和 selection 程序。
-
----
-
-## 阶段 1.5 修订对照表
-
-| # | v1（旧） | v2（新） | 来源 | 根因 |
+| # | 旧版主张 | 修订后主张 | 验证动作 | 来源 |
 |---|---|---|---|---|
-| 1 | walpha Δ ≥ 1% | DSR_lower_bound > 0 + walpha Δ ≥ 1% | López | Sharpe 必须经 trial 数 deflate 才算显著 |
-| 2 | Sharpe ≥ 1.0 | PBO < 0.5（CSCV 验证） | López | 单个 backtest Sharpe 不抗 selection；要看 OOS 稳定性 |
-| 3 | p-value < 0.05 | walk-forward CV 5 折下 4/5 折 OOS walpha 同向 | López + Munger | p-value 在 17 次 trial 下不是有效证据 |
-| 4 | （新增） | 公开披露：本次实验的 trial 数 = 17，选 1 留 16 | López + Munger | 不披露 selection process 的回测不是 evidence |
+| 1 | 已用题集上分数更高即可上线 | 候选在未参与选择的留出任务上满足预先锁定的通过标准 | 冻结候选后，在共同任务与工具条件下比较 | López |
+| 2 | 只报告第 12 版 | 披露本轮试验范围和选择过程 | 保留 17 次版本与运行记录 | López、Munger |
+| 3 | 不检查输出代价 | 同时呈现错误类型、耗时和用量 | 对照原始运行记录与人工复核 | Munger |
 
-### Truth 1 展开
+通过阈值、留出任务和实际验证命令需要在正式实验前确定。不能从“17 个版本、30 道题、提高 8pp”推算显著性，也不能填一个没有数据支撑的置信区间。
 
-**Deflated Sharpe Ratio**（DSR）= 试 N 次后，对观察 Sharpe 打折，得到调整后的"真显著性下界"。
+## 用户确认与后续
 
-例：N=17 实验中观察 Sharpe 1.4，DSR 下界约为 0.7-0.9（取决于 backtest 长度和实验自相关）。要求 `DSR_lower_bound > 0` 等于"哪怕考虑了 selection，仍有非零超额"。
+用户可以接受修订、接受部分、维持原稿或重开议题。主持人保留取舍的原义，不在用户确认前自行混合不兼容的标准。
 
-### Truth 2 展开
-
-**PBO**（Probability of Backtest Overfitting）= 用 CSCV（Combinatorially Symmetric Cross Validation）切分回测，看"在 IS 段排第一的组合在 OOS 段排第几"的分布。PBO < 0.5 = OOS 性能比 random 好。
-
----
-
-## 用户五选一
-
-- **接受 v2** ✓
-- 接受部分（指定哪些 truth 采纳）
-- 保持 v1
-- 重开议题
-- 要求 orchestrator 改写 v2 表达
-
-**用户选择**：接受 v2
-
----
-
-## 阶段 2 · 用 v2 must_haves 进可行性评审
-
-`linus-engineer` 收到的 must_haves 是 v2 版本——他在阶段 4 实施时跑的 verify_commands 也变了：
-
-```yaml
-verify_commands:
-  - truth: 1
-    cmd: "python3 tools/dsr.py --trials 17 --observed-sharpe 1.4"
-    pass_criterion: "DSR_lower_bound > 0"
-  - truth: 2
-    cmd: "python3 tools/cscv.py --splits 16"
-    pass_criterion: "PBO < 0.5"
-  - truth: 3
-    cmd: "python3 tools/walk_forward.py --folds 5"
-    pass_criterion: "OOS walpha 同向 ≥ 4/5"
-  - truth: 4
-    cmd: "grep -E 'trial_count: 17' EXPERIMENT.md"
-    pass_criterion: "披露文件存在且 trial_count == 17"
-```
-
----
-
-## 协议笔记
-
-这个例子的价值在于：**议题进 roundtable 时 must_haves 看起来"科学"（有 walpha 阈值 + Sharpe + p-value），但席位审议后发现整个 must_haves 框架在方法论层就塌了**。如果没有阶段 1.5 修订 gate，议题会带着"挑过的指标"走完阶段 4 的 verify——`grep walpha > 1%` 通过，但实际产品上线后 OOS 失效，是**协议级的错误**。
-
-阶段 1.5 把"席位推翻刚拍板的契约"从临场补 gate 升格成协议内置流程——这是 roundtable 区别于普通"几个 LLM 投票"的关键。
+假设用户接受修订：阶段 2 Linus 获取完整新版 must_haves；如果发现验证接口需要再次修改，回到修订 gate，随后重做可行性检查。进入实施前，所有命令和通过标准须锁定并通过 must_haves 校验。缺少数据或未执行实验时，报告“待验证”，不能报告提升已成立。

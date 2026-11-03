@@ -17,9 +17,9 @@ metadata:
 - 直接 spawn 席位 → 平铺呈现 → 给路径建议。
 
 ## C. 抽象 orchestration 动作映射
-- `Agent(subagent_type="X", prompt="Y")` → `spawn_agent(agent_type="X", message="Y")`
-- N 个席位**并行 spawn**（多个 spawn_agent 在同一回合发出）
-- 用 `wait_agent(...)` 收集后整合呈现，再 `close_agent(...)`
+- `invoke_seat(seat="X", message="Y")` → 用当前运行时的 `spawn_agent` 调用已发现的同名自定义 agent；消息显式传 `mode: quick-multi`。
+- 先确认席位与工具可用，按运行时容量并发调度，超出部分排队；不可用时报告缺口，不假装已调用。
+- 使用实际可用的等待和结果读取工具收集；运行时提供关闭能力时释放已完成线程。
 - **不**保留 agent ID（无续跑）
 - **不**调用 `continue_existing_agent`
 </codex_skill_adapter>
@@ -57,5 +57,5 @@ metadata:
 
 <process>
 端到端执行 `quick-multi.md`：席位匹配 → 并行 spawn → 平铺呈现 → 路径建议。
-把 workflow 里的 `Agent(...)` 翻译为 Codex 的 `spawn_agent(...)`。
+把 workflow 里的 `invoke_seat(...)` 翻译为当前 Codex 运行时真实可用的调用。
 </process>

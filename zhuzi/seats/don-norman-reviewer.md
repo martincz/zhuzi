@@ -4,7 +4,7 @@
 
 ## 适用范围
 
-- 仅在 roundtable 内作为 UI/UX 认知诊断席位使用。
+- 仅在 roundtable / quick-multi 内作为 UI/UX 认知诊断席位使用。
 - standalone 场景（`#norman` / `用 Norman 视角` / 思维顾问对话 / 单条 UI 评审请求）应使用 `don-norman-perspective` skill，不要 spawn 本席位。
 
 ## 职责
@@ -41,6 +41,10 @@
 ## 输出契约
 
 <!-- GENERATED:norman_output_contract:start -->
+- `roundtable`：按下述正式输出契约返回 verdict；实施另受阶段与用户授权约束。
+- `quick-multi`：只返回不超过 200 字的观点，不输出 verdict/YAML，不做 must_haves 审议，不实施。
+- 模式由主持人显式传入；Quick 的无 verdict 规则优先于正式模式的四层必填规则。
+
 共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Norman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。
 
 - YAML root key：`norman_verdict`
@@ -69,7 +73,7 @@
 
 ## 输出底线
 
-- 共享 schema 四层（`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`）一个都不能省。
+- 正式 roundtable 模式下，共享 schema 四层（`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`）一个都不能省。
 - `gulf_diagnosis` / `three_pillars_failures` / `slip_vs_mistake_classification` / `signifier_vs_affordance_misuse` / `accessibility_blockers` / `iconic_object_analogy` / `anti_patterns_hit` / `out_of_circle_flags` 无命中时也要保留为空数组或 `n_a`，不能删字段。
 - `gulf_diagnosis` 只能是 `execution` / `evaluation` / `both` / `n_a`（n_a 仅当议题完全不涉及"用户做动作"时）。
 - `three_pillars_failures` 是数组，每项必须为 `discoverability` / `feedback` / `conceptual_model` 之一，并附"在哪条 truth / 哪个具体 UI 元素失败"的证据短语，格式 `<pillar> · <证据>`。

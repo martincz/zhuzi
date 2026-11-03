@@ -14,13 +14,13 @@
 
 - 每个人物有**独立的思维操作系统**——不是 prompt 风格包装，是经过研究提炼的心智模型、anti-pattern 库、表达档位。
 - 要多视角时让他们**同席而坐、各执一词**，保留分歧进入决策流程，而不是替用户调和。
-- 写成 Markdown 驱动，由支持相应规范的 agent runtime 加载——目前支持 Claude Code 与 Codex CLI。
+- 写成 Markdown 驱动，由支持相应规范的 agent runtime 加载——目前的安装与验收支持 Claude Code 与 Codex CLI。OpenAI 官方规范对齐、支持边界与评测方式见 [设计说明](./docs/openai-alignment.md)。
 
 ## 圆桌是什么
 
 圆桌（roundtable）是把多个人物席位放进一条议事流水线，审议同一个议题。和 "把几个 prompt 塞给一个 agent" 不同的是：
 
-- **席位独立运行**——每个席位是一个子 agent，按自己的 verdict schema 给结构化判断，不被其他席位的结论污染。
+- **席位独立运行**——首轮每个席位在独立线程审议相同材料，按共享契约返回判断，不预先看到别席结论。上下文隔离不等于判断在统计上独立。
 - **分歧被显式保留**——主持人（orchestrator）做综合，但不擅自收敛；Taleb 认为 fragile、Munger 认为 keep、这两件事会并列呈现，让用户拍板。
 - **议题契约先行**——召开席位前先定义 `must_haves.truths` 和 `verify_commands`，避免"讨论了一圈但不知道什么算成立"。
 - **实施可承接**——若议题涉及代码，Linus 席位按议题类型出场：工程决策议题 `stages=[1,2]`（阶段 1 做 good taste / anti-pattern 工程评议，阶段 2 做代码可行性 gate），纯实施议题 `stages=[2]`；阶段 4 按锁定方案实施。
@@ -193,15 +193,19 @@ Apple 联创（1955–2011），iPod / iPhone / iPad 主导者。产品 / 设计
 ```bash
 git clone https://github.com/<your-fork>/zhuzi.git
 cd zhuzi
+python3 -m pip install -r requirements-dev.txt
 ./install.sh
 ```
+
+旧版 Codex 安装会先备份，再覆盖并清理已确认归属的旧入口。只升级 Codex 可运行 `./install.sh --codex-only`；预览用 `./install.sh --codex-only --dry-run --json`。目录不变时直接覆盖，重复安装不会反复迁移。迁移与回滚细节见 [设计说明](./docs/openai-alignment.md#安装与迁移)。
 
 `install.sh` 按 [zhuzi/manifests/shipped-surface.json](./zhuzi/manifests/shipped-surface.json) 把全部 shipped surface 安装到 Claude 和 Codex 的默认根目录。shipped surface 的人读清单见 [docs/INVENTORY.md](./docs/INVENTORY.md)。
 
 覆盖根目录：
 
 - `CLAUDE_DIR`（默认 `~/.claude`）
-- `CODEX_HOME`（默认 `~/.codex`）
+- `CODEX_HOME`（默认 `~/.codex`，存放原生 agent 与共享资产）
+- `CODEX_SKILL_DIR`（默认用户发现位置为 `~/.agents/skills`；仅覆盖 `CODEX_HOME` 时技能存储也随之隔离，详见设计说明）
 
 ## 仓库布局
 
@@ -213,7 +217,7 @@ zhuzi/
 │   │   ├── agents/                 # roundtable seat adapters
 │   │   └── commands/zhuzi/         # /zhuzi:roundtable, /zhuzi:quick 入口
 │   └── codex/
-│       ├── agents/                 # Codex seat adapters
+│       ├── agents/                 # Codex 原生 TOML seat adapters
 │       └── skills/                 # zhuzi-roundtable, zhuzi-quick orchestrator skills
 ├── zhuzi/
 │   ├── seats/                      # 共享 seat contracts
@@ -235,6 +239,19 @@ zhuzi/
 - 机器合同：`zhuzi/manifests/roundtable-contract.json`
 - 席位契约：`zhuzi/seats/`
 - 人读说明：`zhuzi/references/seat-registry.md`、`zhuzi/references/verdict-schema.md`
+
+## 开发验证
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+python3 tools/render_roundtable_contract_docs.py
+python3 tools/check_consistency.py
+python3 -m unittest discover -s tests -v
+python3 tools/smoke_test_codex_roundtable.py --offline
+python3 tools/smoke_test_codex_roundtable.py
+```
+
+在线 smoke 使用临时安装和只读 fixture，验证两席真实调用、verdict 与同一实现席位续跑，会产生模型用量；离线检查通过不代表在线调用或判断质量通过。行为对照题集、记录器和人工评分方式见 [设计说明](./docs/openai-alignment.md)。
 
 ## 协作与贡献
 

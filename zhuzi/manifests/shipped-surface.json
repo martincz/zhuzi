@@ -102,37 +102,37 @@
     "codex_agents": [
       {
         "entry": "linus-engineer",
-        "path": "runtimes/codex/agents/linus-engineer.md",
+        "path": "runtimes/codex/agents/linus-engineer.toml",
         "role": "Codex roundtable 代码席 adapter"
       },
       {
         "entry": "munger-reviewer",
-        "path": "runtimes/codex/agents/munger-reviewer.md",
+        "path": "runtimes/codex/agents/munger-reviewer.toml",
         "role": "Codex roundtable 决策质量席 adapter"
       },
       {
         "entry": "taleb-reviewer",
-        "path": "runtimes/codex/agents/taleb-reviewer.md",
+        "path": "runtimes/codex/agents/taleb-reviewer.toml",
         "role": "Codex roundtable 风险结构席 adapter"
       },
       {
         "entry": "lopezdeprado-reviewer",
-        "path": "runtimes/codex/agents/lopezdeprado-reviewer.md",
+        "path": "runtimes/codex/agents/lopezdeprado-reviewer.toml",
         "role": "Codex roundtable 证据质量席 adapter"
       },
       {
         "entry": "feynman-reviewer",
-        "path": "runtimes/codex/agents/feynman-reviewer.md",
+        "path": "runtimes/codex/agents/feynman-reviewer.toml",
         "role": "Codex roundtable 解释清晰度席 adapter"
       },
       {
         "entry": "paul-graham-reviewer",
-        "path": "runtimes/codex/agents/paul-graham-reviewer.md",
+        "path": "runtimes/codex/agents/paul-graham-reviewer.toml",
         "role": "Codex roundtable Maker 视角席 adapter"
       },
       {
         "entry": "don-norman-reviewer",
-        "path": "runtimes/codex/agents/don-norman-reviewer.md",
+        "path": "runtimes/codex/agents/don-norman-reviewer.toml",
         "role": "Codex roundtable UI/UX 认知诊断席 adapter"
       }
     ],
@@ -281,7 +281,7 @@
       {
         "entry": "install_codex_source_adapters.py",
         "path": "tools/install_codex_source_adapters.py",
-        "role": "渲染并安装 Codex roundtable adapters 到 Codex 安装根，由 install.sh [5/5] 调用"
+        "role": "Codex 完整安装、旧技能归属检查、备份迁移与失败回滚，由 install.sh [5/5] 调用"
       },
       {
         "entry": "render_roundtable_contract_docs.py",
@@ -291,7 +291,33 @@
       {
         "entry": "smoke_test_codex_roundtable.py",
         "path": "tools/smoke_test_codex_roundtable.py",
-        "role": "手动 Codex roundtable 烟雾测试：刷新安装、验证 adapter 与 skill 激活"
+        "role": "隔离安装与在线验收：两席真实调用、verdict 校验及同一实现席位续跑"
+      },
+      {
+        "entry": "run_behavioral_evals.py",
+        "path": "tools/run_behavioral_evals.py",
+        "role": "记录普通回答、单 agent 多视角与真实圆桌的可比较模型运行"
+      }
+    ],
+    "schemas": [
+      {
+        "entry": "verdict.schema",
+        "path": "zhuzi/schemas/verdict.schema.json",
+        "role": "从 manifest 生成的正式圆桌 JSON Schema"
+      }
+    ],
+    "validators": [
+      {
+        "entry": "verdict",
+        "path": "zhuzi/validators/verdict.py",
+        "role": "校验 verdict、truth 覆盖、条件路由与实施验证记录"
+      }
+    ],
+    "evals": [
+      {
+        "entry": "cases",
+        "path": "evals/cases.json",
+        "role": "20 个合成回归场景与人工评分依据"
       }
     ]
   }

@@ -1,11 +1,12 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
   "references": {
     "workflow": "zhuzi/workflows/roundtable.md",
     "seat_registry": "zhuzi/references/seat-registry.md",
     "verdict_schema": "zhuzi/references/verdict-schema.md",
     "quick_template": "zhuzi/templates/roundtable-quick.md",
-    "quick_example": "examples/roundtable-quick.md"
+    "quick_example": "examples/roundtable-quick.md",
+    "verdict_json_schema": "zhuzi/schemas/verdict.schema.json"
   },
   "quick_output": {
     "headings": [
@@ -30,7 +31,8 @@
       "force roundtable"
     ],
     "review_seat_soft_count": 3,
-    "review_seat_soft_count_semantics": "soft hint, not a hard cap; 命中超过时全部 spawn，orchestrator 在议题卡末尾给一行 hint 提示席位数较多，不强制砍席"
+    "review_seat_soft_count_semantics": "soft hint, not a hard cap; 所有命中席位均审议，按运行时并发容量排队，不截掉席位",
+    "scheduling": "bounded_parallel"
   },
   "verdict_schema": {
     "layers": [
@@ -58,18 +60,165 @@
       "incentive_mismatch",
       "other"
     ],
-    "phase_4_exception": {
-      "root_key": "linus_execution",
-      "fields": [
-        "phase",
-        "status",
-        "decisions_honored",
-        "out_of_scope_touched",
-        "verification_attempted",
-        "self_audit",
-        "commit_status",
-        "gaps_to_route_back"
-      ]
+    "core_fields": {
+      "confidence": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "description": "证据支持程度，与席位是否一致分开"
+      },
+      "hard_blockers": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "转 go 前必须解决的条件"
+      },
+      "peer_disagreements": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "peer",
+            "point"
+          ],
+          "properties": {
+            "peer": {
+              "type": "string",
+              "minLength": 1
+            },
+            "point": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "description": "见过对方原文后记录的分歧；盲审首轮为空"
+      },
+      "evidence": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "claim",
+            "source",
+            "kind"
+          ],
+          "properties": {
+            "claim": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "provided",
+                "observed",
+                "primary_source",
+                "inference"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "description": "每项含 claim/source/kind 的可追溯依据"
+      },
+      "missing_evidence": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "尚缺的关键资料或未核实的前提"
+      }
+    },
+    "review_item": {
+      "type": "object",
+      "required": [
+        "truth",
+        "flag"
+      ],
+      "properties": {
+        "truth": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "flag": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "proposed_criterion": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "challenge": {
+      "type": "object",
+      "required": [
+        "triggered",
+        "challenged_truths",
+        "fundamental_issue",
+        "proposed_revision"
+      ],
+      "properties": {
+        "triggered": {
+          "type": "boolean"
+        },
+        "challenged_truths": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "uniqueItems": true
+        },
+        "fundamental_issue": {
+          "type": "string"
+        },
+        "proposed_revision": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "truth_id",
+              "revised_truth",
+              "revised_verify_suggestion",
+              "spawn_sub_topic"
+            ],
+            "properties": {
+              "truth_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "revised_truth": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50
+              },
+              "revised_verify_suggestion": {
+                "type": "string"
+              },
+              "spawn_sub_topic": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
   "seats": {
@@ -147,16 +296,42 @@
         "sections": [
           {
             "root_key": "taleb_verdict",
-            "seat_specific_fields": [
-              "tail_events_breaking_must_haves",
-              "fragility_checklist_failures",
-              "distribution_class",
-              "payoff_convexity",
-              "skin_in_the_game"
-            ],
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身把 Mediocristan 指标拿去审 Extremistan 问题，或根本忽视了 ruin / Jensen / time-average 约束"
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身把 Mediocristan 指标拿去审 Extremistan 问题，或根本忽视了 ruin / Jensen / time-average 约束",
+            "field_schemas": {
+              "tail_events_breaking_must_haves": {
+                "type": "array"
+              },
+              "fragility_checklist_failures": {
+                "type": "array"
+              },
+              "distribution_class": {
+                "type": "string",
+                "enum": [
+                  "mediocristan",
+                  "extremistan",
+                  "unclear"
+                ]
+              },
+              "payoff_convexity": {
+                "type": "string",
+                "enum": [
+                  "concave",
+                  "linear",
+                  "convex",
+                  "unclear"
+                ]
+              },
+              "skin_in_the_game": {
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "partial"
+                ]
+              }
+            }
           }
         ]
       },
@@ -219,7 +394,8 @@
       ],
       "native_verdict_routes": {
         "keep": [
-          "go"
+          "go",
+          "go_with_conditions"
         ],
         "kill": [
           "kill"
@@ -233,25 +409,59 @@
         "sections": [
           {
             "root_key": "munger_verdict",
-            "seat_specific_fields": [
-              "anti_patterns_hit",
-              "lollapalooza_stack",
-              "circle_of_competence",
-              "incentive_map",
-              "opportunity_cost_note",
-              "reverse_kill_path"
-            ],
             "phase": "1",
             "extra_route_lines": [
               "若 must_haves 本身是 Goodhart / 激励扭曲 / 样本污染，应走 `revise_must_haves`"
             ],
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表你认为 must_haves 框架本身在激励或判断结构上跑偏，不是单条阈值小修"
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表你认为 must_haves 框架本身在激励或判断结构上跑偏，不是单条阈值小修",
+            "field_schemas": {
+              "anti_patterns_hit": {
+                "type": "array"
+              },
+              "lollapalooza_stack": {
+                "type": "array"
+              },
+              "circle_of_competence": {
+                "type": "string",
+                "enum": [
+                  "in",
+                  "out"
+                ]
+              },
+              "incentive_map": {
+                "type": [
+                  "object",
+                  "array",
+                  "string"
+                ]
+              },
+              "opportunity_cost_note": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reverse_kill_path": {
+                "type": [
+                  "string",
+                  "array"
+                ]
+              }
+            }
           }
         ]
       },
       "required_contract_snippets": [
         "## 审议动作"
+      ],
+      "conditional_routes": [
+        {
+          "route": "revise_must_haves",
+          "when": {
+            "path": "must_haves_challenge.triggered",
+            "equals": true
+          },
+          "mode": "add"
+        }
       ]
     },
     "lopezdeprado-reviewer": {
@@ -347,26 +557,68 @@
         "sections": [
           {
             "root_key": "lopezdeprado_verdict",
-            "seat_specific_fields": [
-              "claim_classification",
-              "causal_graph_missing",
-              "trial_count_disclosed",
-              "integrity_checklist_failures",
-              "anti_pattern_hits",
-              "workflow_diagnosis",
-              "domain_limit_flag"
-            ],
             "phase": "1",
             "extra_route_lines": [
               "`domain_limit_flag != none` → `too_hard`"
             ],
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架把 associational claim 伪装成 causal、把 backtest 当理论、把 multiple testing 问题埋起来，或在 protocol 层面就不科学"
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架把 associational claim 伪装成 causal、把 backtest 当理论、把 multiple testing 问题埋起来，或在 protocol 层面就不科学",
+            "field_schemas": {
+              "claim_classification": {
+                "type": "array"
+              },
+              "causal_graph_missing": {
+                "type": "boolean"
+              },
+              "trial_count_disclosed": {
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "partial"
+                ]
+              },
+              "integrity_checklist_failures": {
+                "type": "array"
+              },
+              "anti_pattern_hits": {
+                "type": "array"
+              },
+              "workflow_diagnosis": {
+                "type": "string",
+                "enum": [
+                  "sisyphus",
+                  "meta_strategy",
+                  "unclear"
+                ]
+              },
+              "domain_limit_flag": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "out_of_domain",
+                  "L4_silence"
+                ]
+              }
+            }
           }
         ]
       },
       "required_contract_snippets": [
         "## 审议动作"
+      ],
+      "conditional_routes": [
+        {
+          "route": "too_hard",
+          "when": {
+            "path": "seat_specific.domain_limit_flag",
+            "enum": [
+              "out_of_domain",
+              "L4_silence"
+            ]
+          },
+          "mode": "override"
+        }
       ]
     },
     "feynman-reviewer": {
@@ -447,19 +699,47 @@
         "sections": [
           {
             "root_key": "feynman_verdict",
-            "seat_specific_fields": [
-              "undefined_terms",
-              "mechanism_gaps",
-              "missing_examples",
-              "boundary_gaps",
-              "false_analogies",
-              "verification_gaps",
-              "ai_misread_risk",
-              "diagnosis_level"
-            ],
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，并说明术语是否定义清楚、机制是否讲明白、验证口径是否会被人和 agent 同时误读",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制、用同样未理解的东西去类比解释、或只写正例不写失效条件，把不可验证的话术伪装成了可执行 contract"
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制、用同样未理解的东西去类比解释、或只写正例不写失效条件，把不可验证的话术伪装成了可执行 contract",
+            "field_schemas": {
+              "undefined_terms": {
+                "type": "array"
+              },
+              "mechanism_gaps": {
+                "type": "array"
+              },
+              "missing_examples": {
+                "type": "array"
+              },
+              "boundary_gaps": {
+                "type": "array"
+              },
+              "false_analogies": {
+                "type": "array"
+              },
+              "verification_gaps": {
+                "type": "array"
+              },
+              "ai_misread_risk": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "diagnosis_level": {
+                "type": "string",
+                "enum": [
+                  "l1_clarification",
+                  "l2_dejargon",
+                  "l3_cargo_cult",
+                  "l4_needs_demonstration",
+                  "n_a"
+                ]
+              }
+            }
           }
         ]
       },
@@ -571,18 +851,63 @@
         "sections": [
           {
             "root_key": "paul_graham_verdict",
-            "seat_specific_fields": [
-              "founder_type",
-              "pmf_signal",
-              "taste_verdict",
-              "identity_risk",
-              "superlinear_score",
-              "anti_patterns_hit",
-              "out_of_circle_flags"
-            ],
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 标注是 maker-side 还是 manager-side 判断，以及该 truth 是否需要更具体的用户 / 创始人 / 产品证据",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表议题把 idea polish / investor optimization / manager mode / 虚构用户包装成了正面命题；或目标行动本身属于 polishing bad ideas / building for users who don't exist yet"
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表议题把 idea polish / investor optimization / manager mode / 虚构用户包装成了正面命题；或目标行动本身属于 polishing bad ideas / building for users who don't exist yet",
+            "field_schemas": {
+              "founder_type": {
+                "type": "string",
+                "enum": [
+                  "maker",
+                  "manager",
+                  "unclear",
+                  "n_a"
+                ]
+              },
+              "pmf_signal": {
+                "type": "string",
+                "enum": [
+                  "love_from_few",
+                  "like_from_many",
+                  "no_signal",
+                  "untested",
+                  "n_a"
+                ]
+              },
+              "taste_verdict": {
+                "type": "string",
+                "enum": [
+                  "surprising",
+                  "polish_needed",
+                  "rehash",
+                  "bullshit",
+                  "n_a"
+                ]
+              },
+              "identity_risk": {
+                "type": "string",
+                "enum": [
+                  "small",
+                  "bloated",
+                  "n_a"
+                ]
+              },
+              "superlinear_score": {
+                "type": "string",
+                "enum": [
+                  "superlinear",
+                  "linear",
+                  "capped",
+                  "n_a"
+                ]
+              },
+              "anti_patterns_hit": {
+                "type": "array"
+              },
+              "out_of_circle_flags": {
+                "type": "array"
+              }
+            }
           }
         ]
       },
@@ -699,23 +1024,46 @@
         "sections": [
           {
             "root_key": "norman_verdict",
-            "seat_specific_fields": [
-              "gulf_diagnosis",
-              "three_pillars_failures",
-              "slip_vs_mistake_classification",
-              "signifier_vs_affordance_misuse",
-              "accessibility_blockers",
-              "iconic_object_analogy",
-              "anti_patterns_hit",
-              "out_of_circle_flags"
-            ],
             "phase": "1",
             "extra_route_lines": [
               "若 must_haves 把'用户应该学习 / 用户没培训好'当作可用性问题的解释，应走 `revise_must_haves`（这是把责任错配给用户）",
               "议题完全不在 UI/UX 范畴时走 `not_my_circle` → `too_hard`"
             ],
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 标注：(1) 这条是不是把用户错归因为'设计错'；(2) 失败定位在 Gulf of Execution 还是 Gulf of Evaluation；(3) 三件套（discoverability / feedback / conceptual model）哪根缺",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架本身把'用户应该学习'当成解释、把 affordance 当 signifier 误用、或对老人 / 视障 / 新手系统性敌对（minimalist 美学伪装 ableism）"
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架本身把'用户应该学习'当成解释、把 affordance 当 signifier 误用、或对老人 / 视障 / 新手系统性敌对（minimalist 美学伪装 ableism）",
+            "field_schemas": {
+              "gulf_diagnosis": {
+                "type": "string",
+                "enum": [
+                  "execution",
+                  "evaluation",
+                  "both",
+                  "n_a"
+                ]
+              },
+              "three_pillars_failures": {
+                "type": "array"
+              },
+              "slip_vs_mistake_classification": {
+                "type": "array"
+              },
+              "signifier_vs_affordance_misuse": {
+                "type": "array"
+              },
+              "accessibility_blockers": {
+                "type": "array"
+              },
+              "iconic_object_analogy": {
+                "type": "string",
+                "minLength": 1
+              },
+              "anti_patterns_hit": {
+                "type": "array"
+              },
+              "out_of_circle_flags": {
+                "type": "array"
+              }
+            }
           }
         ]
       },
@@ -801,13 +1149,6 @@
           {
             "heading": "阶段 1",
             "root_key": "linus_feasibility",
-            "seat_specific_fields": [
-              "data_structure_risks",
-              "special_case_pressure",
-              "anti_patterns_hit",
-              "interface_risks",
-              "out_of_scope_for_strategy"
-            ],
             "phase": "1",
             "extra_route_lines": [
               "`needs_refactor_first` 在阶段 1 代表议题切法需要先拆 scope 或改接口形状，不等同于阶段 2 的代码重构要求"
@@ -816,45 +1157,134 @@
             "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 表示议题本身在数据结构、接口切法或特殊情况数量上就已经坏味道过重，应先回阶段 1.5 修订 must_haves 或拆 scope",
             "field_rules": [
               "`special_case_pressure` 需要点出复杂度被谁承担，以及能否通过换切法消掉特殊情况"
-            ]
+            ],
+            "field_schemas": {
+              "data_structure_risks": {
+                "type": "array"
+              },
+              "special_case_pressure": {
+                "type": "array"
+              },
+              "anti_patterns_hit": {
+                "type": "array"
+              },
+              "interface_risks": {
+                "type": "array"
+              },
+              "out_of_scope_for_strategy": {
+                "type": "array"
+              }
+            }
           },
           {
             "heading": "阶段 2",
             "root_key": "linus_feasibility",
-            "seat_specific_fields": [
-              "broken_evidence",
-              "must_haves_coverage_detail",
-              "refactor_prerequisites",
-              "risk_notes",
-              "out_of_scope_for_strategy"
-            ],
             "phase": "2",
             "must_haves_review_note": "`must_haves_review` 必须覆盖每条 truth；Linus 视角最常用的 flag 是 `coverage_gap`",
             "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 表示代码层认为 must_haves 本身要求了现架构无法干净承载的能力，应回到阶段 1.5 修订",
             "field_rules": [
               "`broken_evidence` 必须具体到 `file` / `symbol` / `reason`"
-            ]
+            ],
+            "field_schemas": {
+              "broken_evidence": {
+                "type": "array"
+              },
+              "must_haves_coverage_detail": {
+                "type": "array"
+              },
+              "refactor_prerequisites": {
+                "type": "array"
+              },
+              "risk_notes": {
+                "type": "array"
+              },
+              "out_of_scope_for_strategy": {
+                "type": "array"
+              }
+            }
           },
           {
             "heading": "阶段 4",
             "schema_mode": "phase_4_exception",
             "root_key": "linus_execution",
-            "seat_specific_fields": [
-              "phase",
-              "status",
-              "decisions_honored",
-              "out_of_scope_touched",
-              "verification_attempted",
-              "self_audit",
-              "commit_status",
-              "gaps_to_route_back"
-            ],
             "intro_note": "这是实施验证状态输出，不走共同四层 schema",
             "field_list_label": "必填字段",
             "field_rules": [
               "`verification_attempted` 必须逐条记录实际执行的 `cmd`、`result`、`evidence`",
               "任一 verify 失败或跳过，都不能报 `done`；必须把缺口写进 `gaps_to_route_back`"
-            ]
+            ],
+            "field_schemas": {
+              "phase": {
+                "const": 4
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "done",
+                  "incomplete",
+                  "blocked"
+                ]
+              },
+              "decisions_honored": {
+                "type": "boolean"
+              },
+              "out_of_scope_touched": {
+                "type": "boolean"
+              },
+              "verification_attempted": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "truth",
+                    "cmd",
+                    "result",
+                    "evidence"
+                  ],
+                  "properties": {
+                    "truth": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "cmd": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "result": {
+                      "type": "string",
+                      "enum": [
+                        "passed",
+                        "failed",
+                        "skipped"
+                      ]
+                    },
+                    "evidence": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "self_audit": {
+                "type": [
+                  "array",
+                  "object",
+                  "string"
+                ]
+              },
+              "commit_status": {
+                "const": "not_committed"
+              },
+              "gaps_to_route_back": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
           }
         ]
       },
@@ -862,6 +1292,17 @@
         "## 项目纪律发现（实施席位独有）",
         "## 阶段纪律"
       ]
+    }
+  },
+  "modes": {
+    "roundtable": {
+      "verdict_required": true,
+      "implementation_allowed": true
+    },
+    "quick-multi": {
+      "verdict_required": false,
+      "max_characters": 200,
+      "implementation_allowed": false
     }
   }
 }

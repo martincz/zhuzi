@@ -13,16 +13,16 @@ metadata:
 - 除非上游上下文已经提供更精确的议题正文，否则把当前用户请求直接视为本次 roundtable 议题。
 
 ## B. 用户确认映射
-- workflow 里凡是要求用户接受 / override / 停止的步骤，有 `request_user_input` 就用它。
-- 如果 `request_user_input` 不可用，就退回纯文本编号列表并等待用户回复。
-- 不要因为 runtime 缺少更丰富的交互 UI，就跳过阶段 0.5 或阶段 1.5 的用户 gate。
+- 需要用户确认时，沿用已有明确授权；缺少授权或出现实质变更时，用普通对话等待用户回复。
+- 只有当前运行时提供支持必答确认的交互工具时才使用它；仅用于可选问题的工具不能充当授权 gate。沉默、超时和空回答都不是批准。
 
 ## C. 抽象 orchestration 动作映射
-- `Agent(subagent_type="X", prompt="Y")` → `spawn_agent(agent_type="X", message="Y")`
+- `invoke_seat(seat="X", message="Y")` → 使用当前运行时的 `spawn_agent`，选择已发现的同名自定义 agent 并传入消息。
+- 调用前检查命名席位是否可用、并发容量和实际工具参数；不可用时明确报告兼容性缺口，不把普通回答冒充席位运行。
 - 保留返回的 agent ID，方便阶段 4 在 runtime 支持时继续复用同一个 `linus_id`
-- `continue_existing_agent(agent_id, message)` → `send_input(target=agent_id, message="Y")`
+- `continue_existing_agent(agent_id, message)` → 使用当前运行时能唤醒并续跑已有 agent 的工具（如 `send_input` 或 `followup_task`）；只投递消息但不唤醒空闲 agent 的工具不能视为续跑完成。
 - 如果 `continue_existing_agent(...)` 不可用，就 fallback 到新的 `spawn_agent`，并完整注入阶段 2 的 Linus 原文
-- 用 `wait_agent(...)` 收集席位输出，整合完成后再 `close_agent(...)`。
+- 使用当前运行时实际提供的等待和结果读取工具收集完整输出；保留阶段 2 的实现席位至实施结束，最后在运行时提供关闭能力时释放它。不要假定固定工具名、参数或必有 `close_agent`。
 </codex_skill_adapter>
 
 <objective>
@@ -54,12 +54,12 @@ Roundtable 的共享真相源仍然只认：
 Codex 侧没有 Claude-style slash command。本 skill 充当 Codex 的 roundtable 协调层适配器。
 
 硬约束：
-- 阶段 3 未获用户确认前，禁止进入阶段 4
+- 阶段 3 未有覆盖当前方案的实施授权前，禁止进入阶段 4
 - 阶段 4 优先续跑同一个 `linus_id`；做不到才 fallback 新 spawn + 完整注入阶段 2 原文
 - 不复制或改写共享协议；本 skill 只是 Codex 语义适配层
 </context>
 
 <process>
 在 Codex 中端到端执行已装载的 roundtable workflow。
-遵守所有共享 gate 和硬约束；把 workflow 里的 `Agent(...)` / `continue_existing_agent(...)` 翻译为上面的 Codex tool 调用。
+遵守共享 gate 和硬约束；把 `invoke_seat(...)` / `continue_existing_agent(...)` 翻译为当前运行时真实可用的调用。自定义 agent 的权限、provider、MCP 和 service tier 继承父会话，adapter 不承诺独立沙箱。
 </process>

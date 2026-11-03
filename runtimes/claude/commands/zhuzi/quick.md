@@ -17,7 +17,7 @@ $ARGUMENTS
 <claude_command_adapter>
 共享 workflow 里的抽象 orchestration 动作用 Claude runtime 这样落地：
 
-- `Agent(subagent_type="X", prompt="Y")`：直接使用 Claude 的 `Agent(...)`，N 个席位**在同一条消息内并行 spawn**
+- `invoke_seat(seat="X", message="Y")`：使用当前 Claude 可用的同名席位调用，按运行时容量并发，超出的排队
 - 席位 prompt **必须**含 `[quick-multi 模式 — 不走 verdict schema]` 标记
 - 不需要 `continue_existing_agent` —— 本协议无续跑
 </claude_command_adapter>

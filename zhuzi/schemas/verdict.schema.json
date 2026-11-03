@@ -1,0 +1,2365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "zhuzi roundtable verdict",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "taleb_verdict": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "taleb"
+                },
+                "phase": {
+                  "const": 1
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "fragile",
+                    "robust",
+                    "antifragile"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "tail_events_breaking_must_haves": {
+                  "type": "array"
+                },
+                "fragility_checklist_failures": {
+                  "type": "array"
+                },
+                "distribution_class": {
+                  "type": "string",
+                  "enum": [
+                    "mediocristan",
+                    "extremistan",
+                    "unclear"
+                  ]
+                },
+                "payoff_convexity": {
+                  "type": "string",
+                  "enum": [
+                    "concave",
+                    "linear",
+                    "convex",
+                    "unclear"
+                  ]
+                },
+                "skin_in_the_game": {
+                  "type": "string",
+                  "enum": [
+                    "yes",
+                    "no",
+                    "partial"
+                  ]
+                }
+              },
+              "required": [
+                "tail_events_breaking_must_haves",
+                "fragility_checklist_failures",
+                "distribution_class",
+                "payoff_convexity",
+                "skin_in_the_game"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "taleb_verdict"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "munger_verdict": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "munger"
+                },
+                "phase": {
+                  "const": 1
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "keep",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "anti_patterns_hit": {
+                  "type": "array"
+                },
+                "lollapalooza_stack": {
+                  "type": "array"
+                },
+                "circle_of_competence": {
+                  "type": "string",
+                  "enum": [
+                    "in",
+                    "out"
+                  ]
+                },
+                "incentive_map": {
+                  "type": [
+                    "object",
+                    "array",
+                    "string"
+                  ]
+                },
+                "opportunity_cost_note": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reverse_kill_path": {
+                  "type": [
+                    "string",
+                    "array"
+                  ]
+                }
+              },
+              "required": [
+                "anti_patterns_hit",
+                "lollapalooza_stack",
+                "circle_of_competence",
+                "incentive_map",
+                "opportunity_cost_note",
+                "reverse_kill_path"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "munger_verdict"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "lopezdeprado_verdict": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "lopezdeprado"
+                },
+                "phase": {
+                  "const": 1
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "scientific",
+                    "associational",
+                    "pseudo_scientific"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "claim_classification": {
+                  "type": "array"
+                },
+                "causal_graph_missing": {
+                  "type": "boolean"
+                },
+                "trial_count_disclosed": {
+                  "type": "string",
+                  "enum": [
+                    "yes",
+                    "no",
+                    "partial"
+                  ]
+                },
+                "integrity_checklist_failures": {
+                  "type": "array"
+                },
+                "anti_pattern_hits": {
+                  "type": "array"
+                },
+                "workflow_diagnosis": {
+                  "type": "string",
+                  "enum": [
+                    "sisyphus",
+                    "meta_strategy",
+                    "unclear"
+                  ]
+                },
+                "domain_limit_flag": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "out_of_domain",
+                    "L4_silence"
+                  ]
+                }
+              },
+              "required": [
+                "claim_classification",
+                "causal_graph_missing",
+                "trial_count_disclosed",
+                "integrity_checklist_failures",
+                "anti_pattern_hits",
+                "workflow_diagnosis",
+                "domain_limit_flag"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "type": "object",
+                "required": [
+                  "seat_specific"
+                ],
+                "properties": {
+                  "seat_specific": {
+                    "type": "object",
+                    "required": [
+                      "domain_limit_flag"
+                    ],
+                    "properties": {
+                      "domain_limit_flag": {
+                        "enum": [
+                          "out_of_domain",
+                          "L4_silence"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "core": {
+                    "properties": {
+                      "route": {
+                        "const": "too_hard"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "lopezdeprado_verdict"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "feynman_verdict": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "feynman"
+                },
+                "phase": {
+                  "const": 1
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "clear",
+                    "muddy",
+                    "cargo_cult"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "undefined_terms": {
+                  "type": "array"
+                },
+                "mechanism_gaps": {
+                  "type": "array"
+                },
+                "missing_examples": {
+                  "type": "array"
+                },
+                "boundary_gaps": {
+                  "type": "array"
+                },
+                "false_analogies": {
+                  "type": "array"
+                },
+                "verification_gaps": {
+                  "type": "array"
+                },
+                "ai_misread_risk": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                },
+                "diagnosis_level": {
+                  "type": "string",
+                  "enum": [
+                    "l1_clarification",
+                    "l2_dejargon",
+                    "l3_cargo_cult",
+                    "l4_needs_demonstration",
+                    "n_a"
+                  ]
+                }
+              },
+              "required": [
+                "undefined_terms",
+                "mechanism_gaps",
+                "missing_examples",
+                "boundary_gaps",
+                "false_analogies",
+                "verification_gaps",
+                "ai_misread_risk",
+                "diagnosis_level"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "feynman_verdict"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "paul_graham_verdict": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "paul_graham"
+                },
+                "phase": {
+                  "const": 1
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "sane",
+                    "needs_pivot",
+                    "manager_drift",
+                    "not_my_circle"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "founder_type": {
+                  "type": "string",
+                  "enum": [
+                    "maker",
+                    "manager",
+                    "unclear",
+                    "n_a"
+                  ]
+                },
+                "pmf_signal": {
+                  "type": "string",
+                  "enum": [
+                    "love_from_few",
+                    "like_from_many",
+                    "no_signal",
+                    "untested",
+                    "n_a"
+                  ]
+                },
+                "taste_verdict": {
+                  "type": "string",
+                  "enum": [
+                    "surprising",
+                    "polish_needed",
+                    "rehash",
+                    "bullshit",
+                    "n_a"
+                  ]
+                },
+                "identity_risk": {
+                  "type": "string",
+                  "enum": [
+                    "small",
+                    "bloated",
+                    "n_a"
+                  ]
+                },
+                "superlinear_score": {
+                  "type": "string",
+                  "enum": [
+                    "superlinear",
+                    "linear",
+                    "capped",
+                    "n_a"
+                  ]
+                },
+                "anti_patterns_hit": {
+                  "type": "array"
+                },
+                "out_of_circle_flags": {
+                  "type": "array"
+                }
+              },
+              "required": [
+                "founder_type",
+                "pmf_signal",
+                "taste_verdict",
+                "identity_risk",
+                "superlinear_score",
+                "anti_patterns_hit",
+                "out_of_circle_flags"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "paul_graham_verdict"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "norman_verdict": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "norman"
+                },
+                "phase": {
+                  "const": 1
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "usable",
+                    "confused_users",
+                    "blames_users",
+                    "not_my_circle"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "gulf_diagnosis": {
+                  "type": "string",
+                  "enum": [
+                    "execution",
+                    "evaluation",
+                    "both",
+                    "n_a"
+                  ]
+                },
+                "three_pillars_failures": {
+                  "type": "array"
+                },
+                "slip_vs_mistake_classification": {
+                  "type": "array"
+                },
+                "signifier_vs_affordance_misuse": {
+                  "type": "array"
+                },
+                "accessibility_blockers": {
+                  "type": "array"
+                },
+                "iconic_object_analogy": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "anti_patterns_hit": {
+                  "type": "array"
+                },
+                "out_of_circle_flags": {
+                  "type": "array"
+                }
+              },
+              "required": [
+                "gulf_diagnosis",
+                "three_pillars_failures",
+                "slip_vs_mistake_classification",
+                "signifier_vs_affordance_misuse",
+                "accessibility_blockers",
+                "iconic_object_analogy",
+                "anti_patterns_hit",
+                "out_of_circle_flags"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "norman_verdict"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "linus_feasibility": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "linus"
+                },
+                "phase": {
+                  "const": 1
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "sane",
+                    "broken",
+                    "needs_refactor_first"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "data_structure_risks": {
+                  "type": "array"
+                },
+                "special_case_pressure": {
+                  "type": "array"
+                },
+                "anti_patterns_hit": {
+                  "type": "array"
+                },
+                "interface_risks": {
+                  "type": "array"
+                },
+                "out_of_scope_for_strategy": {
+                  "type": "array"
+                }
+              },
+              "required": [
+                "data_structure_risks",
+                "special_case_pressure",
+                "anti_patterns_hit",
+                "interface_risks",
+                "out_of_scope_for_strategy"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "linus_feasibility"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "linus_feasibility": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "object",
+              "properties": {
+                "seat": {
+                  "const": "linus"
+                },
+                "phase": {
+                  "const": 2
+                },
+                "route": {
+                  "enum": [
+                    "go",
+                    "go_with_conditions",
+                    "revise_must_haves",
+                    "kill",
+                    "too_hard"
+                  ]
+                },
+                "seat_native_verdict": {
+                  "enum": [
+                    "sane",
+                    "broken",
+                    "needs_refactor_first"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "description": "证据支持程度，与席位是否一致分开"
+                },
+                "hard_blockers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "转 go 前必须解决的条件"
+                },
+                "peer_disagreements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "peer",
+                      "point"
+                    ],
+                    "properties": {
+                      "peer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "point": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "见过对方原文后记录的分歧；盲审首轮为空"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim",
+                      "source",
+                      "kind"
+                    ],
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "provided",
+                          "observed",
+                          "primary_source",
+                          "inference"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "每项含 claim/source/kind 的可追溯依据"
+                },
+                "missing_evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "尚缺的关键资料或未核实的前提"
+                }
+              },
+              "required": [
+                "seat",
+                "phase",
+                "route",
+                "seat_native_verdict",
+                "confidence",
+                "hard_blockers",
+                "peer_disagreements",
+                "evidence",
+                "missing_evidence"
+              ],
+              "additionalProperties": false
+            },
+            "must_haves_review": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "flag"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "flag": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "threshold_issue",
+                      "method_issue",
+                      "overfitting_risk",
+                      "metric_gaming",
+                      "coverage_gap",
+                      "lookahead_unchecked",
+                      "multiple_testing",
+                      "incentive_mismatch",
+                      "other"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "proposed_criterion": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "must_haves_challenge": {
+              "type": "object",
+              "required": [
+                "triggered",
+                "challenged_truths",
+                "fundamental_issue",
+                "proposed_revision"
+              ],
+              "properties": {
+                "triggered": {
+                  "type": "boolean"
+                },
+                "challenged_truths": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "uniqueItems": true
+                },
+                "fundamental_issue": {
+                  "type": "string"
+                },
+                "proposed_revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "truth_id",
+                      "revised_truth",
+                      "revised_verify_suggestion",
+                      "spawn_sub_topic"
+                    ],
+                    "properties": {
+                      "truth_id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "revised_truth": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                      },
+                      "revised_verify_suggestion": {
+                        "type": "string"
+                      },
+                      "spawn_sub_topic": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "seat_specific": {
+              "type": "object",
+              "properties": {
+                "broken_evidence": {
+                  "type": "array"
+                },
+                "must_haves_coverage_detail": {
+                  "type": "array"
+                },
+                "refactor_prerequisites": {
+                  "type": "array"
+                },
+                "risk_notes": {
+                  "type": "array"
+                },
+                "out_of_scope_for_strategy": {
+                  "type": "array"
+                }
+              },
+              "required": [
+                "broken_evidence",
+                "must_haves_coverage_detail",
+                "refactor_prerequisites",
+                "risk_notes",
+                "out_of_scope_for_strategy"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "core",
+            "must_haves_review",
+            "must_haves_challenge",
+            "seat_specific"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "linus_feasibility"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "linus_execution": {
+          "type": "object",
+          "properties": {
+            "phase": {
+              "const": 4
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "done",
+                "incomplete",
+                "blocked"
+              ]
+            },
+            "decisions_honored": {
+              "type": "boolean"
+            },
+            "out_of_scope_touched": {
+              "type": "boolean"
+            },
+            "verification_attempted": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "truth",
+                  "cmd",
+                  "result",
+                  "evidence"
+                ],
+                "properties": {
+                  "truth": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "cmd": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result": {
+                    "type": "string",
+                    "enum": [
+                      "passed",
+                      "failed",
+                      "skipped"
+                    ]
+                  },
+                  "evidence": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "self_audit": {
+              "type": [
+                "array",
+                "object",
+                "string"
+              ]
+            },
+            "commit_status": {
+              "const": "not_committed"
+            },
+            "gaps_to_route_back": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "phase",
+            "status",
+            "decisions_honored",
+            "out_of_scope_touched",
+            "verification_attempted",
+            "self_audit",
+            "commit_status",
+            "gaps_to_route_back"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "linus_execution"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

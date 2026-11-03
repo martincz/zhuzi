@@ -19,7 +19,7 @@
 ## 召开纪律
 
 - 语义匹配优先于关键词精确命中。`激励结构` 和 `激励设计` 算同一域。
-- 评议席位默认期望 3 个（`dispatch_rules.review_seat_soft_count`，soft hint）；命中超过时全部 spawn，不在 spawn 前砍席——哪个席位会发现 hard blocker 必须看完 verdict 才知道，预筛会漏掉关键判断。
+- 评议席位默认期望 3 个（`dispatch_rules.review_seat_soft_count`，soft hint）；命中超过时全部审议，按运行时容量排队；首轮结果互相隔离，不因并发限制漏席。
 - 召开人数路由由 `roundtable.md` 阶段 0.5 Step 0 落地：`N = 0` 停流水线；`N = 1` 默认短路退出（建议改用对应 standalone skill 或 `/zhuzi:quick`），用户回复"强制开圆桌 / force roundtable" 才继续；`N ≥ 2` 正常进 Step 1。
 
 ## 默认 `stages` 规则
@@ -57,16 +57,16 @@
 
 ## 扩席位维护清单
 
-> 顺序严格：**前置判断 → 判断填字段 → 机械生成文件 → 跑守门**。每步标 **（判断）** 需问用户/查人物素材决定，**（机械）** 可照着现有席位 copy-modify 直接做。A 类思维顾问才走全流程；B 类聊天娱乐（如 `luxun-zawen`）只做 Step 1 后停。
+> 顺序严格：**前置判断 → 判断填字段 → 机械生成文件 → 跑守门**。每步标 **（判断）** 需问用户/查人物素材决定，**（机械）** 可照着现有席位 copy-modify 直接做。仅在确实需要新增协作席位时走全流程；standalone-only 人物（含决策顾问和修辞工具）只走 skill 与 surface 注册，不自动建 seat。
 
 ### 前置判断（判断）
 
-- [ ] **A 类 vs B 类**：skill 是否输出可进入决策的结构化判断？是 → A 类，走全流程；只做语言改写 / 娱乐 → B 类，只完成 Step 1 + Step 4 的 skills/INVENTORY/manifest 三处，不建 seat / agent
+- [ ] **Standalone-only vs 协作席位**：先确认是否需要在共享 verdict 下提供独立、边界明确的审议。只需直接对话的思维顾问或修辞工具，只注册 skill 与 shipped surface；设计并验证协作职责后才建 seat / agent。
 - [ ] skill 已在 `skills/<family>-<signature>/SKILL.md` 就位（如 `taleb-antifragile`）。命名建议：`<family>` = 人物姓氏 / 代表标签，`<signature>` = 人物核心方法论词（如 `antifragile` / `checklist` / `engineer` / `scientist` / `zawen`），不使用 nuwa 默认的 `-perspective` 后缀
 
 ### Step 1（机械）— skill 进仓库
 
-- [ ] 把 nuwa 产物从 `~/.claude/skills/<nuwa-output>/` 移到 `skills/<family>-<signature>/`
+- [ ] 把 nuwa 产物从 `<人物产物目录>/` 移到 `skills/<family>-<signature>/`
 - [ ] SKILL.md frontmatter 中 `description` 的 UTF-8 字节数 ≤ 1024（Codex 限制，`check_consistency.py` 会拦）
 
 ### Step 2（判断）— 设计席位字段（仅 A 类）
@@ -88,7 +88,7 @@
 
 - [ ] `zhuzi/seats/<seat>.md` — 评议型参考 `zhuzi/seats/taleb-reviewer.md`，实施型参考 `zhuzi/seats/linus-engineer.md`；手写职责/边界/纪律，保留 `## 输出契约` 生成块 marker
 - [ ] `runtimes/claude/agents/<seat>.md` — 参考同人物的 Claude adapter（薄；只装载 skill + seat contract + schema）
-- [ ] `runtimes/codex/agents/<seat>.md` — 参考同人物的 Codex adapter（薄；必须含 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 模板路径和 `./skills/...` / `./zhuzi/...` 仓库 fallback 两组路径）
+- [ ] `runtimes/codex/agents/<seat>.toml` — 使用原生 TOML，必含 `name` / `description` / `developer_instructions`（薄；必须含 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 模板路径和 `./skills/...` / `./zhuzi/...` 仓库 fallback 两组路径）
 
 ### Step 4（机械）— 更新注册表
 

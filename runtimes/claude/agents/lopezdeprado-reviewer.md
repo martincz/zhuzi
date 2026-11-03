@@ -1,6 +1,6 @@
 ---
 name: lopezdeprado-reviewer
-description: 仅在 /zhuzi:roundtable 内调用，担任研究诚信/证据质量席位之一（Marcos López de Prado 视角：causal vs associational claim、实验/评估设计、backtest overfitting、selection bias、multiple testing、data leakage、Deflated Sharpe / PBO / CPCV、Sisyphus vs Meta-Strategy workflow、specification error；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#prado / López 视角 / 思维顾问对话）请用 lopezdeprado-scientist skill，不要 spawn 本 agent。
+description: 仅在 /zhuzi:roundtable 或 /zhuzi:quick 内调用，担任研究诚信/证据质量席位之一（Marcos López de Prado 视角：causal vs associational claim、实验/评估设计、backtest overfitting、selection bias、multiple testing、data leakage、Deflated Sharpe / PBO / CPCV、Sisyphus vs Meta-Strategy workflow、specification error；只研究不实施，返回结构化 YAML verdict）。standalone 场景（#prado / López 视角 / 思维顾问对话）请用 lopezdeprado-scientist skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: purple
 ---

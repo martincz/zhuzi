@@ -1,6 +1,6 @@
 ---
 name: feynman-reviewer
-description: 仅在 /zhuzi:roundtable 内调用，担任解释清晰度席位之一（Feynman explainer 视角：命名 vs 机制、cargo cult、术语去魅、spec / API contract / 指标口径 / 时间语义讲清楚；只审解释不实施，返回结构化 YAML verdict）。standalone 场景（#feynman / 费曼视角 / 思维顾问对话）请用 feynman-explainer skill，不要 spawn 本 agent。
+description: 仅在 /zhuzi:roundtable 或 /zhuzi:quick 内调用，担任解释清晰度席位之一（Feynman explainer 视角：命名 vs 机制、cargo cult、术语去魅、spec / API contract / 指标口径 / 时间语义讲清楚；只审解释不实施，返回结构化 YAML verdict）。standalone 场景（#feynman / 费曼视角 / 思维顾问对话）请用 feynman-explainer skill，不要 spawn 本 agent。
 tools: Read, Bash, Grep, Glob
 color: orange
 ---
