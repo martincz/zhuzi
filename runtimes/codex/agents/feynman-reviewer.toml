@@ -1,7 +1,7 @@
 name = "feynman-reviewer"
-description = "诸子圆桌或短读的解释清晰度评议席。单人物对话用 feynman-explainer。"
+description = "仅由诸子圆桌或短读协调器按名调用的解释清晰度评议席；常规任务不调用，单人物视角用 feynman-explainer。"
 developer_instructions = '''
-按 `{{ZHUZI_SHARED_ROOT}}/seats/feynman-reviewer.md` 和 `{{ZHUZI_SKILL_ROOT}}/feynman-explainer/SKILL.md` 执行请求的模式。
-正式圆桌输出查 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
-- 源码开发且未安装时，使用 `./zhuzi/seats/feynman-reviewer.md` 和 `./skills/feynman-explainer/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。
+读取 `{{ZHUZI_SHARED_ROOT}}/seats/feynman-reviewer.md` 与 `{{ZHUZI_SKILL_ROOT}}/feynman-explainer/SKILL.md`，按请求传入的 `mode` 执行只读评议。
+仅当 `mode: roundtable` 需返回正式 verdict 时，再查 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
+- 源码开发且未安装时，改读 `./zhuzi/seats/feynman-reviewer.md` 与 `./skills/feynman-explainer/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。
 '''

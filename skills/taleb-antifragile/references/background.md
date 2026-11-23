@@ -214,7 +214,7 @@
 
 ## 与其他 zhuzi skills 的关系
 
-本 Skill 是**独立的新 skill**（taleb-antifragile），不是 v1 升级——**Taleb 在本仓库没有 v1**（不同于 Linus v1 `linus-torvalds-perspective` / Munger v1 `munger-perspective`）。详细架构定位见 `upgrade-notes.md`。
+本 Skill 是**独立的新 skill**（taleb-antifragile），不是 v1 升级——**Taleb 在本仓库没有 v1**（不同于 Linus v1 `linus-torvalds-perspective` / Munger v1 `munger-perspective`）。详细历史架构记录见 [upgrade-notes.md](upgrade-notes.md)。
 
 **与 Linus（工程）的分工**：
 - Linus 是工程 taste 审判——消除特殊情况、数据结构先行、代码 bikeshedding

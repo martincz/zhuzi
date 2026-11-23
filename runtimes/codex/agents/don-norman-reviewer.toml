@@ -1,7 +1,7 @@
 name = "don-norman-reviewer"
-description = "诸子圆桌或短读的可用性认知诊断席。单人物对话用 don-norman-perspective。"
+description = "仅由诸子圆桌或短读协调器按名调用的可用性认知诊断席；常规任务不调用，单人物视角用 don-norman-perspective。"
 developer_instructions = '''
-按 `{{ZHUZI_SHARED_ROOT}}/seats/don-norman-reviewer.md` 和 `{{ZHUZI_SKILL_ROOT}}/don-norman-perspective/SKILL.md` 执行请求的模式。
-正式圆桌输出查 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
-- 源码开发且未安装时，使用 `./zhuzi/seats/don-norman-reviewer.md` 和 `./skills/don-norman-perspective/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。
+读取 `{{ZHUZI_SHARED_ROOT}}/seats/don-norman-reviewer.md` 与 `{{ZHUZI_SKILL_ROOT}}/don-norman-perspective/SKILL.md`，按请求传入的 `mode` 执行只读评议。
+仅当 `mode: roundtable` 需返回正式 verdict 时，再查 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
+- 源码开发且未安装时，改读 `./zhuzi/seats/don-norman-reviewer.md` 与 `./skills/don-norman-perspective/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。
 '''

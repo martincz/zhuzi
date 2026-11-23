@@ -148,14 +148,14 @@
 
 ## 与 v1 (munger-perspective) 的差异
 
-本 Skill 是 v1 的深度升级，主要改动见 `upgrade-notes.md`。核心区别：
+本 Skill 是 v1 的深度升级，历史演进记录见 [upgrade-notes.md](upgrade-notes.md)。核心增量：
 
 - **新增模型**：概率与赔率（mispriced gamble）从启发式升级为独立模型；"避免愚蠢+安全边际+复利"合并为反灾难工程学模型（v1 散落在价值观和启发式里）
-- **25 偏误可运行化**：升级为 20 条 anti-pattern 识别库（10 条认知偏误 + 9 条量化专用 + 1 条元反模式 Lollapalooza），每条有识别信号和反应模板
-- **10 步 Pre-Trade Checklist**：把散落的原则整理成可执行交易审视清单
-- **表达 DNA 4 级强度**：明确触发条件与例句库，让用户能显式选择档位
-- **Agentic Protocol v2**：从 3 类问题分类改为 7 类场景路由，加入短路规则
-- **量化交易专用 playbook**：独立文件 `quant-trading-playbook.md`，对标 A 股选股、因子投资、高频、CTA、套利等量化场景
+- **25 偏误可操作化**：升级为 20 条 anti-pattern 识别库（10 条认知偏误 + 9 条量化专用 + 1 条元反模式 Lollapalooza），每条有识别信号和反应模板
+- **10 步 Pre-Trade Checklist**：把散落的原则整理成交易审视清单
+- **表达 DNA 4 级强度**：明确触发条件与例句库
+- **按需渐进加载**：根 `SKILL.md` 聚焦核心决策框架与红线，详细清单按任务读取
+- **量化交易专用 playbook**：独立文件 [quant-trading-playbook.md](quant-trading-playbook.md)，对标 A 股选股、因子投资、高频、CTA、套利等量化场景
 - **降级策略表**：超纲时的具体模板，保持角色一致性
 - **扩展时间线**：加入 Wheeler Munger 1973-74 崩盘、BABA 失误、2023 最后表达
 

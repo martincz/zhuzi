@@ -44,6 +44,9 @@ AGENT_SKILL_PATH_TEMPLATE = "{{{{ZHUZI_SKILL_ROOT}}}}/{skill_name}/SKILL.md"
 WORKFLOW_ENTRIES = {"roundtable": "roundtable", "quick": "quick-multi"}
 SKILL_NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 MARKDOWN_LINK = re.compile(r"\]\(\s*(?:<([^>\n]+)>|([^\s)]+))")
+SKILL_DESCRIPTION_MAX_BYTES = 1024
+SKILL_DESCRIPTION_CONCISE_BYTES = 360
+AGENTS_RULE_MAX_BYTES = 24000
 
 ADAPTER_INLINE_SCHEMA_SNIPPETS = [
     "must_haves_review:",
@@ -351,6 +354,16 @@ def check_runtime_path_templates(errors: list[str]) -> None:
 
 
 def check_workflow_adapters(errors: list[str]) -> None:
+    runtime_primitives = (
+        "Agent(",
+        "SendMessage(",
+        "spawn_agent(",
+        "wait_agent(",
+        "followup_task(",
+        "send_input(",
+        "invoke_subagent(",
+        "send_message(",
+    )
     for entry, workflow in WORKFLOW_ENTRIES.items():
         shared_file = f"workflows/{workflow}.md"
         path = ROOT / "zhuzi" / shared_file
@@ -358,9 +371,23 @@ def check_workflow_adapters(errors: list[str]) -> None:
             add_error(errors, path, 1, "missing shared workflow")
             continue
         text = path.read_text(encoding="utf-8")
-        for primitive in ("Agent(", "SendMessage(", "spawn_agent(", "wait_agent(", "followup_task(", "send_input("):
+        for primitive in runtime_primitives:
             if primitive in text:
                 add_error(errors, path, 1, f"shared workflow leaked runtime-specific primitive {primitive}")
+        if workflow == "roundtable":
+            for snippet in (
+                "## 阶段 0.5",
+                "## 阶段 1",
+                "## 阶段 1.5",
+                "## 阶段 2",
+                "## 阶段 3",
+                "## 阶段 4",
+                "invoke_seat",
+                "continue_existing_agent",
+                "not_committed",
+            ):
+                if snippet not in text:
+                    add_error(errors, path, 1, f"roundtable workflow missing core contract snippet {snippet}")
 
         for adapter in (CLAUDE_RUNTIME_ROOT / f"commands/zhuzi/{entry}.md",
                         CODEX_RUNTIME_ROOT / f"skills/zhuzi-{entry}/SKILL.md"):
@@ -376,6 +403,26 @@ def check_workflow_adapters(errors: list[str]) -> None:
                     add_error(errors, adapter, 1, "command needs a description and argument placeholder")
             elif "`./zhuzi`" not in body:
                 add_error(errors, adapter, 1, "missing repository fallback")
+
+
+def check_root_instruction_files(errors: list[str]) -> None:
+    agents_md = ROOT / "AGENTS.md"
+    if not agents_md.is_file():
+        add_error(errors, agents_md, 1, "missing root AGENTS.md")
+    else:
+        raw = agents_md.read_bytes()
+        text = raw.decode("utf-8")
+        if text.startswith("---\n"):
+            add_error(errors, agents_md, 1, "standalone AGENTS.md must not declare YAML frontmatter")
+        if len(raw) > AGENTS_RULE_MAX_BYTES:
+            add_error(errors, agents_md, 1, f"AGENTS.md exceeds {AGENTS_RULE_MAX_BYTES}-byte rule cap")
+        for required in ("## Code Review Rules", "## 提交规范", "`feat/fix/refactor/style/chore/docs`"):
+            if required not in text:
+                add_error(errors, agents_md, 1, f"AGENTS.md missing {required}")
+
+    claude_md = ROOT / "CLAUDE.md"
+    if not claude_md.is_file() or claude_md.read_text(encoding="utf-8").strip() != "@AGENTS.md":
+        add_error(errors, claude_md, 1, "CLAUDE.md must remain a thin @AGENTS.md shim")
 
 
 def extract_markdown_headings(text: str, *, level: int) -> list[str]:
@@ -774,13 +821,44 @@ def check_skill_metadata(errors: list[str]) -> None:
             seen.add(name)
 
         description = fields.get("description")
-        if not isinstance(description, str) or not 0 < len(description.strip()) <= 1024:
-            add_error(errors, path, 1, "skill description must be a non-empty string of at most 1024 characters")
+        if not isinstance(description, str) or not description.strip():
+            add_error(errors, path, 1, "skill description must be a non-empty string")
+        else:
+            desc_bytes = len(description.strip().encode("utf-8"))
+            if desc_bytes > SKILL_DESCRIPTION_MAX_BYTES:
+                add_error(errors, path, 1, f"skill description exceeds {SKILL_DESCRIPTION_MAX_BYTES} UTF-8 bytes ({desc_bytes})")
+            elif desc_bytes > SKILL_DESCRIPTION_CONCISE_BYTES:
+                add_error(errors, path, 1, f"skill description exceeds concise trigger budget of {SKILL_DESCRIPTION_CONCISE_BYTES} UTF-8 bytes ({desc_bytes})")
         metadata = fields.get("metadata", {})
         if not isinstance(metadata, dict) or any(
             not isinstance(key, str) or not isinstance(value, str) for key, value in metadata.items()
         ):
             add_error(errors, path, 1, "skill metadata must map strings to strings")
+
+
+def check_skill_progressive_references(errors: list[str]) -> None:
+    for skill_md in sorted((ROOT / "skills").glob("*/SKILL.md")):
+        skill_dir = skill_md.parent
+        ref_dir = skill_dir / "references"
+        if not ref_dir.is_dir():
+            continue
+        expected_top_refs = {path.resolve() for path in ref_dir.glob("*.md") if path.is_file()}
+        visited: set[Path] = set()
+        queue = [skill_md.resolve()]
+        while queue:
+            current = queue.pop()
+            if current in visited or not current.is_file():
+                continue
+            visited.add(current)
+            for match in MARKDOWN_LINK.finditer(current.read_text(encoding="utf-8")):
+                target = urlsplit(match.group(1) or match.group(2))
+                if target.scheme or target.netloc or not target.path:
+                    continue
+                resolved = (current.parent / unquote(target.path)).resolve()
+                if resolved.is_file() and resolved.suffix == ".md" and resolved.is_relative_to(skill_dir.resolve()):
+                    queue.append(resolved)
+        for unlinked in sorted(expected_top_refs - visited):
+            add_error(errors, skill_md, 1, f"unlinked top-level reference file {rel(unlinked)}")
 
 
 def check_markdown_links(errors: list[str]) -> None:
@@ -837,6 +915,7 @@ def main() -> int:
     generated_docs = resolve_generated_docs(errors, roundtable_contract)
 
     check_banned_snippets(errors)
+    check_root_instruction_files(errors)
     check_claude_agent_adapters(errors, roundtable_contract)
     check_runtime_path_templates(errors)
     check_workflow_adapters(errors)
@@ -849,6 +928,7 @@ def main() -> int:
     check_manifest(errors, manifest_families)
     check_inventory(errors, manifest_families)
     check_skill_metadata(errors)
+    check_skill_progressive_references(errors)
     check_markdown_links(errors)
     check_codex_install(errors)
     check_codex_source_installer(errors)

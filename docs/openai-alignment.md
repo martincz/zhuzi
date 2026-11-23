@@ -2,43 +2,53 @@
 
 ## 指令设计
 
-根 `AGENTS.md` 使用开放 Markdown 格式，提供维护本仓库所需的授权边界、资产入口和完成标准。Codex 按工作目录与项目层级发现指令。Claude Code 通过根 `CLAUDE.md` 的 `@AGENTS.md` 导入同一份文件，兼容尚不直接发现 `AGENTS.md` 的版本。[AGENTS.md 开放格式](https://agents.md/) · [Codex 指令发现说明](https://learn.chatgpt.com/docs/agent-configuration/agents-md#how-codex-discovers-guidance) · [Claude Code 指令导入](https://code.claude.com/docs/en/memory#share-one-file-with-other-coding-tools)
+根 `AGENTS.md` 采用纯 Markdown 开放格式（无 YAML frontmatter，体积控制在 Antigravity 单规则文件 24 KB 上限以内），定义自主执行权限、不可动摇安全红线、按任务查阅入口与验证闭环：
 
-根文件的 `## Code Review Rules` 保留适用于全库的评审规则。只影响某个目录的规则放到对应范围。评审规则写清应指出的实际问题、兼容条件或例外，格式和其它机械检查交给校验脚本与测试。项目自行定义授权和协议边界，运行时配置负责执行权限。[OpenAI 评审指导](https://learn.chatgpt.com/docs/third-party/github#customize-what-codex-reviews) · [仓库评审规则](../AGENTS.md#code-review-rules)
+- **Codex CLI** 与 **Antigravity CLI** 按工作目录向上层级自动发现 `AGENTS.md`。
+- **Claude Code CLI** 通过根 `CLAUDE.md` 的 `@AGENTS.md` 导入同一份文件，三端共享单一指令源，避免多份规约漂移。
 
-Skill 通过 `name` 和 `description` 发现。入口保留判断方法、边界和按需引用。指定单人物、听几席短评、正式审议按用户意图触发。普通的「审架构」或「讲清楚」无需加载人物。回测议题中，López 关注证据，Taleb 关注尾部暴露。产品议题中，Jobs 看取舍，Norman 看交互失败，PG 看实际需求和说服力。具体指令按任务与阶段提供，在授权范围内自主完成并验证结果。[Agent Skills 规范](https://agentskills.io/specification) · [Skill 渐进加载](https://learn.chatgpt.com/docs/build-skills#how-chatgpt-and-codex-use-skills) · [GPT-6.2 任务完成指南](https://developers.openai.com/api/docs/guides/latest-model#task-completion)
+根文件的 `## Code Review Rules` 仅保留跨全库生效的实质评审不变量（强制路由闭环、子线程真实完成证据、同配置对照归因）；机械格式与路径校验交给 `tools/check_consistency.py` 与单元测试。参考：[AGENTS.md 开放格式](https://agents.md/) · [Codex 指令发现](https://learn.chatgpt.com/docs/agent-configuration/agents-md#how-codex-discovers-guidance) · [Claude Code 指令导入](https://code.claude.com/docs/en/memory#share-one-file-with-other-coding-tools) · [仓库评审规则](../AGENTS.md#code-review-rules)。
+
+Skill 遵循开放 [Agent Skills 规范](https://agentskills.io/specification) 与渐进式披露（Progressive Disclosure）原则：
+
+- **精确触发**：`name` 与目录名严格一致（小写连字符，`≤64` 字符）；`description`（UTF-8 `≤1024` 字节）精简声明**何时触发**与**核心职责**，仅在用户点名人物/标签或显式要求开圆桌/短读时激活。常规代码审查、文档解释、UX 评审或产品讨论不触发人物 Skill。
+- **渐进加载**：根 `SKILL.md` 只负责核心判断框架、硬边界与引用路由；详细检查清单、反模式库、表达档位及一手调研留在 `references/`，仅在任务确实需要时按需读取。
+- **互补分工**：回测与实验议题中，López 审因果与检验纪律，Taleb 审尾部暴露；产品与界面议题中，Jobs 看定位与取舍，Norman 诊交互鸿沟与误操作归因，PG 看真实用户需求与说服力。
 
 ## 运行时支持
 
-安装器提供 Codex CLI 和 Claude Code 的原生入口。Codex 的席位使用独立 TOML，Claude Code 使用 Markdown 席位与命令。两端共用人物 Skill、席位契约和议事流程。Codex 子席沿用父会话的权限、provider 和 MCP。需要强制只读时，在父会话使用适当的权限配置或沙箱。[分发清单](INVENTORY.md) · [Codex Subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents) · [Claude Code Subagents](https://code.claude.com/docs/en/sub-agents) · [Claude Code Skills](https://code.claude.com/docs/en/skills)
+共享资产（`skills/`、`zhuzi/seats/`、`zhuzi/workflows/`、`zhuzi/manifests/`、`zhuzi/validators/`）保持跨运行时中立，仅使用抽象编排动作 `invoke_seat(seat, message)` 与 `continue_existing_agent(agent_id, message)`。各 CLI 按原生规范接入：
 
-其他支持 Agent Skills 的工具可按各自的发现方式接入单人物 Skill。接入短读或正式圆桌还需适配具名席位调用、等待和读取实际结果。实施席位的续跑及回退遵循共享流程。新增运行时按其原生入口做验收。[正式圆桌流程](../zhuzi/workflows/roundtable.md) · [短读流程](../zhuzi/workflows/quick-multi.md)
+| 运行时 | 指令发现 | Skill 发现位置 | 具名席位与编排映射 |
+|---|---|---|---|
+| **Claude Code CLI** | `CLAUDE.md`（`@AGENTS.md`） | `~/.claude/skills/<name>/SKILL.md` | 命令 `runtimes/claude/commands/zhuzi/*.md` + 席位 `runtimes/claude/agents/*.md`（评议席禁 `Edit/Write`），映射 `Agent` 与 `SendMessage` |
+| **Codex CLI** | 层级 `AGENTS.md` | `~/.agents/skills/<name>/SKILL.md` 或 `.agents/skills/` | 协调 Skill `runtimes/codex/skills/zhuzi-*/SKILL.md` + 原生 `runtimes/codex/agents/*.toml`，映射 `spawn_agent` 与 `send_input` / `followup_task` |
+| **Antigravity CLI** | 层级 `AGENTS.md` | 工作区 `.agents/skills/`、`.agents/skills.json`（如 `{"entries":[{"path":"skills"}]}`）、全局 `~/.gemini/config/skills/` 或插件 `skills/`（自动注册同名 `/<skill>` 命令） | 子席位 `.agents/agents/<name>.md` 或插件 `agents/<name>.md`（声明 `subagent: true`、`mainAgent: false` 与显式 `tools`：评议席只读，实施席 `linus-engineer` 含 `edit_file, write_file`），映射 `invoke_subagent` 与 `send_message` |
+
+所有运行时子席均沿用父会话的权限、provider 与沙箱边界；指令层只读声明不替代宿主沙箱。`./install.sh` 开箱安装并离线验收 Claude Code 与 Codex CLI（见 [分发清单](INVENTORY.md)）；在 Antigravity CLI 等环境接入圆桌或短读时，须按原生子席调用与同线程续跑做真实接线验收，席位缺失时如实报告缺口。参见 [正式圆桌流程](../zhuzi/workflows/roundtable.md) 与 [短读流程](../zhuzi/workflows/quick-multi.md)。
 
 ## 维护共享资产
 
-- 单人物维护其 `SKILL.md` 与相关引用。按独立职责判断是否还需要协作席位。沿用既有名称和别名，新增触发用实际正例和容易误触发的反例核对。
-- 新增席位时定义擅长领域、阶段、越权边界、native verdict、路由及证据字段。职责写在 [seats/](../zhuzi/seats/)，字段和路由写进 [roundtable-contract.json](../zhuzi/manifests/roundtable-contract.json)，统一生成投影。条件路由的覆盖限制必须同时在 Schema 和验证器中生效。
-- 只在需要时改 [runtimes/](../runtimes/) 的原生入口。保留模板路径，使用安装后实际根验证。新增分发项同步 [shipped-surface.json](../zhuzi/manifests/shipped-surface.json) 和 [INVENTORY.md](INVENTORY.md)，包括两端适配器。
-- 维护者在仓库根目录运行生成器和相关检查。样例须明确假设与观察。生产或具体项目的阈值以其自身合同为准。
+- **维护单人物 Skill**：修改对应 `skills/<name>/SKILL.md` 及其 `references/`。保持简短精确的 `description` 触发条件，用正例与常规任务反例排查误触发及跨人物重叠；`references/` 顶层文档须可从 `SKILL.md` 按需路由到达。
+- **维护或新增席位**：在 [seats/](../zhuzi/seats/) 定义职责、阶段纪律与越权边界，在 [roundtable-contract.json](../zhuzi/manifests/roundtable-contract.json) 声明 root key、native verdict、路由映射及 `seat_specific` 字段，运行 `python3 -B tools/render_roundtable_contract_docs.py` 刷新生成区块与 JSON Schema。条件路由的 `override` 约束必须同时在 Schema 与 `verdict.py` 中生效。
+- **维护原生 Adapter 与分发面**：仅在宿主协议变化时修改 [runtimes/](../runtimes/)，源码保留 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 模板占位符与开发态相对回退。增删分发文件同步 [shipped-surface.json](../zhuzi/manifests/shipped-surface.json) 与 [INVENTORY.md](INVENTORY.md)。
 
 ## 安装与迁移
 
-使用 Python 3.10+ 和 [开发依赖](../requirements-dev.txt)。Python 3.10 由 tomli 解析原生 agent，3.11 及以上用内置 tomllib。
+使用 Python 3.10+ 与 [开发依赖](../requirements-dev.txt)（Python 3.10 用 `tomli` 解析 TOML，3.11+ 用内置 `tomllib`）。
 
-`./install.sh` 安装两个运行时。Claude 默认根为 `~/.claude`，可设 `CLAUDE_DIR`。默认渲染符号路径，adapter 按当前 `$HOME` 展开。Claude 对本项目的目标命令、同名 agent、skill 和共享目录做覆盖安装。Codex 默认把共享资产和 agent 放到 `~/.codex`，把 skill 放到发现目录 `~/.agents/skills`。
-
-`CODEX_HOME` 可指定 Codex 根，显式指定时 skill 存储默认随之移到该根下的 `skills/`。用 `CODEX_SKILL_DIR` 可单独指定技能存储。自定义存储需用支持的发现位置接入，例如临时项目的 `.agents/skills` 链接。安装验证时使用隔离目录。
+`./install.sh` 默认安装 Claude Code（默认根 `~/.claude`，可用 `CLAUDE_DIR` 覆盖）与 Codex CLI（默认根 `~/.codex`，可用 `CODEX_HOME` 覆盖；默认技能发现根 `~/.agents/skills`，可用 `CODEX_SKILL_DIR` 覆盖，显式设置 `CODEX_HOME` 时技能默认随该根隔离到 `$CODEX_HOME/skills`）。安装验证一律使用临时隔离目录：
 
 ```bash
 ./install.sh --codex-only --dry-run --json
 ./install.sh --codex-only
 ```
 
-第一条只预览，第二条执行 Codex 安装与迁移。变更资产先暂存。已有目标和拟迁移条目先备份并校验，记录在 Codex 根下的 `backups/zhuzi/` 和 `migration.json`。新资产校验成功后清理旧条目。旧 skill 需匹配已安装清单与标识，或与待安装内容一致，否则停止。迁移失败恢复已触及资产。符号链接保全外部目标，未变资产不反复覆盖。无关资产、provider 配置与凭证在迁移范围之外。
+第一条只预览，第二条执行带备份与回滚的 Codex 安装迁移：变更资产先暂存校验，待覆盖条目与旧版残留先备份到 `$CODEX_HOME/backups/zhuzi/<timestamp>/` 并写入 `migration.json`；旧 skill 须通过已安装 manifest 与 `name` 归属核验（或内容完全一致）才会迁移，否则中止报错；中途失败自动回滚已触及资产。外部符号链接目标、无关 skill/agent、provider 配置与凭证均不在修改范围内。
 
 ## 开发验证
 
-从仓库根目录执行。选择与改动范围对应的检查。
+从仓库根目录按改动范围执行对应检查，跑完实现—检查—修复—复验闭环：
 
 ```bash
 python3 -m pip install -r requirements-dev.txt
@@ -48,17 +58,17 @@ python3 -B -m unittest discover -s tests -v
 python3 -B tools/smoke_test_codex_roundtable.py --offline
 ```
 
-修改机器合同后，先运行 `python3 -B tools/render_roundtable_contract_docs.py` 更新生成物。离线 smoke 在临时根安装两端资产并核对入口引用，无模型请求。机器合同测试覆盖结构、跨字段、路由和实施验证，内容事实仍需核实。
+修改 `roundtable-contract.json` 后先运行 `python3 -B tools/render_roundtable_contract_docs.py` 刷新投影与 JSON Schema。`--offline` 在临时根完成双端隔离安装并校验渲染后的具体路径引用，不发起模型请求。
 
-变更具名调用或续跑时，对 Codex 额外执行在线接线探针。需要本机 Codex CLI 和可用 provider 配置，产生模型用量。
+变更具名席位调用或同线程续跑协议时，在具备本机 Codex CLI 与可用 provider 的环境下运行在线接线探针（会产生模型用量）：
 
 ```bash
 python3 -B tools/smoke_test_codex_roundtable.py
 ```
 
-探针使用隔离安装和只读合成工作区，调用 Feynman 阶段 1 与 Linus 阶段 2 并续跑同一 Linus。继承 provider 配置，使用低推理档位并禁用 MCP。结果核对真实的角色与线程 ID、成功调用、每席完成原文、同一实现席的新一轮返回及 fixture 未被改动。用 `--trace-dir` 保存调试事件时使用临时目录。调试文件不复制凭证。接线检查只覆盖探针路径，不能推断其它运行时或判断质量。
+在线探针使用临时隔离安装与只读合成工作区（继承 provider 配置、低推理档位、禁用外部 MCP），核验 `feynman-reviewer`（阶段 1）与 `linus-engineer`（阶段 2）的真实角色线程 ID、成对工具调用、合规 verdict、同一 `linus-engineer` 线程的唤醒续跑新返回以及只读 fixture 零改动。`--trace-dir` 仅保存脱敏事件与会话证据，不复制凭证。
 
-共享 [verdict 校验器](../zhuzi/validators/verdict.py) 支持 JSON 或 YAML。下面用本地捕获文件演示，不执行合同中的命令。只读场景可用 `-` 从 stdin 输入。
+共享校验器 [verdict.py](../zhuzi/validators/verdict.py) 支持 JSON 或 YAML 文件及 `-`（stdin 只读管道），不执行合同中的验证命令：
 
 ```bash
 python3 -B zhuzi/validators/verdict.py verdict.json --seat feynman-reviewer --phase 1 --truth-count 1
@@ -68,13 +78,11 @@ python3 -B zhuzi/validators/verdict.py execution.json --seat linus-engineer --ph
 
 ## 行为评测
 
-[evals/cases.json](../evals/cases.json) 是合成回归题集，包含参与者边界、缺失证据、授权、验证及模式差异。先列题。运行时在新路径保存 JSONL，并将 `ZHUZI_EVAL_MODEL` 设为 provider 支持的模型 ID，选择该模型支持的推理档位。
+[evals/cases.json](../evals/cases.json) 提供 20 个合成回归场景（覆盖单席短路、盲审无分歧、缺失证据、授权边界、验证跳过/失败与模式隔离）。默认列出题面；加 `--run` 时在隔离环境中对同题对照记录 `plain`（普通回答）、`single`（单 agent 多视角）与 `roundtable`（协调器入口）：
 
 ```bash
 python3 -B tools/run_behavioral_evals.py --case early-pmf
 python3 -B tools/run_behavioral_evals.py --run --case early-pmf --case clear-contract --model "$ZHUZI_EVAL_MODEL" --reasoning-effort medium --repeat 3 --output /tmp/zhuzi-eval.jsonl
 ```
 
-记录器对同题比较普通回答、单 agent 多视角和圆桌协调入口。主持人与子席在临时配置中固定模型和推理档位，记录有效设置、CLI 版本、题集和资产摘要、提示摘要、原始事件与耗时。设置缺失或不一致时标记 `comparison_eligible: false`，返回失败并保留运行结果。
-
-题集的评分依据不进入模型提示。记录原始输出为 `unscored`。在共同条件下盲评发现、错误、证据和可执行性，再单独比较用量、延迟与调用成功率。保留未参与提示修订的题面，并明确线上接线与判断质量各自的覆盖范围。参见 [OpenAI 评测指南](https://developers.openai.com/api/docs/guides/evaluation-best-practices)。
+记录器在临时配置中锁定父会话与全部原生子席的模型及推理档位，校验运行时实际生效配置；缺失或不一致时标记 `comparison_eligible: false` 并返回非零退出码，同时保留原始输出为 `unscored`（评分 rubric 绝不注入模型提示），供盲评后再对照用量、延迟与调用成功率。

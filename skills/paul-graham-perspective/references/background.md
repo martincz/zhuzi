@@ -136,4 +136,4 @@
 ---
 
 > Skill 灵感来自 [女娲 · Skill 造人术](https://github.com/alchaincyf/nuwa-skill)（由 [花叔](https://x.com/AlchainHust) 创建）
-> v2 在 nuwa 基础样本上按 zhuzi 风格升级：加 Quick Reference Card、扩 Agentic Protocol 6 类场景、抽独立 Anti-Pattern 库、补降级策略、强化诚实边界。
+> 本仓库在 nuwa 基础样本上按 `zhuzi` 规范重构：根 `SKILL.md` 聚焦 Maker 核心框架与红线，按需加载独立 Anti-Pattern 库、方法论与诚实边界。

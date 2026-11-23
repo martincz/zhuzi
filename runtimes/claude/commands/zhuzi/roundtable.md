@@ -1,5 +1,5 @@
 ---
-description: "用户明确要求开诸子圆桌，由具名席位审议合同并形成决策。"
+description: "召开诸子正式圆桌，由具名席位独立审议议题合同并产出决策表与验证信号。"
 argument-hint: "[议题]"
 ---
 
@@ -7,6 +7,6 @@ argument-hint: "[议题]"
 
 议题为 `$ARGUMENTS`。
 
-用 Read 打开 `{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md`，按其中的阶段查阅相对链接。路径中的 `$HOME` 按当前环境展开。
+用 Read 读取 `{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md`，按当前所处阶段按需查阅其中的相对引用。路径中的 `$HOME` 按当前环境展开。
 
-用 `Agent` 调用已发现的同名席位，按运行时容量收集完成返回。续跑时使用当前可用的 `SendMessage`，以阶段 2 的实际 ID 为目标并等到新返回。续跑不可用时按共享流程交接给新起的同名席位。具名席位缺失时如实报告。
+将共享流程中的 `invoke_seat` 映射为 `Agent` 调用同名已发现席位，按运行时容量收集真实完成返回并保留阶段 2 的实现席位 ID；将 `continue_existing_agent` 映射为对同一目标 ID 的 `SendMessage` 唤醒续跑（不可用时按共享流程新起同名席位并完整附带阶段 2 原文）。具名席位缺失时如实报告缺口。

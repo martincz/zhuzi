@@ -1,6 +1,6 @@
 # Don Norman · UI 评审 Checklist
 
-> 本文件是 `don-norman-perspective` 的可操作 UI / UX 评审 checklist。SKILL.md 给出的是诊断框架；本文件把框架转成**逐项可勾选的检查清单**。
+> 本文件是 `don-norman-perspective` 的可操作 UI / UX 评审 checklist，把 [SKILL.md](../SKILL.md) 的认知诊断框架展开为**逐项可勾选的检查清单**。
 >
 > 适用场景：design review、可用性评估、新员工 onboarding 反馈、改版前现状评估。
 >

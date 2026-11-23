@@ -271,5 +271,55 @@ class NativeInstallTests(unittest.TestCase):
             self.assertEqual(resolve_skill_root(Path("/tmp/custom-codex")), Path("/tmp/isolated-skills"))
 
 
+class ConsistencyGuardTests(unittest.TestCase):
+    def test_consistency_checks_reject_utf8_byte_overflow_orphaned_refs_and_runtime_leaks(self):
+        import check_consistency as consistency
+
+        errors: list[str] = []
+        self.assertEqual(consistency.main(), 0)
+
+        with tempfile.TemporaryDirectory(prefix="zhuzi-consistency-test-") as raw:
+            temp_root = Path(raw)
+            (temp_root / "AGENTS.md").write_text("---\ntrigger: always_on\n---\n# Bad frontmatter\n", encoding="utf-8")
+            (temp_root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
+            with patch.object(consistency, "ROOT", temp_root):
+                root_errors: list[str] = []
+                consistency.check_root_instruction_files(root_errors)
+                self.assertTrue(any("YAML frontmatter" in err for err in root_errors), root_errors)
+
+            skill_dir = temp_root / "skills" / "demo-skill"
+            (skill_dir / "references").mkdir(parents=True)
+            # 400 CJK chars = 1200 UTF-8 bytes (> 1024 byte spec limit despite < 1024 codepoints).
+            bloated_desc = "测" * 400
+            (skill_dir / "SKILL.md").write_text(
+                f'---\nname: demo-skill\ndescription: "{bloated_desc}"\n---\n\n# Demo\n\nSee [m](references/methodology.md).\n',
+                encoding="utf-8",
+            )
+            (skill_dir / "references" / "methodology.md").write_text("# M\n", encoding="utf-8")
+            (skill_dir / "references" / "orphan.md").write_text("# Orphan\n", encoding="utf-8")
+            codex_dir = temp_root / "runtimes" / "codex" / "skills"
+            codex_dir.mkdir(parents=True)
+            with patch.object(consistency, "ROOT", temp_root), patch.object(consistency, "CODEX_RUNTIME_ROOT", temp_root / "runtimes" / "codex"):
+                meta_errors: list[str] = []
+                consistency.check_skill_metadata(meta_errors)
+                self.assertTrue(any("1024 UTF-8 bytes" in err for err in meta_errors), meta_errors)
+
+                ref_errors: list[str] = []
+                consistency.check_skill_progressive_references(ref_errors)
+                self.assertTrue(any("orphan.md" in err for err in ref_errors), ref_errors)
+
+            wf_dir = temp_root / "zhuzi" / "workflows"
+            wf_dir.mkdir(parents=True)
+            (wf_dir / "roundtable.md").write_text("# Bad\ninvoke_subagent(TypeName='linus-engineer')\n", encoding="utf-8")
+            (wf_dir / "quick-multi.md").write_text("# Quick\n", encoding="utf-8")
+            with patch.object(consistency, "ROOT", temp_root), \
+                 patch.object(consistency, "CLAUDE_RUNTIME_ROOT", temp_root / "runtimes" / "claude"), \
+                 patch.object(consistency, "CODEX_RUNTIME_ROOT", temp_root / "runtimes" / "codex"):
+                wf_errors: list[str] = []
+                consistency.check_workflow_adapters(wf_errors)
+                self.assertTrue(any("invoke_subagent(" in err for err in wf_errors), wf_errors)
+        self.assertEqual(errors, [])
+
+
 if __name__ == "__main__":
     unittest.main()

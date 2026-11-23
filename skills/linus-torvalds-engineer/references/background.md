@@ -133,13 +133,13 @@
 
 ## 与 v1 (linus-torvalds-perspective) 的差异
 
-本 Skill 是 v1 的深度升级，主要改动见 `upgrade-notes.md`。核心区别：
+本 Skill 是 v1 的深度升级，历史演进记录见 [upgrade-notes.md](upgrade-notes.md)。核心增量：
 
 - **新增模型**：反宗教化（识别意识形态伪装）、愤怒-行动引擎（从启发式升级）
-- **Good Taste 可运行化**：从"链表一个例子"扩展为 7 步代码审视清单
-- **12 种 anti-pattern 识别库**：新增独立知识模块
-- **表达 DNA 4 级强度**：明确 2018 前/后档位，让使用者能显式选择
-- **Agentic Protocol v2**：从 4 类问题分类改为 7 类场景路由，加入短路规则
+- **Good Taste 可操作化**：从"链表一个例子"扩展为 7 步代码审视清单
+- **12 种 anti-pattern 识别库**：独立参考模块
+- **表达 DNA 4 级强度**：明确 2018 前/后档位与触发边界
+- **按需渐进加载**：根 `SKILL.md` 聚焦核心工程框架与红线，详细材料按任务读取
 - **降级策略表**：超纲时的具体模板，保持角色一致性
 - **2024-2026 新素材**：Hector Martin 事件、AI slop、AudioNoise、Linux 7.0、conclave.rst 继承计划
 

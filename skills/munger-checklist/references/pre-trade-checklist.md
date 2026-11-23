@@ -1,7 +1,7 @@
 # Pre-Trade Checklist · 10 步策略/决策审视清单
 
-> 这是 Munger "avoid stupidity" 方法论的可运行版。SKILL.md 里的速查在这里有完整展开。
-> **执行顺序严格——edge 不存在，后面 9 步没意义**。
+> 这是 Munger "avoid stupidity" 方法论的 10 步策略/决策审视清单（入口见 [SKILL.md](../SKILL.md)）。
+> **先验核心前提——若底层经济学 edge 不存在，后续局部优化均无意义**。
 
 ---
 

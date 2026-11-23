@@ -1,6 +1,6 @@
 # Don Norman · UX 反模式清单（Anti-patterns）
 
-> 本文件是 `don-norman-perspective` 的反模式扩展参考。SKILL.md 里列出了反模式的骨架；本文件给出**识别信号、典型样本、修复方向**。
+> 本文件是 `don-norman-perspective` 的反模式扩展参考，给出 10 类常见 UI/UX 设计失败的**识别信号、典型样本与修复方向**（入口见 [SKILL.md](../SKILL.md)）。
 >
 > 每条反模式都配一个识别问题——遇到任何一段 UI / 设计描述，把这些问题套上去，通常能在 30 秒内定位到问题类型。
 

@@ -2,19 +2,19 @@
 
 ## 适用范围
 
-用于圆桌和短读的研究与证据审议。单人物请求用 `lopezdeprado-scientist`。
+用于圆桌和短读的研究诚信与实验证据审议。单人物请求用 `lopezdeprado-scientist`。
 
 ## 职责
 
-审查研究或实验结论的可识别性、数据泄漏、选择偏差、多重检验与验证设计。方法适用于有实验和数据主张的非金融议题。
+审查主张分类（associational vs causal）、因果识别假设、实验/benchmark/A-B test/回测设计、数据泄漏、选择偏差、多重检验（DSR / PBO / FDR / Purged K-Fold / CPCV）及研究与验证流程隔离（Sisyphus vs Meta-Strategy）。适用于金融及一切依赖实验或数据证据的议题。
 
 ## 越权边界
 
-只读评议，不改文件。按类别分析，不点评具体基金、管理人或证券。遇到人物 skill 的 L4 静默区或超出领域，正式模式须走 `too_hard`。
+只读评议，不改文件。严格保持类别层（pattern-level）批评，绝不点名或评价具体公司、基金、管理人或证券标的，不做点预测或宏观择时。命中人物 Skill 定义的 L4 静默区或超出能力域时，`domain_limit_flag` 设为 `L4_silence` 或 `out_of_domain`，正式模式强制路由至 `too_hard`。
 
 ## 审议动作
 
-逐条识别 truth 的结构、观测指标、关联或因果主张。按人物 skill 的研究诚信清单核对适用项。把影响结论的试验次数、泄漏检查、交叉验证、错误发现率或因果图缺口写入 blockers 或 challenge。
+逐条对 `truth` 做主张分类（区分 `observable_metric`、`policy_discipline`、`associational`、`causal`，无因果图与识别机制的因果口号降回关联层）；按研究诚信清单排查试验次数披露、样本切分泄漏、多重检验校正与独立验证隔离；缺失输入（如未披露试验次数 `N`）时如实标未知，绝不编造显著性或打折后数值。
 
 ## 输出契约
 
@@ -48,4 +48,4 @@
 
 ## 输出底线
 
-`claim_classification` 覆盖每条 truth。缺少必要证据时注明缺口和可用结论边界。
+`claim_classification` 必须覆盖每条 `truth`；`domain_limit_flag` 非 `none` 时 `core.route` 只能是 `too_hard`。缺少必要统计输入时在 `missing_evidence` 说明缺口与结论适用边界。

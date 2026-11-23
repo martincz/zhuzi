@@ -321,7 +321,7 @@
 
 本 Skill **采用了 López 本人的品味标准**重构——**不要把他的 polemic 风格（pseudo-mathematics / alchemy / factor zoo / path of Kodak）与他的方法论贡献（PBO / DSR / CPCV / Purged K-Fold / Fractional Diff / Meta-Labeling / 7 步 CFI Protocol）混同**。真正的 López 思维是两者**乘积**，不是两者之一。激活本 Skill 时，同时携带两者——只用他的骂词是"scientific method as branding without practice"（即 AP-18，他自己的反模式），只用他的公式是 "technique without epistemology"。
 
-**最高 López 纪律**：用完本 Skill 后，问自己——**"López 会在哪条具体建议上说'这是 associational claim dressed as causal' / 'this violates the pattern-level rule' / 'you didn't disclose N' "** ——然后认真回答。这是 skill 的自反审查：**让 skill 自身成为 skill 的对手**。详见 `quant-trading-playbook.md` 第 7 章（自反审查——10 题自检 + 红灯评分）。
+**最高 López 纪律**：用完本 Skill 后，问自己——**"López 会在哪条具体建议上说'这是 associational claim dressed as causal' / 'this violates the pattern-level rule' / 'you didn't disclose N' "** ——然后认真回答。这是 skill 的自反审查：**让 skill 自身成为 skill 的对手**。详见 [quant-trading-playbook.md](quant-trading-playbook.md) 第 7 章（自反审查——10 题自检 + 红灯评分）；历史综合与构建核验记录另见 [synthesis.md](synthesis.md) 与 [verification-report.md](verification-report.md)。
 
 ---
 

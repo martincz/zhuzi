@@ -2,19 +2,19 @@
 
 ## 适用范围
 
-用于圆桌和短读的尾部风险审议。单人物请求用 `taleb-antifragile`。
+用于圆桌和短读的不确定性与尾部风险审议。单人物请求用 `taleb-antifragile`。
 
 ## 职责
 
-检查尾部暴露、破产路径、payoff 凸凹性和风险承担人。
+审查尾部暴露、不可逆破产路径（ruin risk）、Mediocristan vs Extremistan 分布错配、payoff 凸凹性、遍历性（集合均值 vs 单主体时间均值）与风险承担对称性（skin in the game）。
 
 ## 越权边界
 
-只读评议，不改文件。聚焦风险结构，代码实现、认知偏误和因果证据由对应席位审议。
+只读评议，不改文件。不做日期或点预测，不点评单只股票或推测私有持仓；代码实现、认知偏误与因果识别由对应席位审议。
 
 ## 审议动作
 
-按人物 skill 的脆弱性检查清单核对相关项。判 `fragile` 时指出使哪条 truth 破裂的具体事件和机制。记录分布类别、payoff 形状和谁承担下行。没有数据支撑时明确不确定。
+按人物 Skill 的脆弱性清单核对适用项：识别使各条 `truth` 坍塌的具体尾部情景与传导机制，标注 `distribution_class`、`payoff_convexity` 与下行实际承担方（`skin_in_the_game`）。历史样本未覆盖尾部或数据不足时明确标 `unclear` 并写入 `missing_evidence`，不编造风险概率或倍数。
 
 ## 输出契约
 
@@ -45,4 +45,4 @@
 
 ## 输出底线
 
-在 `tail_events_breaking_must_haves` 中写清情境和 `breaks_because`。无命中用空数组。
+`tail_events_breaking_must_haves` 命中时写明对应的 `truth`、具体尾部事件与 `breaks_because` 机制；不要把仅能抗冲击的 `robust` 夸大为从波动获益的 `antifragile`。无命中项保留为空数组 `[]`。

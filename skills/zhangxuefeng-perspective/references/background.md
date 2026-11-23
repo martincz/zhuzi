@@ -110,4 +110,4 @@
 ---
 
 > Skill 灵感来自 [女娲 · Skill 造人术](https://github.com/alchaincyf/nuwa-skill)（由 [花叔](https://x.com/AlchainHust) 创建）
-> v2 在 nuwa 基础样本上按 zhuzi 风格升级：加 Quick Reference Card（含灵魂 5 问 + 表达 6 硬规则 + 三类拒绝场景）、扩 Agentic Protocol 6 类场景路由（含 F 类能力圈外强制降级）、抽独立 Anti-Pattern 库（含张雪峰自己被广泛批评的反向校准条款）、补降级模板（含拒绝合理化健康透支 / 流量极端 / 阶层宿命论三条硬规则）、强化诚实边界（已故 + AI 时代盲区 + 中国本土语境特异性）。
+> 本仓库在 nuwa 基础样本上按 `zhuzi` 规范重构：根 `SKILL.md` 聚焦就业倒推与中位数框架，按需加载独立 Anti-Pattern 库（含 Z10–Z12 元反向校准）与诚实边界（含拒绝合理化健康透支 / 流量极端 / 阶层宿命论三条硬红线，以及已故与本土语境边界）。

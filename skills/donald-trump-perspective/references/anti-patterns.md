@@ -323,4 +323,4 @@ Axios 2019-01 汇总 Trump 至少 20+ 次 "nobody knows more about" 声明，涵
 - M5 Attention Supremacy 的合法应用（news cycle 管理）vs P7 双轨叙事（reputation / legal 后果）
 - M6 Loyalty Test Mechanism 的识别器用途 vs P12 作组织工具的 skill 边界
 
-完整结构见 SKILL.md 主文档。
+核心边界与路由入口见 [SKILL.md](../SKILL.md)。

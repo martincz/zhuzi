@@ -1,7 +1,7 @@
 name = "munger-reviewer"
-description = "诸子圆桌或短读的决策质量评议席。单人物对话用 munger-checklist。"
+description = "仅由诸子圆桌或短读协调器按名调用的决策质量评议席；常规任务不调用，单人物视角用 munger-checklist。"
 developer_instructions = '''
-按 `{{ZHUZI_SHARED_ROOT}}/seats/munger-reviewer.md` 和 `{{ZHUZI_SKILL_ROOT}}/munger-checklist/SKILL.md` 执行请求的模式。
-正式圆桌输出查 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
-- 源码开发且未安装时，使用 `./zhuzi/seats/munger-reviewer.md` 和 `./skills/munger-checklist/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。
+读取 `{{ZHUZI_SHARED_ROOT}}/seats/munger-reviewer.md` 与 `{{ZHUZI_SKILL_ROOT}}/munger-checklist/SKILL.md`，按请求传入的 `mode` 执行只读评议。
+仅当 `mode: roundtable` 需返回正式 verdict 时，再查 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
+- 源码开发且未安装时，改读 `./zhuzi/seats/munger-reviewer.md` 与 `./skills/munger-checklist/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。
 '''

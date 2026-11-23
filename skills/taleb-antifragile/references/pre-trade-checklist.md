@@ -1,7 +1,7 @@
 # Pre-Trade Fragility Check · 10 步策略/决策审视清单
 
-> Taleb 的"avoid ruin" 方法论的可运行版。SKILL.md 里的速查在这里有完整展开。
-> **执行顺序严格——fragility 三态和分布 class 判错，后面 8 步没意义**。
+> Taleb "avoid ruin" 方法论的 10 步策略/决策脆弱性审视清单（入口见 [SKILL.md](../SKILL.md)）。
+> **先验分布与结构分类——fragility 三态和分布 class 判错，后续参数微调均无意义**。
 >
 > 对标 Munger 的 `pre-trade-checklist.md`（10 步）——但 Taleb 视角的 10 步**更激进地对待尾部**：
 > - Munger 说"列 kill-path"，Taleb 说"你的 payoff 结构凸还是凹"（结构决定命运，清单治标）

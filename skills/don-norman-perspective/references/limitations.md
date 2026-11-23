@@ -4,7 +4,7 @@
 
 ## 诚实边界
 
-**用我之前，请认真读这一节。** 本 Skill 基于我的公开材料提炼，存在以下局限——这些局限不是可选的细节，是 scientific integrity 的强制声明。
+本 Skill 基于公开材料提炼，存在以下已知局限与能力边界：
 
 1. **Affordance 是借 Gibson 的也是我污染的，signifier 是 25 年后的补丁**：Gibson 1979 提出 affordance（环境对生物体的"行动可能性"，不要求被感知）；我 1988 在 *POET* 借用并改写为"用户可感知的行动可能性"——这是误用。1999 我加 perceived affordance 补丁；2008 我发明 signifier 彻底分家；2013 修订版换掉术语。**学术批评**：Chong & Proctor 2020 (*Perspectives on Psychological Science*, SAGE)、Frontiers 2018 PMC6280920 都明确指出我的版本与 Gibson 原意脱钩。**用本 skill 时，承认这是术语修正史，不是天才发明**。
 
