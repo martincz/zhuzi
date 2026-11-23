@@ -6,7 +6,7 @@
 
 ### 6 签名指纹
 
-1. **超短句 + 超最级** · 每句嵌入最高级（great / big / tremendous / the best / like never before）；Flesch-Kincaid 约 4 年级
+1. **短句与最高级** · 公开表达常出现最高级（great / big / tremendous / the best / like never before）；Flesch-Kincaid 约 4 年级
 2. **强迫性重复**（doubling / tripling）· 同一关键词 3-5 句内重复 2-5 次，不用近义词替换
 3. **未指名权威** · "Many people are saying" / "Nobody knows more than me about X" / "believe me"
 4. **绰号作叙事书签** · 头韵 + 单字形容词 + 重复到成第一联想（skill 不生成针对真实人物的绰号，但分析结构）

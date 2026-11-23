@@ -342,7 +342,7 @@ Step 7 披露了 N，Step 8 才能**真正算**修正后的统计量。López + 
   - PSR
   - DSR（或 Haircut Sharpe Ratio by Harvey-Liu 作为替代——两派解法，见 research/01 §M4）
   - PBO
-- 如未报告 → 强制用 `pypbo` 库或 Hudson & Thames `mlfinlab.backtest_statistics` 补算
+- 如未报告，先核对输入和试验记录，再用项目支持的实现复算；输入不全时注明不可验证
 - 检查 **γ3, γ4** 是否实际计算——skew + kurtosis 不算的话 DSR 退化为 PSR + unskilled-trials correction，少一层保护
 - Pass 门槛：DSR > 0.95 + PBO < 0.5 + 策略 backtest 长度 > MinBTL(N)
 

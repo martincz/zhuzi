@@ -66,6 +66,17 @@ class VerdictTests(unittest.TestCase):
         self.assertEqual(validate_verdict(payload, contract=CONTRACT, seat_name="linus-engineer",
                                          phase=2, truth_count=1), [])
 
+    def test_cli_reads_verdict_from_stdin(self):
+        import yaml
+
+        command = [sys.executable, "-B", str(ROOT / "zhuzi/validators/verdict.py"), "-",
+                   "--seat", "feynman-reviewer", "--phase", "1", "--truth-count", "1"]
+        for payload, expected_exit in ((yaml.safe_dump(feynman()), 0), ("verdict: [", 1)):
+            with self.subTest(expected_exit=expected_exit):
+                result = subprocess.run(command, input=payload, text=True, capture_output=True)
+                self.assertEqual(result.returncode, expected_exit, result.stdout + result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
     def test_rejects_missing_truth_and_duplicate_review(self):
         for records in ([], [{"truth": 1, "flag": "none"}] * 2, [{"truth": 2, "flag": "none"}]):
             payload = feynman()
@@ -236,12 +247,13 @@ class NativeInstallTests(unittest.TestCase):
             (home / "agents/linus-engineer.md").write_text("old zhuzi wrapper")
             other = home / "agents/unrelated.md"
             other.write_text("keep this agent")
-            env = build_install_env(codex_home=home, claude_dir=root / "claude space")
+            claude_dir = root / "claude space"
+            env = build_install_env(codex_home=home, claude_dir=claude_dir)
             refresh_shipped_assets(install_env=env)
             self.assertEqual(other.read_text(), "keep this agent")
             self.assertFalse((home / "agents/linus-engineer.md").exists())
             other.unlink()  # The standalone smoke fixture intentionally has only zhuzi agents.
-            validate_path_references(codex_home=home)
+            validate_path_references(codex_home=home, claude_dir=claude_dir)
             with patch.dict(os.environ, env):
                 install_source_only_adapters(home)
             validate_path_references(codex_home=home)

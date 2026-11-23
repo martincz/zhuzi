@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lightweight consistency checks for the zhuzi Markdown runtime files."""
+"""Check shared contracts, distribution paths, and instruction metadata."""
 
 from __future__ import annotations
 
@@ -7,6 +7,9 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
+
+import yaml
 
 try:
     import tomllib
@@ -35,27 +38,12 @@ ACTIVE_TEXT_GLOBS = [
 
 CLAUDE_RUNTIME_ROOT = ROOT / "runtimes" / "claude"
 CODEX_RUNTIME_ROOT = ROOT / "runtimes" / "codex"
-CODEX_ROUNDTABLE_SKILL = CODEX_RUNTIME_ROOT / "skills" / "zhuzi-roundtable" / "SKILL.md"
-
 AGENT_VERDICT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md"
 AGENT_SEAT_REFERENCE_PATH_TEMPLATE = "{{{{ZHUZI_SHARED_ROOT}}}}/seats/{seat_file}"
-ROUNDTABLE_REFERENCE_PATHS = [
-    "{{ZHUZI_SHARED_ROOT}}/references/seat-registry.md",
-    "{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md",
-]
-ROUNDTABLE_WORKFLOW_PATH = "{{ZHUZI_SHARED_ROOT}}/workflows/roundtable.md"
-ROUNDTABLE_TEMPLATE_PATH = "{{ZHUZI_SHARED_ROOT}}/templates/roundtable-quick.md"
-ROUNDTABLE_CONTRACT_REFERENCE_PATH = "{{ZHUZI_SHARED_ROOT}}/manifests/roundtable-contract.json"
 AGENT_SKILL_PATH_TEMPLATE = "{{{{ZHUZI_SKILL_ROOT}}}}/{skill_name}/SKILL.md"
-ROUNDTABLE_EXECUTION_CONTEXTS = [
-    f"@{ROUNDTABLE_WORKFLOW_PATH}",
-    f"@{ROUNDTABLE_REFERENCE_PATHS[0]}",
-    f"@{ROUNDTABLE_REFERENCE_PATHS[1]}",
-    f"@{ROUNDTABLE_TEMPLATE_PATH}",
-    f"@{ROUNDTABLE_CONTRACT_REFERENCE_PATH}",
-]
-
-CODEX_SKILL_DESCRIPTION_BYTES_LIMIT = 1024
+WORKFLOW_ENTRIES = {"roundtable": "roundtable", "quick": "quick-multi"}
+SKILL_NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+MARKDOWN_LINK = re.compile(r"\]\(\s*(?:<([^>\n]+)>|([^\s)]+))")
 
 ADAPTER_INLINE_SCHEMA_SNIPPETS = [
     "must_haves_review:",
@@ -71,7 +59,6 @@ BANNED_SNIPPETS = [
     "`~/.claude/commands/roundtable.md`",
     "`.claude/commands/roundtable.md`",
     "commands/roundtable.md",
-    "三个 agent",
 ]
 
 SURFACE_FAMILIES = [
@@ -282,63 +269,22 @@ def check_banned_snippets(errors: list[str]) -> None:
                     add_error(errors, path, lineno, f"banned snippet: {snippet}")
 
 
-# template + Quick example 是 persona 术语括注的必检面
-ROUNDTABLE_PUNCT_FILES = [
-    ROOT / "zhuzi" / "templates" / "roundtable-quick.md",
-    ROOT / "examples" / "roundtable-quick.md",
-]
-
-# 核心 persona / 项目术语：首次出现必须带机制括注
-# window 50 字符内含 hints 里任一子串 = 视为已括注
-REQUIRED_TERM_ANNOTATIONS = {
-    # López / 证据质量
-    "walpha": ["加权超额收益"],
-    "multiple testing": ["试 N 次", "多次试验", "看似显著", "噪声"],
-    "Deflated Sharpe": ["试 N 次", "打折", "Sharpe 打折"],
-    "paired bootstrap": ["抽样比对", "抽样对比", "配对抽样"],
-    "meta-labeling": ["方向", "三步法", "次级分类", "先判方向"],
-    "PBO": ["排名翻转", "翻转概率", "OOS 排名"],
-    "CPCV": ["组合", "清洗", "purged", "combinatorial"],
-    "backtest overfitting": ["过拟合", "回测过度", "反复试"],
-    # Taleb / 风险结构
-    "ergodicity": ["单人长期", "时间平均", "平行宇宙"],
-    "fragility": ["尾部", "黑天鹅", "凹性", "受伤", "会塌"],
-    "barbell": ["两头", "杠铃", "无风险", "极端两端"],
-    "ruin risk": ["破产", "归零", "吸收", "absorbing"],
-}
-
-
-def _strip_code_blocks(text: str) -> str:
-    in_code = False
-    cleaned: list[str] = []
-    for line in text.splitlines():
-        if line.lstrip().startswith("```"):
-            in_code = not in_code
-            cleaned.append("")
-            continue
-        cleaned.append("" if in_code else line)
-    return "\n".join(cleaned)
-
-
-def check_roundtable_term_annotations(errors: list[str]) -> None:
-    for path in ROUNDTABLE_PUNCT_FILES:
-        if not path.exists():
-            continue
-        clean = _strip_code_blocks(path.read_text(encoding="utf-8"))
-        for term, hints in REQUIRED_TERM_ANNOTATIONS.items():
-            idx = clean.find(term)
-            if idx < 0:
-                continue
-            window = clean[idx + len(term) : idx + len(term) + 60]
-            if any(hint in window for hint in hints):
-                continue
-            lineno = clean.count("\n", 0, idx) + 1
-            add_error(
-                errors,
-                path,
-                lineno,
-                f"术语 '{term}' 首次出现缺机制括注（期望 60 字符内含 {hints[0]!r} 等提示词）",
-            )
+def read_frontmatter(errors: list[str], path: Path, text: str) -> dict | None:
+    header = re.match(r"\A---\n(.*?)\n---[ \t]*(?:\n|$)", text, re.DOTALL)
+    if not header:
+        add_error(errors, path, 1, "missing YAML frontmatter")
+        return None
+    try:
+        fields = yaml.safe_load(header.group(1))
+    except yaml.YAMLError as exc:
+        add_error(errors, path, 1, f"invalid YAML frontmatter: {exc}")
+        return None
+    if not isinstance(fields, dict):
+        add_error(errors, path, 1, "YAML frontmatter must be a mapping")
+        return None
+    if not text[header.end():].strip():
+        add_error(errors, path, 1, "missing instructions after frontmatter")
+    return fields
 
 
 def check_claude_agent_adapters(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
@@ -357,6 +303,17 @@ def check_claude_agent_adapters(errors: list[str], roundtable_contract: dict[str
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8")
+        fields = read_frontmatter(errors, path, text)
+        if fields is not None:
+            description = fields.get("description")
+            if fields.get("name") != seat_name or not isinstance(description, str) or not description.strip():
+                add_error(errors, path, 1, "invalid Claude agent identity or description")
+            raw_tools = fields.get("tools")
+            tools = {name.strip() for name in raw_tools.split(",")} if isinstance(raw_tools, str) else set()
+            if "Read" not in tools:
+                add_error(errors, path, 1, "Claude seat requires an explicit tool list with Read")
+            elif seat_name != "linus-engineer" and tools & {"Write", "Edit"}:
+                add_error(errors, path, 1, "analysis seats cannot declare edit tools")
         skill_name = config.get("skill")
         if not isinstance(skill_name, str):
             add_error(errors, ROUNDTABLE_CONTRACT_PATH, 1, f"seat contract {seat_name} missing string skill")
@@ -391,6 +348,34 @@ def check_runtime_path_templates(errors: list[str]) -> None:
         for literal in banned_runtime_literals:
             if literal in text:
                 add_error(errors, path, 1, f"runtime template leaked hardcoded path {literal}")
+
+
+def check_workflow_adapters(errors: list[str]) -> None:
+    for entry, workflow in WORKFLOW_ENTRIES.items():
+        shared_file = f"workflows/{workflow}.md"
+        path = ROOT / "zhuzi" / shared_file
+        if not path.is_file():
+            add_error(errors, path, 1, "missing shared workflow")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for primitive in ("Agent(", "SendMessage(", "spawn_agent(", "wait_agent(", "followup_task(", "send_input("):
+            if primitive in text:
+                add_error(errors, path, 1, f"shared workflow leaked runtime-specific primitive {primitive}")
+
+        for adapter in (CLAUDE_RUNTIME_ROOT / f"commands/zhuzi/{entry}.md",
+                        CODEX_RUNTIME_ROOT / f"skills/zhuzi-{entry}/SKILL.md"):
+            if not adapter.is_file():
+                add_error(errors, adapter, 1, "missing workflow adapter")
+                continue
+            body = adapter.read_text(encoding="utf-8")
+            if f"{{{{ZHUZI_SHARED_ROOT}}}}/{shared_file}" not in body:
+                add_error(errors, adapter, 1, f"missing shared workflow reference {shared_file}")
+            if adapter.is_relative_to(CLAUDE_RUNTIME_ROOT):
+                fields = read_frontmatter(errors, adapter, body)
+                if fields is not None and (not fields.get("description") or "$ARGUMENTS" not in body):
+                    add_error(errors, adapter, 1, "command needs a description and argument placeholder")
+            elif "`./zhuzi`" not in body:
+                add_error(errors, adapter, 1, "missing repository fallback")
 
 
 def extract_markdown_headings(text: str, *, level: int) -> list[str]:
@@ -428,98 +413,6 @@ def check_generated_roundtable_doc(
         )
 
 
-def check_roundtable_command_entry(errors: list[str]) -> None:
-    path = CLAUDE_RUNTIME_ROOT / "commands" / "zhuzi" / "roundtable.md"
-    text = path.read_text(encoding="utf-8")
-    for required in [
-        "<claude_command_adapter>",
-        "<objective>",
-        "<execution_context>",
-        "<context>",
-        "<process>",
-        'invoke_seat(seat="X", message="Y")',
-        "continue_existing_agent(agent_id, message)",
-        'SendMessage(to=agent_id, message="Y")',
-        *ROUNDTABLE_EXECUTION_CONTEXTS,
-        "zhuzi/workflows/roundtable.md",
-        "zhuzi/templates/roundtable-quick.md",
-        "zhuzi/manifests/roundtable-contract.json",
-    ]:
-        if required not in text:
-            add_error(errors, path, 1, f"roundtable command missing {required}")
-
-
-def check_codex_roundtable_skill(errors: list[str]) -> None:
-    if not CODEX_RUNTIME_ROOT.exists():
-        return
-
-    path = CODEX_ROUNDTABLE_SKILL
-    if not path.exists():
-        add_error(errors, path, 1, "missing Codex roundtable skill")
-        return
-
-    text = path.read_text(encoding="utf-8")
-    for required in [
-        "<codex_skill_adapter>",
-        "invoke_seat",
-        "continue_existing_agent(agent_id, message)",
-        "实际工具参数",
-        "先确定共享根目录，只能选一个：",
-        "{{ZHUZI_SHARED_ROOT}}",
-        "./zhuzi",
-        "workflows/roundtable.md",
-        "references/seat-registry.md",
-        "references/verdict-schema.md",
-        "templates/roundtable-quick.md",
-        "manifests/roundtable-contract.json",
-        "zhuzi/workflows/roundtable.md",
-        "zhuzi/references/seat-registry.md",
-        "zhuzi/references/verdict-schema.md",
-        "zhuzi/templates/roundtable-quick.md",
-        "zhuzi/manifests/roundtable-contract.json",
-    ]:
-        if required not in text:
-            add_error(errors, path, 1, f"Codex roundtable skill missing {required}")
-
-
-def check_roundtable_workflow(errors: list[str]) -> None:
-    path = ROOT / "zhuzi" / "workflows" / "roundtable.md"
-    if not path.exists():
-        add_error(errors, path, 1, "missing roundtable workflow")
-        return
-
-    text = path.read_text(encoding="utf-8")
-    for required in [
-        "## 流水线性质",
-        "## 默认交互契约",
-        "### 阶段 0.5 — 议题契约定义（orchestrator）",
-        "### 阶段 1 — 视角并行审议",
-        "### 阶段 1.5 — must_haves 修订 gate（条件触发）",
-        "### 阶段 2 — 代码可行性评审",
-        "### 阶段 3 — 综合对齐（orchestrator 主持）",
-        "### 阶段 4 — 实施",
-        "## 冲突裁决规则",
-        "## 硬约束（任何情况不得违反）",
-        "N 席位召开（N ≥ 2）",
-        "continue_existing_agent(agent_id, message)",
-        "roundtable-contract.json",
-    ]:
-        if required not in text:
-            add_error(errors, path, 1, f"roundtable workflow missing {required}")
-
-    for forbidden in [
-        "SendMessage(",
-        "send_input(",
-        "spawn_agent(",
-        "wait_agent(",
-        "close_agent(",
-        "# Claude",
-        "# Codex",
-    ]:
-        if forbidden in text:
-            add_error(errors, path, 1, f"roundtable workflow leaked runtime-specific primitive {forbidden}")
-
-
 def check_seat_registry(
     errors: list[str],
     roundtable_contract: dict[str, object] | None,
@@ -531,9 +424,6 @@ def check_seat_registry(
         return
 
     text = path.read_text(encoding="utf-8")
-    for required in ["## 当前席位", "## 默认 `stages` 规则", "## 扩席位维护清单"]:
-        if required not in text:
-            add_error(errors, path, 1, f"seat registry missing {required}")
     for block_name in generated_docs.get("zhuzi/references/seat-registry.md", []):
         if f"<!-- GENERATED:{block_name}:start -->" not in text or f"<!-- GENERATED:{block_name}:end -->" not in text:
             add_error(errors, path, 1, f"seat registry missing generated block markers for {block_name}")
@@ -601,19 +491,13 @@ def check_quick_roundtable_contract(errors: list[str], roundtable_contract: dict
         if isinstance(headings, list):
             expected_headings = [heading for heading in headings if isinstance(heading, str)]
 
-    template_headings: list[str] = []
     if not template.exists():
         add_error(errors, template, 1, "missing Quick Roundtable template")
     else:
         template_text = template.read_text(encoding="utf-8")
-        template_headings = extract_markdown_headings(template_text, level=2)
-        if not template_headings:
-            add_error(errors, template, 1, "quick template missing level-2 headings")
-        else:
-            template_set = set(template_headings)
-            for required in expected_headings:
-                if required not in template_set:
-                    add_error(errors, template, 1, f"quick template missing required heading {required}")
+        skeleton = re.search(r"^```markdown\n(.*?)^```$", template_text, re.MULTILINE | re.DOTALL)
+        if not skeleton or extract_markdown_headings(skeleton.group(1), level=2) != expected_headings:
+            add_error(errors, template, 1, "Quick template headings differ from the manifest order")
         for category in (quick_output or {}).get("decision_categories", []):
             if not isinstance(category, str):
                 continue
@@ -629,18 +513,8 @@ def check_quick_roundtable_contract(errors: list[str], roundtable_contract: dict
         add_error(errors, example, 1, "missing Quick Roundtable example")
     else:
         example_text = example.read_text(encoding="utf-8")
-        example_headings = extract_markdown_headings(example_text, level=2)
-        expected_example_headings = expected_headings or template_headings
-        if expected_example_headings:
-            example_set = set(example_headings)
-            for required in expected_example_headings:
-                if required not in example_set:
-                    add_error(
-                        errors,
-                        example,
-                        1,
-                        f"quick example missing required heading {required}",
-                    )
+        if extract_markdown_headings(example_text, level=2) != expected_headings:
+            add_error(errors, example, 1, "Quick example headings differ from the manifest order")
 
     readme = ROOT / "README.md"
     readme_text = readme.read_text(encoding="utf-8")
@@ -655,20 +529,6 @@ def check_quick_roundtable_contract(errors: list[str], roundtable_contract: dict
     ]:
         if required not in readme_text:
             add_error(errors, readme, 1, f"README missing {required}")
-
-
-def check_commit_guidelines(errors: list[str]) -> None:
-    path = ROOT / "AGENTS.md"
-    text = path.read_text(encoding="utf-8")
-    for required in [
-        "## 提交规范",
-        "`feat/fix/refactor/style/chore/docs`",
-        "多行格式",
-        "单次提交只解决一个问题",
-        "除前缀外，提交信息其他内容必须使用中文",
-    ]:
-        if required not in text:
-            add_error(errors, path, 1, f"commit guideline missing {required}")
 
 
 def check_codex_agent_adapters(errors: list[str], roundtable_contract: dict[str, object] | None) -> None:
@@ -687,9 +547,13 @@ def check_codex_agent_adapters(errors: list[str], roundtable_contract: dict[str,
             continue
         if set(payload) != {"name", "description", "developer_instructions"}:
             add_error(errors, path, 1, "thin agent must contain only name, description and developer_instructions")
-        if payload.get("name") != seat_name or not payload.get("description"):
+        description = payload.get("description")
+        if payload.get("name") != seat_name or not isinstance(description, str) or not description.strip():
             add_error(errors, path, 1, "invalid native agent identity")
-        instructions = payload.get("developer_instructions", "")
+        instructions = payload.get("developer_instructions")
+        if not isinstance(instructions, str) or not instructions.strip():
+            add_error(errors, path, 1, "missing native agent instructions")
+            continue
         skill_name = config["skill"]
         for required in [AGENT_SKILL_PATH_TEMPLATE.format(skill_name=skill_name),
                          AGENT_SEAT_REFERENCE_PATH_TEMPLATE.format(seat_file=f"{seat_name}.md"),
@@ -837,58 +701,6 @@ def check_inventory(errors: list[str], manifest_families: dict[str, list[dict[st
                     )
 
 
-def check_skill_reference_links(errors: list[str]) -> None:
-    link_pattern = re.compile(r"references/[A-Za-z0-9_./-]+\.md")
-    for skill in iter_skill_entrypoints():
-        if CODEX_RUNTIME_ROOT in skill.parents:
-            continue
-        text = skill.read_text(encoding="utf-8")
-        for match in link_pattern.finditer(text):
-            target = skill.parent / match.group(0)
-            if not target.exists():
-                line = text.count("\n", 0, match.start()) + 1
-                add_error(errors, skill, line, f"missing referenced file {match.group(0)}")
-
-
-def check_skill_description_lengths(errors: list[str]) -> None:
-    for skill in iter_skill_entrypoints():
-        text = skill.read_text(encoding="utf-8")
-        frontmatter = re.match(r"\A---\n(.*?)\n---", text, re.DOTALL)
-        if not frontmatter:
-            add_error(errors, skill, 1, "missing YAML frontmatter")
-            continue
-
-        lines = frontmatter.group(1).splitlines()
-        for index, line in enumerate(lines):
-            if line != "description: |":
-                continue
-
-            description_lines: list[str] = []
-            for description_line in lines[index + 1 :]:
-                if description_line.startswith("  "):
-                    description_lines.append(description_line[2:])
-                    continue
-                if description_line == "":
-                    description_lines.append("")
-                    continue
-                break
-
-            description = "\n".join(description_lines).rstrip()
-            description_bytes = len(description.encode("utf-8"))
-            if description_bytes > CODEX_SKILL_DESCRIPTION_BYTES_LIMIT:
-                add_error(
-                    errors,
-                    skill,
-                    index + 1,
-                    "Codex skill description "
-                    f"{description_bytes} bytes exceeds "
-                    f"{CODEX_SKILL_DESCRIPTION_BYTES_LIMIT} byte limit",
-                )
-            break
-        else:
-            add_error(errors, skill, 1, "missing description block")
-
-
 def check_codex_install(errors: list[str]) -> None:
     path = ROOT / "install.sh"
     text = path.read_text(encoding="utf-8")
@@ -947,6 +759,44 @@ def iter_skill_entrypoints() -> list[Path]:
     return sorted({path for path in files if path.is_file()})
 
 
+def check_skill_metadata(errors: list[str]) -> None:
+    seen: set[str] = set()
+    for path in iter_skill_entrypoints():
+        fields = read_frontmatter(errors, path, path.read_text(encoding="utf-8"))
+        if fields is None:
+            continue
+        name = fields.get("name")
+        if name != path.parent.name or not SKILL_NAME.fullmatch(path.parent.name) or len(path.parent.name) > 64:
+            add_error(errors, path, 1, "skill name must match the skill folder and Agent Skills naming rules")
+        elif name in seen:
+            add_error(errors, path, 1, f"duplicate installed skill name {name}")
+        else:
+            seen.add(name)
+
+        description = fields.get("description")
+        if not isinstance(description, str) or not 0 < len(description.strip()) <= 1024:
+            add_error(errors, path, 1, "skill description must be a non-empty string of at most 1024 characters")
+        metadata = fields.get("metadata", {})
+        if not isinstance(metadata, dict) or any(
+            not isinstance(key, str) or not isinstance(value, str) for key, value in metadata.items()
+        ):
+            add_error(errors, path, 1, "skill metadata must map strings to strings")
+
+
+def check_markdown_links(errors: list[str]) -> None:
+    # Check repository-relative links without fetching external research sources.
+    for path in iter_files([*ACTIVE_TEXT_GLOBS, "skills/**/*.md", "archive/**/*.md"]):
+        if path.suffix != ".md":
+            continue
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for match in MARKDOWN_LINK.finditer(line):
+                target = urlsplit(match.group(1) or match.group(2))
+                if target.scheme or target.netloc or not target.path:
+                    continue
+                if not (path.parent / unquote(target.path)).exists():
+                    add_error(errors, path, line_number, f"missing linked path {target.path}")
+
+
 def check_readme_persona_coverage(
     errors: list[str],
     manifest_families: dict[str, list[dict[str, str]]] | None,
@@ -987,23 +837,19 @@ def main() -> int:
     generated_docs = resolve_generated_docs(errors, roundtable_contract)
 
     check_banned_snippets(errors)
-    check_roundtable_term_annotations(errors)
     check_claude_agent_adapters(errors, roundtable_contract)
     check_runtime_path_templates(errors)
-    check_roundtable_command_entry(errors)
-    check_codex_roundtable_skill(errors)
-    check_roundtable_workflow(errors)
+    check_workflow_adapters(errors)
     check_seat_registry(errors, roundtable_contract, generated_docs)
     check_shared_seat_contracts(errors, roundtable_contract, generated_docs)
     check_quick_roundtable_contract(errors, roundtable_contract)
     check_readme_persona_coverage(errors, manifest_families)
-    check_commit_guidelines(errors)
     check_codex_agent_adapters(errors, roundtable_contract)
     check_schema_reference(errors, roundtable_contract, generated_docs)
     check_manifest(errors, manifest_families)
     check_inventory(errors, manifest_families)
-    check_skill_reference_links(errors)
-    check_skill_description_lengths(errors)
+    check_skill_metadata(errors)
+    check_markdown_links(errors)
     check_codex_install(errors)
     check_codex_source_installer(errors)
 

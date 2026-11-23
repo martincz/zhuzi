@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import sys
 from pathlib import Path
 
 
@@ -209,23 +210,29 @@ def validate_must_haves(payload) -> list[str]:
 
 
 def load_payload(path: Path):
-    text = path.read_text(encoding="utf-8")
+    text = sys.stdin.read() if path == Path("-") else path.read_text(encoding="utf-8")
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         import yaml
-        return yaml.safe_load(text)
+
+        try:
+            return yaml.safe_load(text)
+        except yaml.YAMLError as exc:
+            raise ValueError("input is not valid JSON or YAML") from exc
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("file", type=Path)
+    parser.add_argument("file", type=Path, help="JSON or YAML input file, or - for stdin")
     parser.add_argument("--seat")
     parser.add_argument("--phase", type=int, choices=(1, 2, 4), default=1)
     parser.add_argument("--truth-count", type=int)
     parser.add_argument("--must-haves", type=Path)
     parser.add_argument("--peer-context", action="store_true", help="only when actual peer verdicts were supplied for a follow-up review")
     args = parser.parse_args()
+    if args.file == args.must_haves == Path("-"):
+        parser.error("verdict and locked must_haves cannot both read from stdin")
     try:
         payload = load_payload(args.file)
         if args.seat:

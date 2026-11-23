@@ -1,6 +1,6 @@
 # Roundtable Seat Registry
 
-> 这是 `/zhuzi:roundtable` 的人读席位权威表。Quick headings、seat/stages/route、seat-specific 机器合同以 `zhuzi/manifests/roundtable-contract.json` 为准；若 `roundtable.md`、README、AGENTS、agent 描述段漂移，以 manifest 与本文件交叉校验结果为准。
+从 [机器合同](../manifests/roundtable-contract.json) 生成的席位领域和阶段说明。按议题实质匹配。短读取擅长领域，正式圆桌另用阶段和必召开规则。
 
 ## 当前席位
 
@@ -15,12 +15,6 @@
 | UI/UX 认知诊断 | `don-norman-reviewer` | discoverability / feedback / conceptual model 三件套审查、affordance vs signifier、slip vs mistake、可访问性 | `[1]` | UI 评审 / UX 评审 / 用户体验 / 产品界面 / discoverability / affordance / signifier / mapping / feedback / conceptual model / mental model / Gulf of Execution / Gulf of Evaluation / slip vs mistake / Norman door / 可访问性 / 无障碍设计 / dark patterns / 自动化交接界面 |
 | 代码 | `linus-engineer` | 架构、可行性、review、重构、实施、good taste | `[2]` 或 `[1,2]` | 软件架构 / 数据结构 / API 边界 / 并发 / 性能 / 可靠性 / 代码实施 / 可行性评估 / 重构 / 工程纪律 / 技术选型 / good taste 审视 |
 <!-- GENERATED:seat_registry_current_seats:end -->
-
-## 召开纪律
-
-- 语义匹配优先于关键词精确命中。`激励结构` 和 `激励设计` 算同一域。
-- 评议席位默认期望 3 个（`dispatch_rules.review_seat_soft_count`，soft hint）；命中超过时全部审议，按运行时容量排队；首轮结果互相隔离，不因并发限制漏席。
-- 召开人数路由由 `roundtable.md` 阶段 0.5 Step 0 落地：`N = 0` 停流水线；`N = 1` 默认短路退出（建议改用对应 standalone skill 或 `/zhuzi:quick`），用户回复"强制开圆桌 / force roundtable" 才继续；`N ≥ 2` 正常进 Step 1。
 
 ## 默认 `stages` 规则
 
@@ -38,14 +32,14 @@
 
 ## 补充规则
 
-### López 必召开触发词
+### 正式圆桌必召开领域
 
 <!-- GENERATED:seat_registry_lopez_must_call:start -->
-议题含 `研究方法论 / 实验设计 / benchmark / eval / A-B test / 因果声明 / causal claim / data leakage / selection bias / backtest 审视 / 因子诚信 / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow` 任一关键词时，López 必召开，即使议题不是量化金融。
+议题实质涉及 `研究方法论 / 实验设计 / benchmark / eval / A-B test / 因果声明 / causal claim / data leakage / selection bias / backtest 审视 / 因子诚信 / 过拟合诊断 / trial 披露 / CV 方法 / Sharpe deflation / factor zoo / specification / Sisyphus workflow` 所指的领域时，López 必召开，即使议题不是量化金融。
 
-议题含 `创业方向 / 产品方向 / PMF / product-market fit / 创始人评估 / founder 靠谱吗 / pitch 评审 / pitch deck / essay 评审 / essay 写作 / 写作 taste / spec taste / ADR taste / 说服力评审 / Founder Mode / Manager Mode / default alive / default dead / Stay Upwind / Keep Identity Small / superlinear returns / maker 还是 manager` 任一关键词时，Paul Graham 必召开，触发创业 taste / essay 评审场景时必召开，和 Munger（偏误 / 激励）、Taleb（尾部风险）形成互补分工。
+议题实质涉及 `创业方向 / 产品方向 / PMF / product-market fit / 创始人评估 / founder 靠谱吗 / pitch 评审 / pitch deck / essay 评审 / essay 写作 / 写作 taste / spec taste / ADR taste / 说服力评审 / Founder Mode / Manager Mode / default alive / default dead / Stay Upwind / Keep Identity Small / superlinear returns / maker 还是 manager` 所指的领域时，Paul Graham 必召开，触发创业 taste / essay 评审场景时必召开，和 Munger（偏误 / 激励）、Taleb（尾部风险）形成互补分工。
 
-议题含 `UI 评审 / UX 评审 / design review / 可用性问题 / 为什么用户犯错 / discoverability / affordance / signifier / mapping / feedback 设计 / conceptual model / mental model / Gulf of Execution / Gulf of Evaluation / slip 还是 mistake / Norman door / 用户体验 / 产品界面 / 可访问性 / 无障碍设计 / dark pattern / 错误信息设计 / default value / 用户操作失误 / 用户没培训好` 任一关键词时，Norman 必召开，触发 UI/UX 评议或可用性归因争议时必召开，与 Linus（代码品味）、Feynman（spec 清晰度）、Paul Graham（产品 taste）形成互补分工。
+议题实质涉及 `UI 评审 / UX 评审 / design review / 可用性问题 / 为什么用户犯错 / discoverability / affordance / signifier / mapping / feedback 设计 / conceptual model / mental model / Gulf of Execution / Gulf of Evaluation / slip 还是 mistake / Norman door / 用户体验 / 产品界面 / 可访问性 / 无障碍设计 / dark pattern / 错误信息设计 / default value / 用户操作失误 / 用户没培训好` 所指的领域时，Norman 必召开，触发 UI/UX 评议或可用性归因争议时必召开，与 Linus（代码品味）、Feynman（spec 清晰度）、Paul Graham（产品 taste）形成互补分工。
 <!-- GENERATED:seat_registry_lopez_must_call:end -->
 
 ### Linus `stages=[1,2]`
@@ -54,53 +48,3 @@
 - 阶段 1：工程视角评议题，关注 good taste、数据结构、anti-pattern，不评判当前 codebase 是否承载得住。
 - 阶段 2：可行性 gate，吸收阶段 1 和其他席位结论，评估能否干净落地。
 <!-- GENERATED:seat_registry_linus_dual_stage:end -->
-
-## 扩席位维护清单
-
-> 顺序严格：**前置判断 → 判断填字段 → 机械生成文件 → 跑守门**。每步标 **（判断）** 需问用户/查人物素材决定，**（机械）** 可照着现有席位 copy-modify 直接做。仅在确实需要新增协作席位时走全流程；standalone-only 人物（含决策顾问和修辞工具）只走 skill 与 surface 注册，不自动建 seat。
-
-### 前置判断（判断）
-
-- [ ] **Standalone-only vs 协作席位**：先确认是否需要在共享 verdict 下提供独立、边界明确的审议。只需直接对话的思维顾问或修辞工具，只注册 skill 与 shipped surface；设计并验证协作职责后才建 seat / agent。
-- [ ] skill 已在 `skills/<family>-<signature>/SKILL.md` 就位（如 `taleb-antifragile`）。命名建议：`<family>` = 人物姓氏 / 代表标签，`<signature>` = 人物核心方法论词（如 `antifragile` / `checklist` / `engineer` / `scientist` / `zawen`），不使用 nuwa 默认的 `-perspective` 后缀
-
-### Step 1（机械）— skill 进仓库
-
-- [ ] 把 nuwa 产物从 `<人物产物目录>/` 移到 `skills/<family>-<signature>/`
-- [ ] SKILL.md frontmatter 中 `description` 的 UTF-8 字节数 ≤ 1024（Codex 限制，`check_consistency.py` 会拦）
-
-### Step 2（判断）— 设计席位字段（仅 A 类）
-
-对 A 类必做。以下每项都是**人工决定**，不能自动推。填完后进 Step 3-4：
-
-- [ ] **席位名**：评议型用 `<family>-reviewer`，实施型用 `<family>-engineer`
-- [ ] **verdict root key**：通常 `<family>_verdict`；实施型（如 Linus）用 `<family>_feasibility`
-- [ ] **native verdict 词汇表**（2-5 词）：反映人物思想核心极性。参考：taleb 的 `fragile/robust/antifragile`、munger 的 `pass/revise/kill`、linus 的 feasibility 系。提示：从 skill 心智模型第 1 条找核心术语
-- [ ] **route 映射**：每个 native verdict 映射到 `go` / `go_with_conditions` / `revise_must_haves` / `kill` 之一
-- [ ] **seat_specific 必填字段**（3-6 个）：把人物独特方法论翻译成 YAML 槽位。例：taleb 的 `tail_events_breaking_must_haves`、munger 的 `lollapalooza_stack`、lópez 的 `claim_classification`
-- [ ] **默认 stages 规则**：这个人物在「策略决策 / 研究评估 / 纯代码实施 / 工程决策 / 混合议题」5 种场景下各弃权 / `[1]` / `[1,2]`，依据是人物真实专长
-- [ ] **越权边界**：跟现有 4 席（Linus / Munger / Taleb / López）哪些话题重合？重合点由谁让路？写进 seat contract 的「## 越权边界」
-- [ ] **skill/agent 路由护栏**：standalone 场景（`#<family>` / `X 视角`）用 skill，roundtable 场景用 agent。seat contract「## 适用范围」和 agent description 两侧都必须明示
-
-### Step 3（机械）— 生成三个文件
-
-从最接近的现有席位 copy-modify 并替换 family-specific 内容：
-
-- [ ] `zhuzi/seats/<seat>.md` — 评议型参考 `zhuzi/seats/taleb-reviewer.md`，实施型参考 `zhuzi/seats/linus-engineer.md`；手写职责/边界/纪律，保留 `## 输出契约` 生成块 marker
-- [ ] `runtimes/claude/agents/<seat>.md` — 参考同人物的 Claude adapter（薄；只装载 skill + seat contract + schema）
-- [ ] `runtimes/codex/agents/<seat>.toml` — 使用原生 TOML，必含 `name` / `description` / `developer_instructions`（薄；必须含 `{{ZHUZI_SKILL_ROOT}}` / `{{ZHUZI_SHARED_ROOT}}` 模板路径和 `./skills/...` / `./zhuzi/...` 仓库 fallback 两组路径）
-
-### Step 4（机械）— 更新注册表
-
-- [ ] `zhuzi/manifests/roundtable-contract.json` 的 `seats`、stage policy、route、Quick 相关字段与 seat 输出契约补齐
-- [ ] 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件、`verdict-schema.md` 与 seat 文件里的 `## 输出契约` 生成段
-- [ ] 检查本文件的非生成说明段是否仍成立（例如召开纪律、维护流程、判断/机械边界）
-- [ ] `docs/INVENTORY.md` 的 Skills / Agents / Seats 三节加条目，更新每节顶部计数
-- [ ] `zhuzi/manifests/shipped-surface.json` 的 `skills` / `agents` / `seats` 三个 family 加条目
-- [ ] `tools/check_consistency.py` 会直接读取 manifest 校验 shared seats / adapters / references；确认新字段已被守门覆盖
-- [ ] 若引入新 native verdict 或 route 语义，先改 manifest 并 rerender；只有 shared schema 的非生成说明变化时才手改 `zhuzi/references/verdict-schema.md`
-
-### Step 5（机械）— 跑守门
-
-- [ ] `python3 tools/check_consistency.py` 必须 pass
-- [ ] 若动了 roundtable surface / shared schema / Codex adapter / 安装路径：`python3 tools/smoke_test_codex_roundtable.py` 必须 pass

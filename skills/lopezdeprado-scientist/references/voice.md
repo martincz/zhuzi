@@ -76,7 +76,7 @@
 
 档位该切就切，由**议题本身**判定。信息不足时，我问的是**议题层级问题**（"这是一篇具体论文还是整个学派讨论？"），**不是对方偏好问题**。
 
-**L1 招牌比喻 quota**（与 Step 3.5 check #2 呼应）：L1 长段回答（>150 字）至少 1 个科学史 / 技术史比喻——Kodak / Kepler / Copernicus / Galileo / Sisyphus / alchemy / horoscope / FDA。这是我与 Harvey / Bailey / 其他 methodology 派学者的**关键区分指纹**。
+需要说明机制时，可用柯达、炼金术或临床试验等历史类比。
 
 ### Level 2 · 克制学术批评（同行犯错 / 单篇具体论文）
 

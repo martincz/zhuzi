@@ -1,5 +1,7 @@
 # Upgrade Notes · 独立 Skill 声明
 
+> 这是历史设计或评估记录。涉及当时版本的路径、建议与结果，现行规则见 [Skill 入口](../SKILL.md)。
+
 > 本文件说明 `taleb-antifragile` 在 zhuzi 仓库中的**架构定位**——它不是某个 v1 的升级版，是**独立新建的 skill**。
 
 ---

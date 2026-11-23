@@ -170,7 +170,7 @@ def render_seat_registry_lopez_must_call(contract: dict[str, object]) -> str:
             continue
         persona = expect_string(config.get("persona"), f"{seat_name}.persona")
         joined = " / ".join(str(keyword) for keyword in keywords)
-        line = f"议题含 `{joined}` 任一关键词时，{persona} 必召开"
+        line = f"议题实质涉及 `{joined}` 所指的领域时，{persona} 必召开"
         note = dispatch.get("must_call_note")
         if isinstance(note, str) and note:
             line += f"，{note}"
@@ -220,17 +220,21 @@ def render_verdict_schema_core_table(contract: dict[str, object]) -> str:
         raise ValueError("roundtable contract missing verdict_schema.route_space")
 
     core_seats: list[str] = []
+    phases: set[int] = set()
     for _, config in iter_seats(contract):
         core_seat = config.get("core_seat")
         if isinstance(core_seat, str):
             core_seats.append(core_seat)
+        for section in config["output_contract"]["sections"]:
+            if section.get("schema_mode") != "phase_4_exception":
+                phases.add(int(section["phase"]))
     seat_value = markdownize_literals(" / ".join([*core_seats, "新席位"]))
     route_value = markdownize_literals(" / ".join(str(route) for route in route_space))
 
     headers = ["字段", "取值", "作用"]
     rows = [
         ["`seat`", seat_value, "席位标识"],
-        ["`phase`", "`1` / `2` / `4`", "当前阶段"],
+        ["`phase`", " / ".join(f"`{phase}`" for phase in sorted(phases)), "评议阶段"],
         ["`route`", route_value, "主持人机读统一路由空间"],
         ["`seat_native_verdict`", "各席位原生 verdict", "保留人物 DNA"],
     ]

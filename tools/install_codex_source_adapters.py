@@ -47,42 +47,10 @@ def render_text(text: str, *, skill_root: Path, shared_root: Path) -> str:
 
 
 def collapse_repo_fallbacks(text: str) -> str:
-    lines = text.splitlines()
-    collapsed: list[str] = []
-
-    for line in lines:
-        if "`./skills" in line or "`./zhuzi" in line:
-            continue
-        collapsed.append(line)
-
-    return (
-        "\n".join(collapsed)
-        .replace(
-            "Read the first existing path in each group before doing anything else:",
-            "Read these installed paths before doing anything else:",
-        )
-        .replace(
-            "先依次读取每组中首个存在的路径，再按共享资产执行。仓库相对路径仅用于开发态。",
-            "先依次读取以下已安装路径，再按共享资产执行。",
-        )
-        .replace(
-            "Read the first existing path in each group before proceeding:",
-            "Read these installed paths before proceeding:",
-        )
-        .replace(
-            "先确定共享根目录，只能选一个：",
-            "使用以下已安装共享根目录：",
-        )
-        .replace(
-            "- 已安装共享根目录：`",
-            "- `",
-        )
-        .replace(
-            "然后从选定根目录读取：",
-            "然后从该已安装根目录读取：",
-        )
-        + "\n"
-    )
+    # Source adapters put repository fallbacks on their own line.
+    return "\n".join(
+        line for line in text.splitlines() if "`./skills" not in line and "`./zhuzi" not in line
+    ) + "\n"
 
 
 def render_file(src: Path, dst: Path, *, skill_root: Path, shared_root: Path) -> None:

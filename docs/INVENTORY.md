@@ -47,7 +47,7 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `zhuzi-roundtable` | `runtimes/codex/skills/zhuzi-roundtable/SKILL.md` | Codex roundtable orchestrator skill，薄入口负责装载共享 workflow 与 schema |
+| `zhuzi-roundtable` | `runtimes/codex/skills/zhuzi-roundtable/SKILL.md` | Codex 正式圆桌入口，按阶段读共享流程与合同 |
 | `zhuzi-quick` | `runtimes/codex/skills/zhuzi-quick/SKILL.md` | Codex 多视角短读 orchestrator skill，不走 must_haves / gate / verdict schema |
 
 ## Commands (2 shipped)
@@ -80,7 +80,7 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `seat-registry` | `zhuzi/references/seat-registry.md` | 当前席位权威表、默认 `stages` 规则、扩席位维护边界 |
+| `seat-registry` | `zhuzi/references/seat-registry.md` | 席位领域、默认阶段与必召开规则的生成说明 |
 | `verdict-schema` | `zhuzi/references/verdict-schema.md` | roundtable 共同 YAML verdict 契约与 route 映射 |
 
 ## Templates (2 shipped)
@@ -111,10 +111,10 @@
 
 | Entry | Path | Role |
 |---|---|---|
-| `check_consistency.py` | `tools/check_consistency.py` | 结构一致性检查，覆盖 manifest、inventory、生成段、shared seats、runtime adapter 路径与安装面 |
+| `check_consistency.py` | `tools/check_consistency.py` | 检查合同投影、分发清单、Skill 元数据、入口与文档路径 |
 | `install_codex_source_adapters.py` | `tools/install_codex_source_adapters.py` | Codex 完整安装、旧技能归属检查、备份迁移与失败回滚，由 install.sh [5/5] 调用 |
 | `render_roundtable_contract_docs.py` | `tools/render_roundtable_contract_docs.py` | 从 roundtable-contract manifest 生成 seat-registry、verdict-schema 与 seat 输出契约的投影段 |
-| `smoke_test_codex_roundtable.py` | `tools/smoke_test_codex_roundtable.py` | 隔离安装与在线验收：两席真实调用、verdict 校验及同一实现席位续跑 |
+| `smoke_test_codex_roundtable.py` | `tools/smoke_test_codex_roundtable.py` | 隔离安装与入口检查，在线核验两席实际 verdict 和同一线程续跑 |
 | `run_behavioral_evals.py` | `tools/run_behavioral_evals.py` | 记录普通回答、单 agent 多视角与真实圆桌的可比较模型运行 |
 
 ## Schemas (1 shipped)

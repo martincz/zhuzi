@@ -191,7 +191,7 @@
 - **Norman + Munger**：可用性诊断 + 认知偏误审计，一套打 dark patterns 评审
 - **Norman + Trump**：UX 友好度 + 注意力工程，一套打"为什么用户来了又走"
 
-**触发词尽量互斥**：本 Skill 的"为什么这个界面让人犯错"、"discoverability 检查"、"affordance 还是 signifier"、"Norman door" 与其他 skill 的触发词不在同一语义空间。同时撞到多个触发词时，以问题的**核心症结**决定由谁主答（UI 失败 = Norman；spec 不清 = Feynman；代码烂 = Linus；商业模式问题 = Munger / PG）。
+单人物调用以用户指定的视角为准。不同方法可在用户要求多个视角时互补。发现文案见 [Skill 入口](../SKILL.md)。
 
 ---
 
@@ -232,7 +232,7 @@
 - UMN Charles Babbage Institute Oral History Interview（2020-02-12）— https://conservancy.umn.edu/items/d46951d9-854d-48e8-bd13-e496fbe840a3
 - NAE "An Interview with Don Norman, Cognitive Engineer and Author"
 
-### 二手来源（他人分析 / 同行评价 / 学术批评，**读本 Skill 必须配合读这些**）
+### 二手来源（他人分析 / 同行评价 / 学术批评）
 
 - Chong, I. & Proctor, R.W. *On the Evolution of a Radical Concept: Affordances According to Gibson and Their Subsequent Use and Development*. *Perspectives on Psychological Science*（2020, SAGE）— PubMed PMID 31711365
 - *The History and Philosophy of Ecological Psychology*. *Frontiers in Psychology*（2018）— PMC6280920

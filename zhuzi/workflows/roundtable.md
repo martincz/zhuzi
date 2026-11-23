@@ -1,319 +1,58 @@
 # Roundtable Workflow
 
-> 这是 `/zhuzi:roundtable` 的权威 workflow。命令入口负责装载，本文件只负责议事流程。
->
-> **输出形态由 `templates/roundtable-quick.md` 负责**——本文件不再维护一份排版规则。Quick headings、seat/stages/route、seat-specific 机器合同以 `zhuzi/manifests/roundtable-contract.json` 为准。
+正式圆桌用具名席位取得独立判断，产出决策表和验证信号。默认按 [Quick Roundtable 模板](../templates/roundtable-quick.md) 呈现，用户要求展开时附原文与 verdict。
 
-## 流水线性质
+## 阶段 0.5 · 议题、选席与审议合同
 
-- 支持 **N 席位召开（N ≥ 2）**——阶段 0.5 扫议题关键词匹配 `seat-registry.md` 的"当前席位"表，只 spawn 有资格的席位。弃权席位不产出 YAML。
-- N=0 / N=1 的路由由阶段 0.5 Step 0 处理（详见下文"召开人数路由"）。
-- 无代码席位时阶段 2（代码可行性）dispatch 不触发。
+按 [席位表](../references/seat-registry.md) 的阶段及必召开规则做语义匹配，记录谁出场、各自的 `stages` 与弃权理由。需核对精确规则时读取 [机器合同](../manifests/roundtable-contract.json) 的 `dispatch_rules` 与对应席位。没有席位时结束并说明。只命中一个席位时默认引导至对应的单人物 skill，已有「强制开圆桌」或 `force roundtable` 授权才继续。三个评议席是默认预期。匹配席位全部审议，并发不足就排队。
 
-## 默认交互契约
-
-圆桌默认走 **Quick Roundtable**：内部保留完整阶段、原文和 YAML，用户界面只展示能帮助决策的短读内容。只有用户显式说"完整圆桌 / strict / full / 展开原文 / 展开 YAML"时，才展示完整席位原文和完整协议细节。
-
-输出形态以 `templates/roundtable-quick.md` 的渲染约定和骨架为准——本 workflow 只描述"什么时候说什么、在哪里 gate"，不重复维护标点、cell 长度、table 形态等排版细节。
-
-**议事侧硬约束**（不在 template 里说的部分）：
-
-- 第一屏先给主持人结论，不先铺流程。
-- 阶段 1 评议席位默认期望 3 个（`review_seat_soft_count`）；命中超过时**全部审议，按运行时并发容量排队，不砍席**。命中 ≥ 4 时议题卡末尾加一行 hint「本议题命中 N 席评议（默认期望 3），Quick 短评 table 会变长」让用户知道而已。
-- 默认 `must_haves.truths` 1-3 条；只有 full 模式或议题天然很大时才放宽到 5 条。
-- agent 原文和 YAML 是机读证据，不是默认阅读材料；默认只在"展开原文 / 调试 / 审计"请求下显示。
-- **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker。
-
-## 内部流水线（严格按阶段推进，外部默认短读）
-
-### 阶段 0.5 — 议题契约定义（orchestrator）
-
-spawn 任何席位**之前**，orchestrator 完成三步。
-
-#### Step 0 · 席位召开判定
-
-扫议题关键词 + `seat-registry.md` 的"当前席位"表与默认 `stages` 规则 → 匹配产出召开名单（**含每席位 `stages` 在哪些阶段出场**）+ 弃权名单 + 理由。**orchestrator 主动决定，不为每次召开单独问用户**（用户在 Step 2 一起确认/override）。
-
-呈现形态按 template 骨架的"议题卡"段；本文件不再重复维护字段排列。
-
-**召开人数路由**：
-
-- **N=0**：无席位匹配。停流水线，建议用户改议题描述或直接和 orchestrator 对话。
-- **N=1**：默认**短路退出 roundtable**——roundtable 的存在意义是保留分歧，单席位议事是 cargo cult。orchestrator 给一条引导：「本议题只命中 `<seat>` 一个席位。建议直接用 `<skill-name>` skill（`#<trigger>` 或 `<persona> 视角` 触发），不开圆桌。若坚持要走结构化议事，回复『强制开圆桌』。」用户回复"强制开圆桌"/"force roundtable" 才继续走 Step 1；否则退出。也可改用 `/zhuzi:quick` 多视角短读。
-- **N≥2**：进 Step 1。
-
-**议事侧约束**：
-
-- 席位语义匹配 ≠ 关键词精确命中——"激励结构"和"激励设计"算同一域，orchestrator 按语义判断。
-- 阶段 1 评议席位默认期望 3 个；语义命中超过 3 个时**全部召开**，按运行时容量分批调度；首轮各席只读同一议题材料，不注入其他席位的结论。
-- **目标行 = 可交付产出**——议题卡的"目标"必须是本轮结束时可指给别人看的产物（决策表 + 验证信号 / contract 修订锁定 / 参数值锁定 / 议题拆分结果）。禁止以"判断 / 讨论 / 评估 / 决定是否 / 审视"开头——那些是**正在做什么**而不是**做完有什么**。若实在写不出产物，多半议题粒度太粗，拆成两条再开。
-
-`stages` 的默认路由、López / Paul Graham 必召开触发词，以及 Linus `stages=[1,2]` 的双阶段语义都以 `roundtable-contract.json` 为机读真相源，并以 `seat-registry.md` 作为人读解释层。
-
-#### Step 1 · must_haves 定义
-
-基于**召开名单的视角**（不给弃权席位预留 truth），把议题翻译成可验证的成功标准。
-
-**机读合同结构（内部保留，不直接展示给用户）**——阶段 1 spawn 席位时注入 prompt、阶段 4 实施时跑 verify、事后 audit trail 追溯用：
+为用户明确交付结果和可验证的 `must_haves`。通常选 1–3 条 truths，最多 5 条。指标主张写清数据、比较口径和候选阈值。结构或纪律主张写清能观察到的通过条件。可由席位补定的验证细节暂标待定，实施前必须全部锁定。把范围限制放入 `out_of_scope` 或阶段 3 的决策表。
 
 ```yaml
 must_haves:
-  truths:            # Quick 默认 1-3 条；full 模式最多 5 条
-    - "<例：v28 M1 在 baseline 上 paired bootstrap walpha Δ 下界 > 0>"
-    - "<例：d20 hit% 不回退超 1pp>"
-  verify_commands:   # 每条 truth 对应的可机器执行验证命令
+  truths:
+    - "候选在锁定比较口径下满足延迟目标"
+  verify_commands:
     - truth: 1
-      cmd: "<observable_metric 示例：python3 tools/bench.py --replay-from <baseline>>"
-      pass_criterion: "TBD — 待召开席位审阅"
-    - truth: 2
-      cmd: "<policy_discipline 示例：grep -E '<pattern>' <file>>"
-      pass_criterion: "grep 命中 ≥ 1 条且匹配 '<约定措辞>'"
+      cmd: "TBD — 待确认项目验证入口"
+      pass_criterion: "TBD — 待定指标阈值"
   out_of_scope:
-    - "<例：不动某权重表 / 不改某候选池定义>"
+    - "API 路由重写"
 ```
 
-**呈现形态**按 template 骨架的"什么算过关"段。本 workflow 只列**议事侧硬约束**：
+一次呈现议题、席位和过关标准。已有覆盖本议题及范围的明确批准，或用户已委托在给定范围内定稿时，直接召开。需用户决定席位覆盖、实质标准或范围时，等待用户接受、改写或叫停。审议授权仅覆盖审议。
 
-1. **`truths` 只放可验证主张**，两类合法：
-   - **observable_metric**：可观测的量化行为（回测 walpha Δ / API p99 / 内存峰值 / bundle 大小 / 错误率 / bootstrap CI 等）
-   - **policy_discipline**：可验证的结构性 / 纪律性事实（某文档新增条款且含指定措辞 / 某接口字段存在且类型正确 / 某配置开关默认值符合约定 等）
+## 阶段 1 · 独立评议
 
-   禁放 truths：
-   - 实施约束（"只改 N 个文件"）→ 走阶段 3 `DECISIONS.locked`
-   - 主观项（"代码写得好看"）
-   - 流程要求（"跑通编译"）→ 走 `out_of_scope` 默认项
+有 `stages` 包含 `1` 的席位时，在运行时容量内并行调用。每席使用独立上下文，接收相同的议题、获授权材料、完整 must_haves 和 `mode: roundtable`、阶段 `1`。首轮隔离同席结论与主持人的预判，`peer_disagreements` 留空。运行时能控制是否继承父会话时，以隔离首轮裁决为准。Linus 若参加本阶段，评工程设计，阶段 2 再评当前代码可行性。
 
-2. **`truths` 数量默认 1-3 条，硬上限 5 条**——Quick 模式超过 3 条删到最关键；超过 5 条说明议题粒度太粗，拆成两个 roundtable。
+获得实际席位返回后，按 [verdict 说明](../references/verdict-schema.md) 运行 [校验器](../validators/verdict.py)，核对预期席位、阶段、truth 覆盖、路由和 challenge。可恢复的调用错误按原席位重试。协议格式有误时让原席位修正，保留原判断。仍未取得有效 verdict 时，说明缺口并暂停依赖它的阶段。
 
-3. **`pass_criterion` 按 truth 类型分写**：
-   - **observable_metric**：orchestrator 原则上打 `TBD — 待召开席位审阅`，交席位在 `must_haves_review.proposed_criterion` 填具体阈值。
-   - **policy_discipline**：orchestrator **必须直接写死**判断标准，**不得 TBD**。
-   - 纯技术断言（"py_compile 通过" / "HTTP 200" / "lint 无 error"）按 `policy_discipline` 规则，orchestrator 直接写死。
+## 阶段 1.5 · 修订 gate
 
-4. **`out_of_scope`** 直接喂给阶段 3 DECISIONS 表的 `deferred` 段。
+任一有效 verdict 的 `must_haves_challenge.triggered` 为 `true` 时，暂停推进。合并席位提出的 `revised_truth`、`revised_verify_suggestion` 和 `spawn_sub_topic`，按模板对照当前版和候选版，明确标出不可兼容的意见和来源。
 
-5. **无法为某 truth 写出 verify 命令时**，先打 `TBD — 需要召开席位确认指标口径`——缺验证标准比议题失败更严重。
+由用户接受新版、选部分、维持原版、要求改写表达或重开议题。维持原版时将被保留的争议交给阶段 2。按已确定的版本继续。若仍出现同一异议且无新证据，呈现未解取舍，避免重复循环。
 
-6. **`pass_criterion` 禁"程序正义式"描述**——回答"什么状态算通过"，不是"谁说了算 / 怎么达成一致"。
+## 阶段 2 · 代码可行性
 
-7. **`truths` 过席位必要性预检**——若某 truth 不需要召开席位专业视角才能评估，就不要塞进 `must_haves.truths`，改入 `DECISIONS.locked` 或 `DECISIONS.discretion`。
+若有 `stages` 包含 `2` 的席位，另起阶段 2 的具名调用，把议题、`mode: roundtable`、阶段 `2`、当前确认版本的完整 must_haves 和实际阶段 1 原文交给实现席位。该席位按 [Linus 契约](../seats/linus-engineer.md) 从实际项目与适用指令判断承载路径、证据和回归风险。保留本次调用的线程 ID。
 
-**空心词禁用**——"真正有价值" / "合理的" / "更好的" 这类词必须替换成可验证标准（"能量化提升" / "风险降低" / "d20 命中率不回退"）。
+校验此阶段 verdict。若触发 challenge，回阶段 1.5 并对选定版本重做阶段 2。阶段 2 有代码层 `broken` 就阻止当前方案实施。可请相关席位审等价替代方案，由用户选择修正工程承载、明确降级要求或放弃。有实质变更时重新对齐。无阶段 2 席位时直接进入综合。
 
-**小议题例外**：议题是纯代码整理 / 文案 / 修 bug 时，truths 可简化为最小可验证集（例：改动文件 `py_compile` 通过 + 一条针对性断言通过）。这些属于 `policy_discipline truth`，`pass_criterion` 直接写死。
+## 阶段 3 · 决策与授权
 
-#### Step 2 · 用户确认
+按模板展示主持人结论、证据与分歧。明确呈现 `kill`、`too_hard`、`revise_must_haves`、代码不可行及其它 hard blocker。可信度以证据和适用条件为准。可让能续跑的原席位在看到对方原文后复议，并保留实际分歧。同指标同方法的可比标准采用更严格者并注明来源。不可比口径和重大取舍交用户决定。
 
-已有明确授权覆盖当前席位、合同和范围时直接沿用并说明，不重复确认；新增实质约束、争议取舍或扩大范围时仍须取得对应确认。
+把必须执行、后续再做及实现可自主处理的事项分别写入 `DECISIONS.locked`、`deferred`、`discretion`。需要实施时，先定版所有 truths、验证命令和通过标准，运行校验器检查锁定合同，核对命令副作用与任务授权相符，并解决阻止执行的条件。当前锁定方案已有实施授权时直接进入阶段 4。授权缺失、范围扩大或实质取舍变化时取得明确回复。沉默、空回答和超时均不能视为批准。
 
-Step 0 的议题卡 + Step 1 的"什么算过关"段**一次性呈现**给用户（按 template 骨架渲染）。YAML 机读合同仍在内部保留，用户要才展示。用户四选一：
+## 阶段 4 · 实施与复验
 
-- **接受全部** → 进阶段 1
-- **override 召开名单**（增/减席位）→ orchestrator 调整召开名单 + 基于新名单重定 must_haves → 重呈现 Step 2
-- **override must_haves** → 修 truths / verify_commands / out_of_scope → 重呈现 Step 2
-- **叫停议题** → 退出 roundtable
+通过 `continue_existing_agent(agent_id, message)` 续跑阶段 2 的实现席位，交付议题、锁定方案、版本和完整 must_haves。运行时无法续跑同一席位时，用 `invoke_seat(seat, message)` 新起同名席位并带上阶段 2 原文和相关席位结论。核对续跑目标和实际新返回。
 
-### 阶段 1 — 视角并行审议（dispatch: 召开名单有席位 `stages` 含 `1` 时触发）
+实现席位在锁定范围内自主修改、运行每条验证、修复可解决的失败并复验。主持人核对 scope、实际命令和证据，用锁定合同校验 `linus_execution`。仍有验证失败、跳过、越界或没有观察证据时，记录缺口和回流原因。全部通过时可交付结果，`commit_status` 仍为 `not_committed`。
 
-**按阶段 0.5 Step 0 产出的召开名单**动态 spawn——在运行时并发容量内 spawn 所有 `stages` 含 `1` 的被召开席位，超出的排队；等待全部返回后再进入依赖它们的阶段。
+## 运行纪律
 
-- **召开名单有席位 `stages` 含 `1`** → spawn 所有此类席位；弃权席位和 `stages` 不含 1 的席位**都不 spawn**。
-- **无席位 `stages` 含 `1`**（纯实施议题，只召开 Linus 且 `stages=[2]`）→ **跳过本阶段**，直接进阶段 2。
-
-**Linus 在阶段 1 出场时**（`stages=[1,2]`）：spawn prompt 明确他做"工程视角评议题"——good taste / 数据结构合理性 / bikeshedding / premature abstraction / anti-pattern 扫描，**不关心当前 codebase 能否承载**（那是阶段 2 的事）。阶段 2 的 Linus spawn 另起，prompt 明确"吸收阶段 1 所有席位结论 + must_haves → 可行性 gate"。两次 spawn 工作不同，不是重复。
-
-**spawn 结构**——所有阶段 1 席位的 spawn prompt 共享同一骨架。**具体话术**（fragility check / 愚蠢清单 / Research Integrity Audit / 解释清晰度审议 / Maker taste / UI 认知诊断 等）**由各席位 seat contract 的「## 审议动作」承载，本 workflow 不复制维护一份**。
-
-每个被召开席位的 spawn prompt 必含：
-
-1. 议题原文（如有相关回测 / 数据 / 研究上下文一并贴上）
-2. 阶段 0.5 must_haves YAML（完整粘贴，不摘要）
-3. 显式传入 `mode: roundtable`；执行指令："按你启动时读到的 skill + seat contract 的『## 审议动作』执行评议；对每条 `must_haves.truth` 走完审议动作要求的所有维度；原文结尾必须带 YAML verdict block，格式按 seat contract 的『## 输出契约』。"
-4. 通用纪律：首轮未见其他席位原文，`peer_disagreements` 置空，不猜测别席立场；有原文的复议才记录实际分歧。不替主持人拍板。
-
-**最小示例**（taleb-reviewer；其它席位同构，只换 `subagent_type` 与读取的 seat contract）：
-
-```text
-invoke_seat(seat="taleb-reviewer", message="""
-mode: roundtable
-议题: <议题原文>
-<若有相关回测/数据/研究上下文一并贴上>
-
-阶段 0.5 must_haves:
-<完整粘贴阶段 0.5 产出的 YAML 块>
-
-请按你启动时读到的 skill + seat contract 的「## 审议动作」执行评议：
-- 对每条 must_haves.truth 走完审议动作要求的所有维度
-- 首轮盲审 peer_disagreements 置空，不猜测其他席位的判断
-- 不替主持人拍板
-- 原文结尾必须带 YAML verdict block，格式按 seat contract 的「## 输出契约」
-""")
-```
-
-agent 返回后，orchestrator **先按共享 JSON Schema 和校验器检查 verdict 的结构、路由及 truth 覆盖**。格式失败时只要求原席位修正格式，不代写结论；仍失败则标记该席未完成，停止依赖该席结果的推进。有效 verdict 再机读，默认按 template 的"席位短评"骨架呈现。结论列译表、信心列判据格式、cell 超长拆 `### <席位名> 展开` 段——全部按 template 渲染约定执行，本 workflow 不再列具体形态。
-
-**议事侧呈现底线**：
-
-- `kill` / `too_hard` / `revise_must_haves` / 代码层 `broken` 必须在短评卡直接露出，不得藏到展开内容里。
-- 席位 `native_verdict`（`fragile` / `cargo_cult` / `pseudo_scientific` 等）保留在内部 YAML 和原文里——Quick 短评卡只显示路由中文译。
-- 用户说"展开原文 / 展开 YAML / strict / full" → 按席位完整展示原文和 YAML。
-
-### 阶段 1.5 — must_haves 修订 gate（条件触发）
-
-扫描阶段 1 所有席位 verdict block 的 `must_haves_challenge.triggered` 字段：
-
-- **全部 `triggered: false`** → 直接进阶段 2，Linus 拿 must_haves v1。
-- **任一 `triggered: true`** → **暂停，走修订流程**。
-
-#### 修订流程
-
-1. orchestrator 汇总所有 `triggered: true` 席位的 `proposed_revision`，合并成 must_haves v2（多席位冲突时显式标注差异，不擅自取舍）。
-
-2. 按 template 的"阶段 1.5 修订对照表骨架"呈现 v1 vs v2 给用户。
-
-3. **用户五选一**：
-   - **接受 v2** → 锁定新版 must_haves，阶段 2 Linus 拿新版
-   - **接受部分**（指定哪些 truth 采纳）→ 锁定混合版
-   - **保持 v1** → 阶段 2 进行但显式告知 Linus"非代码评议席位建议修订 must_haves 但用户维持 v1"，Linus 在自己的 verdict 里可选择继续 challenge
-   - **重开议题** → 流水线终止，回阶段 0.5 重写议题（见下方"重开议题的子议题候选纪律"）
-   - **要求 orchestrator 改写 v2 表达** → 不改实质内容，只做去黑话 / 排版重组 / 人话化，回到五选一
-
-#### 重开议题的子议题候选纪律
-
-orchestrator 若基于席位 `spawn_sub_topic` 字段给子议题候选列表，必须遵守：
-
-- **同粒度分组**——候选要么全是"基建/规范重构"（多周尺度），要么全是"具体审计/规则"（2-5 天尺度）；混放两个尺度按 `### 基建层` / `### 具体动作层` 两节展示。
-- **每条标注"预估耗时"**——格式 `预估耗时：<X 天> / <X 周>`，禁止"想清楚再来"等空心时间。
-
-#### 阶段 1.5 议事约束
-
-- **禁止** orchestrator 自行合并 challenge 或无视 challenge 强行推进。这是阶段 1.5 的唯一作用：把"席位推翻刚拍板的契约"这个事件升格成协议内置流程。
-- **尊重席位侧已分层的 `proposed_revision`**——直接对应 `revised_truth` / `revised_verify_suggestion` / `spawn_sub_topic` 三字段合并，不重新搅成一团。
-- v1 vs v2 对照的呈现形态以 template 为准。
-
-### 阶段 2 — 代码可行性评审（dispatch: 召开名单有席位 `stages` 含 `2` 时触发）
-
-- **召开名单有席位 `stages` 含 `2`**（默认为 `linus-engineer`，`stages=[2]` 或 `stages=[1,2]`）→ 把阶段 1 所有席位原文（如有）打包交该席位，**保留 `linus_id` 以便阶段 4 续跑**。
-- **无席位 `stages` 含 `2`**（纯策略讨论）→ 跳过本阶段，直接进阶段 3（综合时标注"本议题无代码落地维度，阶段 2 跳过"）。
-
-若 Linus `stages=[1,2]`，他在阶段 1 已有独立 verdict block（`linus_feasibility` with `phase: 1`）——阶段 2 的 spawn prompt 显式提醒他"你阶段 1 已给出工程视角初判，本阶段吸收所有席位结论做可行性 gate，不要重复阶段 1 的 good taste 论证"。
-
-```text
-linus_id = invoke_seat(seat="linus-engineer", message="""
-mode: roundtable
-议题: <议题原文>
-
-当前锁定的 must_haves（含版本、完整 truths、verify_commands 和 pass_criterion）：
-<完整粘贴当前合同，不得只给阶段 1 的旧版>
-
-阶段 1 席位原文（按本次实际召开名单逐个粘贴）：
-
-=== <Seat A> ===
-<Seat A 原文>
-
-=== <Seat B> ===
-<Seat B 原文>
-
-...
-
-请做可行性评审（不要动任何文件）：
-- 现有架构能否承载
-- 有没有更 sane 的切法
-- 技术债 / 回归风险
-- 是否需要先重构再上新功能
-- 按你启动时读到的当前项目 AGENTS.md/CLAUDE.md 的工程纪律判断
-
-不评判策略 alpha。输出：sane / broken 判断 + 具体建议 + 风险提示。
-""")
-```
-
-Linus 会在启动时自动发现当前项目的 `AGENTS.md` / `CLAUDE.md` 并按项目纪律工作——**不需要在 prompt 里硬编码项目特定规则**。
-
-Linus 返回后先按当前阶段和当前 truths 校验 verdict。若再次触发 challenge 或路由为 `revise_must_haves`，回阶段 1.5，锁定修订后重新做阶段 2；不得直接进入阶段 3。相同根因反复出现且无新证据时，停止循环并呈现尚未解决的取舍。
-
-有效 Linus verdict 默认按 template 的代码席短评骨架呈现。完整原文只在用户要求展开或进入 full 模式时显示。
-
-### 阶段 3 — 综合对齐（orchestrator 主持）
-
-orchestrator 做综合，**优先读每个席位原文末尾的 YAML verdict block**（机读），再补文字表达。
-
-**阅读顺序**：
-
-1. **先扫 `core.route`**——聚合所有席位的路由
-2. **读 `seat_native_verdict`**——保留人物 DNA
-3. **汇总所有 `core.hard_blockers`**——列成综合 blocker 列表
-4. **合并 `must_haves_review`**——同一 truth 的标准在相同指标、相同验证方法下可比较时，保留更严格条件并说明来源；指标、方法或目标不兼容时列出冲突交用户选择，不自行拼成“最严”条件
-5. **读 `seat_specific`**——补充细节（tail_events / anti_patterns / broken_evidence 等）作为人读补充
-6. **读 `core.peer_disagreements`**——显式列分歧，不在综合时强行收敛
-
-**默认输出顺序**（具体形态见 template 骨架）：
-
-1. **主持人结论**（必须在第一屏）
-2. **席位短评汇总**——每席 1 行；分歧只在 table 的"分歧"列里出一次，文末**不**额外加"明确分歧"段
-3. **冲突与取舍**——最多 3 条；没有真实冲突写"无关键分歧"。这段是 orchestrator 综合判断（哪方值得听、为什么），和短评 table 的"分歧"列不重复
-4. **做完会怎样**——必填人话段：用户日常工作里会经历什么具体变化、做不到什么。**段末必须以 `**验证信号**：<…>` 收尾**——验证信号缺失 = 愿景式散文，退回重写；写不出就说明议题不可证伪，回阶段 0.5 重定义
-5. **DECISIONS 表**——`locked` + `deferred`；`discretion` 默认不渲染（用户说"展开 discretion"才显示）
-6. **主持人观察（可选）**——只在能直接帮助用户拍板时才出（结论一致性 / 分歧集中点 / 信心分布）。**禁止**建议"推荐选哪个"——只陈述客观信号，不替用户选
-7. **确认实施授权和最终合同**——所有 observable_metric 的阈值、验证命令与 `pass_criterion` 必须落定，不能残留 TBD。校验锁定 must_haves 后，依用户本轮或此前已明确给出的对应实施授权进入阶段 4；授权缺失才等待回复，不能把沉默当接受
-
-full 模式可额外展示完整 YAML、非代码评议表、代码层表、候选方案表；Quick 模式只在用户要求时展开。
-
-### 阶段 4 — 实施
-
-用户确认后，**按运行时条件分支**推进。共享 workflow 只定义抽象 orchestration 动作，不写死 Claude / Codex 的具体调用语法。
-
-- `continue_existing_agent(agent_id, message)`：向已有实现席位续跑，保留阶段 2 的内部状态
-- fallback：新起同 seat agent，并完整注入阶段 2 原文与锁定方案
-
-#### 路径 A · 续跑同一实现席位（首选）
-
-orchestrator 在阶段 4 先检查当前 runtime 是否支持 `continue_existing_agent(agent_id, message)`。**如果支持**，优先续跑同一个 `linus_id`。
-
-续跑消息最少包含：
-
-- 方案已锁定：`<细到文件/函数级别>`
-- 当前锁定的完整 must_haves（truths、全部 verify_commands、pass_criterion 和版本）
-- 按阶段 2 的可行性建议实施
-- 完成后按当前项目 `AGENTS.md` / `CLAUDE.md` 定义的自审清单执行
-- 实施后不要 commit，等用户验证通过
-
-优点：保留 Linus 阶段 2 的完整内部状态 + 对话历史，prompt 最短。
-
-#### 路径 B · 新起同 seat agent + 完整上下文注入（fallback）
-
-**同 agent 续跑不可用**时，改为新起同一个实现席位，并完整注入上下文。
-
-注入内容最少包含：
-
-- 议题原文
-- 已锁定方案：`<细到文件/函数级别>`
-- 当前锁定的完整 must_haves（含版本与全部验证命令、通过标准）
-- 阶段 2 Linus 可行性评审原文
-- 非代码评议席位结论摘要
-- 完成后按当前项目 `AGENTS.md` / `CLAUDE.md` 自审
-- 实施后不要 commit，等用户验证通过
-
-**关键**：阶段 2 Linus 原文必须**完整粘贴**，不得摘要——他需要自己上一轮的具体判断才能延续可行性结论。
-
-#### 路径自动切换
-
-两路径语义等价。入口 adapter 负责把抽象动作翻译成各 runtime 的 primitive；共享 workflow 不再为运行时差异单独改文案。
-
-Linus 返回实施报告后，按锁定 must_haves 校验 `linus_execution` 的 truth 与命令覆盖、实际证据和状态。命令失败、跳过、越界或仍有缺口都不能报 done；未执行验证不能报告通过。再默认给用户短报告：改了什么、验证结果、是否有缺口、是否需要回流圆桌。完整实施原文和 `linus_execution` block 只在用户要求展开时显示。
-
-## 冲突裁决规则
-
-| 冲突类型 | 处理 |
-|---|---|
-| 非代码评议席位之间分歧（如 Taleb vs Munger / Taleb vs López / Munger vs López） | 可选：若当前 runtime 支持 `continue_existing_agent(agent_id, message)`，让他们互相 push back 一轮；不支持就由 orchestrator 呈分歧表给用户拍板。典型 Taleb vs López 分歧：Taleb 认为金融不能科学化，López 认为应当科学化——路径相反，不强行合并 |
-| Linus 说"代码层 broken" | 回阶段 1 问相关评议席位：是否有等价路径可绕开该 broken 点 |
-| 非工程要求 × 代码无法干净落地 | orchestrator + 用户拍板：重构承载 / 降级需求 / 放弃本次改动 |
-| Linus 阶段 2 建议与非代码结论矛盾 | orchestrator 明确呈现给用户，不擅自取舍 |
-
-## 硬约束（任何情况不得违反）
-
-1. **绝不篡改 agent 判断**：orchestrator 可以默认压缩成短评卡，但不得软化、反向改写、遗漏 hard blocker；用户要求展开时必须提供完整原文和 YAML。原文应随当前会话保留；发生上下文压缩前保存或明确交接可访问的原文，无法恢复时如实标注，不伪造原始记录。
-2. **绝不跳阶段**：阶段 3 未有覆盖当前锁定方案的实施授权前不得进阶段 4。
-3. **实施阶段优先续跑同一 agent**：runtime 若支持 `continue_existing_agent(agent_id, message)` 就走阶段 4 路径 A；没有则走路径 B（新起同 seat agent + 阶段 2 原文**完整注入**，不得摘要）。
-4. **项目纪律由 agent 自己发现**：不在 workflow 里硬编码项目特定规则。Linus 启动时会自动 Read 当前项目的 `AGENTS.md` / `CLAUDE.md`。
-5. **输出形态以 template 为准**：本 workflow 不维护排版规则。改 Quick 输出形态请改 `templates/roundtable-quick.md`，不要在本文件加 prose 补丁。
+- 遵循当前项目与运行时的权限。评议只读，实施必须处在锁定且授权的范围内。席位、工具和存储仅接收此用途获授权的数据，保护凭证及私有材料。验证命令须符合这些边界。
+- 以真实具名调用和对应线程完成返回为据。能力或权限缺失时说清阻塞。总述保留席位判断、分歧和 blockers。会话压缩前保留可访问的原文和验证证据，恢复失败就如实标明。

@@ -292,13 +292,13 @@
         ]
       },
       "output_contract": {
-        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Taleb 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "shared_intro": "共享四层 schema 的字段含义以 [verdict 字段说明](../references/verdict-schema.md) 为准；Taleb 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "taleb_verdict",
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身把 Mediocristan 指标拿去审 Extremistan 问题，或根本忽视了 ruin / Jensen / time-average 约束",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 代表 must_haves 本身把 Mediocristan 指标拿去审 Extremistan 问题，或根本忽视了 ruin / Jensen / time-average 约束",
             "field_schemas": {
               "tail_events_breaking_must_haves": {
                 "type": "array"
@@ -405,7 +405,7 @@
         ]
       },
       "output_contract": {
-        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Munger 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "shared_intro": "共享四层 schema 的字段含义以 [verdict 字段说明](../references/verdict-schema.md) 为准；Munger 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "munger_verdict",
@@ -414,7 +414,7 @@
               "若 must_haves 本身是 Goodhart / 激励扭曲 / 样本污染，应走 `revise_must_haves`"
             ],
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表你认为 must_haves 框架本身在激励或判断结构上跑偏，不是单条阈值小修",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 代表你认为 must_haves 框架本身在激励或判断结构上跑偏，不是单条阈值小修",
             "field_schemas": {
               "anti_patterns_hit": {
                 "type": "array"
@@ -553,16 +553,13 @@
         ]
       },
       "output_contract": {
-        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；López 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "shared_intro": "共享四层 schema 的字段含义以 [verdict 字段说明](../references/verdict-schema.md) 为准；López 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "lopezdeprado_verdict",
             "phase": "1",
-            "extra_route_lines": [
-              "`domain_limit_flag != none` → `too_hard`"
-            ],
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，即使 `flag: none`",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架把 associational claim 伪装成 causal、把 backtest 当理论、把 multiple testing 问题埋起来，或在 protocol 层面就不科学",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 代表 must_haves 框架把 associational claim 伪装成 causal、把 backtest 当理论、把 multiple testing 问题埋起来，或在 protocol 层面就不科学",
             "field_schemas": {
               "claim_classification": {
                 "type": "array"
@@ -695,13 +692,13 @@
         ]
       },
       "output_contract": {
-        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Feynman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "shared_intro": "共享四层 schema 的字段含义以 [verdict 字段说明](../references/verdict-schema.md) 为准；Feynman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "feynman_verdict",
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 给记录，并说明术语是否定义清楚、机制是否讲明白、验证口径是否会被人和 agent 同时误读",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制、用同样未理解的东西去类比解释、或只写正例不写失效条件，把不可验证的话术伪装成了可执行 contract",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 代表 must_haves 本身靠命名 / 口号 / 黑话冒充机制、用同样未理解的东西去类比解释、或只写正例不写失效条件，把不可验证的话术伪装成了可执行 contract",
             "field_schemas": {
               "undefined_terms": {
                 "type": "array"
@@ -847,13 +844,13 @@
         "must_call_note": "触发创业 taste / essay 评审场景时必召开，和 Munger（偏误 / 激励）、Taleb（尾部风险）形成互补分工"
       },
       "output_contract": {
-        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Paul Graham 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "shared_intro": "共享四层 schema 的字段含义以 [verdict 字段说明](../references/verdict-schema.md) 为准；Paul Graham 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "paul_graham_verdict",
             "phase": "1",
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 标注是 maker-side 还是 manager-side 判断，以及该 truth 是否需要更具体的用户 / 创始人 / 产品证据",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表议题把 idea polish / investor optimization / manager mode / 虚构用户包装成了正面命题；或目标行动本身属于 polishing bad ideas / building for users who don't exist yet",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 代表议题把 idea polish / investor optimization / manager mode / 虚构用户包装成了正面命题；或目标行动本身属于 polishing bad ideas / building for users who don't exist yet",
             "field_schemas": {
               "founder_type": {
                 "type": "string",
@@ -1020,7 +1017,7 @@
         ]
       },
       "output_contract": {
-        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Norman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "shared_intro": "共享四层 schema 的字段含义以 [verdict 字段说明](../references/verdict-schema.md) 为准；Norman 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "root_key": "norman_verdict",
@@ -1030,7 +1027,7 @@
               "议题完全不在 UI/UX 范畴时走 `not_my_circle` → `too_hard`"
             ],
             "must_haves_review_note": "`must_haves_review` 必须逐条 truth 标注：(1) 这条是不是把用户错归因为'设计错'；(2) 失败定位在 Gulf of Execution 还是 Gulf of Evaluation；(3) 三件套（discoverability / feedback / conceptual model）哪根缺",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 代表 must_haves 框架本身把'用户应该学习'当成解释、把 affordance 当 signifier 误用、或对老人 / 视障 / 新手系统性敌对（minimalist 美学伪装 ableism）",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 代表 must_haves 框架本身把'用户应该学习'当成解释、把 affordance 当 signifier 误用、或对老人 / 视障 / 新手系统性敌对（minimalist 美学伪装 ableism）",
             "field_schemas": {
               "gulf_diagnosis": {
                 "type": "string",
@@ -1144,7 +1141,7 @@
         ]
       },
       "output_contract": {
-        "shared_intro": "共享四层 schema 的字段含义以 `zhuzi/references/verdict-schema.md` 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
+        "shared_intro": "共享四层 schema 的字段含义以 [verdict 字段说明](../references/verdict-schema.md) 为准；Linus 只补自己独有的 root key、native verdict 和 `seat_specific` 约束。",
         "sections": [
           {
             "heading": "阶段 1",
@@ -1154,7 +1151,7 @@
               "`needs_refactor_first` 在阶段 1 代表议题切法需要先拆 scope 或改接口形状，不等同于阶段 2 的代码重构要求"
             ],
             "must_haves_review_note": "`must_haves_review` 必须覆盖每条 truth；阶段 1 先看设计形状、特殊情况压力和明显坏味道，不提前替阶段 2 做代码承载评估",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 表示议题本身在数据结构、接口切法或特殊情况数量上就已经坏味道过重，应先回阶段 1.5 修订 must_haves 或拆 scope",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 表示议题本身在数据结构、接口切法或特殊情况数量上就已经坏味道过重，应先回阶段 1.5 修订 must_haves 或拆 scope",
             "field_rules": [
               "`special_case_pressure` 需要点出复杂度被谁承担，以及能否通过换切法消掉特殊情况"
             ],
@@ -1181,7 +1178,7 @@
             "root_key": "linus_feasibility",
             "phase": "2",
             "must_haves_review_note": "`must_haves_review` 必须覆盖每条 truth；Linus 视角最常用的 flag 是 `coverage_gap`",
-            "must_haves_challenge_note": "`must_haves_challenge.triggered: yes` 表示代码层认为 must_haves 本身要求了现架构无法干净承载的能力，应回到阶段 1.5 修订",
+            "must_haves_challenge_note": "`must_haves_challenge.triggered: true` 表示代码层认为 must_haves 本身要求了现架构无法干净承载的能力，应回到阶段 1.5 修订",
             "field_rules": [
               "`broken_evidence` 必须具体到 `file` / `symbol` / `reason`"
             ],

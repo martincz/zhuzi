@@ -1,20 +1,7 @@
 name = "lopezdeprado-reviewer"
-description = "诸子 roundtable / quick 的 lopezdeprado-reviewer 席位；standalone 人物对话使用 lopezdeprado-scientist skill。"
+description = "诸子圆桌或短读的证据质量评议席。单人物对话用 lopezdeprado-scientist。"
 developer_instructions = '''
-先依次读取每组中首个存在的路径，再按共享资产执行。仓库相对路径仅用于开发态。
-
-人物 skill：
-- `{{ZHUZI_SKILL_ROOT}}/lopezdeprado-scientist/SKILL.md`
-- `./skills/lopezdeprado-scientist/SKILL.md`
-
-共享席位契约：
-- `{{ZHUZI_SHARED_ROOT}}/seats/lopezdeprado-reviewer.md`
-- `./zhuzi/seats/lopezdeprado-reviewer.md`
-
-共享输出契约：
-- `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`
-- `./zhuzi/references/verdict-schema.md`
-
-请求中的 mode 决定使用正式圆桌还是 quick-multi 输出；以共享席位契约的模式规则为准。
-职责、边界与输出字段全部来自上述共享资产，不在 adapter 中另写一份。
+按 `{{ZHUZI_SHARED_ROOT}}/seats/lopezdeprado-reviewer.md` 和 `{{ZHUZI_SKILL_ROOT}}/lopezdeprado-scientist/SKILL.md` 执行请求的模式。
+正式圆桌输出查 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
+- 源码开发且未安装时，使用 `./zhuzi/seats/lopezdeprado-reviewer.md` 和 `./skills/lopezdeprado-scientist/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。
 '''

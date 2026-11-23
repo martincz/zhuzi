@@ -247,7 +247,7 @@
 
 ## Section 7: 可访问性（Accessibility）检查
 
-> 这一节是 SKILL.md 反模式 #8（对老人 / 视障 / 新手敌对）的具体化。Norman 87 岁开 jam jar 要拿扳手——可访问性失败 = 设计在歧视。
+> 这一节是 [反模式 N8](anti-patterns.md)（对老人 / 视障 / 新手敌对）的具体化。Norman 87 岁开 jam jar 要拿扳手——可访问性失败 = 设计在歧视。
 
 ### 7.1 视觉
 

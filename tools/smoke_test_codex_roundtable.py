@@ -13,7 +13,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from install_codex_source_adapters import tomllib
+from install_codex_source_adapters import load_manifest_families, tomllib
 from render_roundtable_contract_docs import load_roundtable_contract
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,28 +39,38 @@ def refresh_shipped_assets(*, install_env: dict[str, str]) -> None:
         raise SmokeFailure(f'isolated installation failed: {result.stderr[-2000:]}')
 
 
-def validate_path_references(*, codex_home: Path) -> None:
+def validate_rendered_paths(path: Path, install_root: Path, text: str) -> None:
+    if "{{ZHUZI_" in text or "`./skills/" in text or "`./zhuzi" in text:
+        raise SmokeFailure(f"unresolved installed adapter path: {path}")
+    references = re.findall(r'`(/[^`\n]+\.(?:md|json))`', text)
+    if not references:
+        raise SmokeFailure(f"installed adapter has no concrete references: {path}")
+    root = install_root.resolve()
+    for target in references:
+        resolved = Path(target).resolve()
+        if not resolved.is_file() or not resolved.is_relative_to(root):
+            raise SmokeFailure(f"missing or non-isolated reference in {path.name}: {target}")
+
+
+def validate_path_references(*, codex_home: Path, claude_dir: Path | None = None) -> None:
     contract = load_roundtable_contract()
-    files = [codex_home / 'skills' / name / 'SKILL.md'
-             for name in ('zhuzi-roundtable', 'zhuzi-quick')]
-    for seat in contract['seats']:
-        path = codex_home / 'agents' / f'{seat}.toml'
-        payload = tomllib.loads(path.read_text())
-        if payload.get('name') != seat or set(payload) != {'name', 'description', 'developer_instructions'}:
-            raise SmokeFailure(f'invalid native agent: {seat}')
-        files.append(path)
-    for path in files:
-        text = path.read_text()
-        if '{{ZHUZI_' in text or './skills/' in text or './zhuzi/' in text:
-            raise SmokeFailure(f'unresolved installed adapter path: {path.name}')
-        if path.suffix == '.toml':
-            text = tomllib.loads(text)['developer_instructions']
-        for target in re.findall(r'`(/[^`\n]+(?:\.md|\.json))`', text):
-            resolved = Path(target)
-            if not resolved.is_file() or not resolved.is_relative_to(codex_home):
-                raise SmokeFailure(f'missing or non-isolated reference in {path.name}: {target}')
-    if list((codex_home / 'agents').glob('*.md')):
-        raise SmokeFailure('legacy Markdown agents remain in isolated installation')
+    shipped = load_manifest_families()
+    for entry in shipped["codex_skills"]:
+        path = codex_home / "skills" / entry["entry"] / "SKILL.md"
+        validate_rendered_paths(path, codex_home, path.read_text(encoding="utf-8"))
+    for seat in contract["seats"]:
+        path = codex_home / "agents" / f"{seat}.toml"
+        payload = tomllib.loads(path.read_text(encoding="utf-8"))
+        if payload.get("name") != seat or set(payload) != {"name", "description", "developer_instructions"}:
+            raise SmokeFailure(f"invalid native agent: {seat}")
+        validate_rendered_paths(path, codex_home, payload["developer_instructions"])
+    if list((codex_home / "agents").glob("*.md")):
+        raise SmokeFailure("legacy Markdown agents remain in isolated installation")
+    if claude_dir is not None:
+        for family, directory in (("agents", "agents"), ("commands", "commands/zhuzi")):
+            for entry in shipped[family]:
+                path = claude_dir / directory / Path(entry["path"]).name
+                validate_rendered_paths(path, claude_dir, path.read_text(encoding="utf-8"))
 
 
 def inherit_provider_config(*, source: Path, target: Path) -> None:
@@ -121,10 +131,11 @@ def _instant(value):
 
 
 def read_session_evidence(codex_home: Path) -> dict:
-    """Read only this install's runtime logs, excluding inherited parent history.
+    """Read this install's runtime logs and identify each rollout's owner.
 
-    The first session_meta identifies a rollout's owner. Thread-scoped runtime
-    events, rather than role text inside a model message, establish provenance.
+    Completed replies and settings are bound to thread-scoped runtime events.
+    Forks can carry tool calls from the parent, so callers must match tool calls
+    to the expected owner and its runtime activity before counting them.
     """
     threads, calls = {}, []
     for path in sorted((codex_home / 'sessions').rglob('*.jsonl')):
@@ -387,11 +398,12 @@ def main() -> int:
         with tempfile.TemporaryDirectory(prefix='zhuzi-smoke-') as raw:
             root = Path(raw)
             codex_home = root / 'codex home'
-            env = build_install_env(codex_home=codex_home, claude_dir=root / 'claude home')
+            claude_dir = root / 'claude home'
+            env = build_install_env(codex_home=codex_home, claude_dir=claude_dir)
             if not args.offline:
                 inherit_provider_config(source=source_home, target=codex_home)
             refresh_shipped_assets(install_env=env)
-            validate_path_references(codex_home=codex_home)
+            validate_path_references(codex_home=codex_home, claude_dir=claude_dir)
             if not args.offline:
                 codex = shutil.which('codex')
                 if not codex:

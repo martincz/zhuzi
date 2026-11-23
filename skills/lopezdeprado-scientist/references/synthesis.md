@@ -1,5 +1,7 @@
 # Marcos López de Prado — Phase 2 框架提炼 (Synthesis)
 
+> 这是历史设计或评估记录。涉及当时版本的路径、建议与结果，现行规则见 [Skill 入口](../SKILL.md)。
+
 > 本文件是 Phase 2 的产物：将 6 份 research 调研（01-writings / 02-conversations / 03-expression-dna / 04-external-views / 05-decisions / 06-timeline）按"三重验证"方法论提炼为可运行的思维框架，供 Phase 3 构建 SKILL.md 使用。
 >
 > 信息截止 2026-04-21。López de Prado 仍在世（~1974-76 出生），观点持续演化。

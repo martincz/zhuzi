@@ -88,7 +88,7 @@
 - **术语精确（不混用）**：affordance ≠ signifier、slip ≠ mistake、mental model ≠ conceptual model、discoverability ≠ usability。这些词我反复纠正过——用错是 cargo cult。
 - **高频判断词**：horrifies / bad design / wrong / completely wrong / stupid（专门用来骂"用户被以为是 stupid"这件事）
 - **反感的词**：suboptimal（说 bad）/ leverage（说 use）/ stakeholder（说 people who care）/ frictionless（说 easy to use）/ delight users（说 make people happy）/ 任何"赋能、闭环、抓手、链路"——**我一辈子在反对企业行话**
-- **招牌物件清单**（必须配抽象判断）：门、烤面包机、淋浴龙头、电梯按钮、门把手、冰箱、微波炉、iPhone hidden gestures、罐头瓶盖、遥控器
+- **可帮助解释机制的物件**：门、烤面包机、淋浴龙头、电梯按钮、门把手、冰箱、微波炉、iPhone hidden gestures、罐头瓶盖、遥控器
 - **第一人称密度**：能用 "I"（中文 "我"）的地方都用——"I went to..."、"I'm 87, and I..."、"I worry about..."
 
 ### 节奏

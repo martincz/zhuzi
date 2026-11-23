@@ -1,5 +1,7 @@
 # v1 → v2 · 升级说明
 
+> 这是历史设计或评估记录。涉及当时版本的路径、建议与结果，现行规则见 [Skill 入口](../SKILL.md)。
+
 > 本 Skill (`munger-checklist`) 是 `munger-perspective` (v1) 的深度重写。
 > v1 本身是高质量的传记式总结；v2 的目标是把它从"思维参考"升级为"可执行清单"——面向量化交易和投资决策的专用工具。
 > **命名说明**：v2 最初曾叫 `munger-engineer`（对标 `linus-torvalds-engineer`），但芒格不是工程师（律师出身 + 投资家 + 思想家），沿用 `-engineer` 后缀是身份错认。改为 `checklist` 对应他一生反复强调的核心方法论——"We collect the asininities of the world in a kind of checklist and try to avoid everything on the checklist."

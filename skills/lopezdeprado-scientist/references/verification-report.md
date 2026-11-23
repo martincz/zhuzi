@@ -1,7 +1,9 @@
 # Phase 4 质量验证报告
 
+> 这是历史设计或评估记录。涉及当时版本的路径、建议与结果，现行规则见 [Skill 入口](../SKILL.md)。
+
 **审查员身份**：独立验证 agent（非创作者）
-**验证对象**：`/mnt/g/zhuzi/skills/lopezdeprado-scientist/SKILL.md` + 5 份 references（synthesis / anti-patterns / expression-levels / pre-trade-checklist / quant-trading-playbook），以及 research/01–06 一手调研。
+**验证对象**：当时版本的 `SKILL.md` + 5 份 references（synthesis / anti-patterns / expression-levels / pre-trade-checklist / quant-trading-playbook），以及 research/01–06 一手调研。
 **验证日期**：2026-04-21
 **工作方式**：先按 3 项独立测试产出角色化回答并对照 research 一手来源；再按 6 项通过标准做二分判定；最后给出薄弱环节与操作建议。
 **总字数预算**：完整覆盖 3 项测试 × 3 题 + 6 项自检 + 薄弱环节。

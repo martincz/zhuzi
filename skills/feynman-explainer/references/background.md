@@ -159,7 +159,7 @@
 - **Feynman + Taleb**：讲人话 + 尾部数学，一套打风险声明 / 合规文档
 - **Feynman + López**：cargo cult 检测 + backtest overfitting，一套打量化研究报告
 
-**触发词尽量互斥**：本 Skill 的"把这段讲清楚"、"这是不是 cargo cult"、"命名不等于理解"与 Linus 的"这代码品味"、Munger 的"这是不是愚蠢"、Taleb 的"这会不会爆"、López 的"这是不是过拟合"不在同一语义空间。同时撞到多个触发词时，以问题的**核心症结**决定由谁主答。
+单人物调用以用户指定的视角为准。不同方法可在用户要求多个视角时互补。发现文案见 [Skill 入口](../SKILL.md)。
 
 ---
 
@@ -193,7 +193,7 @@
 **私人通信**：
 - 给 Arline 的信（1946-10，488 天后未寄出，Gleick 1988 年传记中发现）
 
-### 二手来源（他人分析 / 同行评价，**读本 Skill 必须配合读这些**）
+### 二手来源（他人分析 / 同行评价）
 
 - James Gleick *Genius: The Life and Science of Richard Feynman*（1992）
 - Murray Gell-Mann 的讣告（"cloud of myth"）

@@ -1,6 +1,6 @@
 # Shared Verdict Schema
 
-> 这是 `/zhuzi:roundtable` 所有席位共享的 YAML verdict 契约人读权威源。route 映射、seat-specific 注册和 Quick/seat/stages 机器合同以 `zhuzi/manifests/roundtable-contract.json` 为准；若 `roundtable.md`、agent 示例段或 README 漂移，以 manifest 与本文件交叉校验结果为准。
+正式圆桌的输出说明，由 [机器合同](../manifests/roundtable-contract.json) 定义字段和路由。
 
 ## 输出模式
 
@@ -12,7 +12,7 @@
 
 ## 层级结构
 
-所有席位（Taleb / Munger / López / Linus / 未来扩展）在 verdict 阶段统一输出四层：
+正式评议的 verdict 包含四层。
 
 <!-- GENERATED:verdict_schema_layers:start -->
 - `core`
@@ -27,7 +27,7 @@
 | 字段 | 取值 | 作用 |
 |---|---|---|
 | `seat` | `taleb` / `munger` / `lopezdeprado` / `feynman` / `paul_graham` / `norman` / `linus` / 新席位 | 席位标识 |
-| `phase` | `1` / `2` / `4` | 当前阶段 |
+| `phase` | `1` / `2` | 评议阶段 |
 | `route` | `go` / `go_with_conditions` / `revise_must_haves` / `kill` / `too_hard` | 主持人机读统一路由空间 |
 | `seat_native_verdict` | 各席位原生 verdict | 保留人物 DNA |
 | `confidence` | `low` / `medium` / `high` | 证据支持程度，与席位是否一致分开 |
@@ -54,13 +54,13 @@
 - `other`
 <!-- GENERATED:verdict_schema_review_flags:end -->
 
-每条 `must_haves.truth` 都必须单独给一条 review 记录。即使 `flag: none` 也不得省略该 truth。
+每条 `must_haves.truths` 都必须单独给一条 review 记录。即使 `flag: none` 也不得省略该 truth。
 
 ## `must_haves_challenge`
 
 ```yaml
 must_haves_challenge:
-  triggered: true | false
+  triggered: true
   challenged_truths: [1, 3]
   fundamental_issue: "<为何 must_haves 框架从根本跑偏>"
   proposed_revision:
@@ -85,11 +85,11 @@ must_haves_challenge:
 
 信心说明证据质量和适用边界；席位是否一致单独呈现。独立线程保证上下文隔离，不保证统计独立。首轮没有其他席位原文时，`peer_disagreements` 必须为空；主持人基于实际返回值记录分歧，后续有对方原文的复议才填写该字段。
 
-JSON Schema 在 `zhuzi/schemas/verdict.schema.json`，由 manifest 生成，不手改。JSON 对象和 YAML 均可用于机读 verdict；布尔值写 `true` / `false`，字符串枚举 `yes` / `no` 在 YAML 中须加引号。
+[JSON Schema](../schemas/verdict.schema.json) 由 manifest 生成。JSON 对象和 YAML 均可用于机读 verdict；布尔值写 `true` / `false`，字符串枚举 `yes` / `no` 在 YAML 中须加引号。
 
-在有 Python 验证环境时执行共享根目录下的 `validators/verdict.py`：`<verdict-file> --seat <seat-id> --phase <1|2|4> --truth-count <N>`。还会检查路由映射、truth 覆盖、challenge 和实施结果的一致性。无验证工具时必须明确标注“未做机器校验”，不能报告已通过。校验器只判断协议一致性，不证明内容为真。
+用共享根下的 [校验器](../validators/verdict.py) 检查席位、阶段、类型、覆盖和路由。正式评议调用 `python3 -B validators/verdict.py <file> --seat <seat-id> --phase <1|2> --truth-count <N>`。可直接传文件或用 `-` 从 stdin 读取。复议确实收到他席原文时可传 `--peer-context`。
 
-实施前对锁定的 must_haves 文件运行同一脚本（不传 `--seat`），每条命令和通过标准均须明确。验证阶段 4 时加 `--must-haves <locked-file>`，将实际执行的命令与锁定合同逐条比对。
+实施前用同一脚本校验锁定 must_haves，省略 `--seat`。校验实施报告时传 `--seat linus-engineer --phase 4 --truth-count <N> --must-haves <locked-file>`。校验器核对结构和控制流，需要另查真实命令与结果。
 
 ## `seat_specific`
 
@@ -143,11 +143,3 @@ JSON Schema 在 `zhuzi/schemas/verdict.schema.json`，由 manifest 生成，不�
 <!-- GENERATED:verdict_schema_phase_4_exception:start -->
 `linus_execution` 是实施验证状态输出，不走共同 verdict schema。它保留自己的字段结构：`phase` / `status` / `decisions_honored` / `out_of_scope_touched` / `verification_attempted` / `self_audit` / `commit_status` / `gaps_to_route_back`。
 <!-- GENERATED:verdict_schema_phase_4_exception:end -->
-
-## 新增席位维护清单
-
-1. 先新建共享 seat contract：`zhuzi/seats/<name>-reviewer.md`（或 `-engineer.md`），手写职责、越权边界与纪律，并保留 `## 输出契约` 生成块 marker。
-2. 更新 `zhuzi/manifests/roundtable-contract.json`，把 root key、native verdict、route 映射、seat-specific 注册、Quick/stages 与 seat 输出契约机器合同补齐。
-3. 运行 `python3 tools/render_roundtable_contract_docs.py`，刷新本文件、`seat-registry.md` 与 seat 文件里的 `## 输出契约` 生成段。
-4. 再让 runtime adapter 只引用 skill + shared seat contract + shared schema，不在 wrapper 里复制完整 schema 示例。
-5. 更新 `docs/INVENTORY.md` 与 `zhuzi/manifests/shipped-surface.json`；`tools/check_consistency.py` 与 smoke test 已从 manifest / 文件树动态派生，扩席位时不应再手改脚本。

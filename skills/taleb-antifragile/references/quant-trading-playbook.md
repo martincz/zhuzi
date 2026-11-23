@@ -14,6 +14,8 @@
 
 ## 定位（适用对象）
 
+下文以早期 IndustroQuant 工作流为示例。配置、时点和数值属于示例假设，现行项目以本身的验证与授权为准。
+
 你是 A 股 long-only 量化选股策略的主理人（参考对象：**IndustroQuant**），已有成熟方法论栈：
 
 - 因子诊断三件套（IC 时序 + 分位组回测 + 交互分析）
@@ -51,7 +53,7 @@
 
 **1. IC 时序 → 加偏度/峰度维度**
 
-当前 `tools/factor_ic_analysis.py` 报 IC_mean / IC_std / IC_IR。补强：
+若 IC 时序报告目前只有 IC_mean / IC_std / IC_IR，可考虑增加：
 - 加 **IC_skewness**（负偏警告——因子在尾部是损失放大器）
 - 加 **IC_kurtosis**（>3 厚尾，>5 极厚尾）
 - 加 **IC_CVaR_5%**（最差 5% 日的平均 IC）——严重负 = crisis 中反向
@@ -68,7 +70,7 @@
 
 **4. Bootstrap 的继承偏差（最深盲点）**
 
-`feedback_bootstrap_mandatory` 强制 200 轮。Taleb 反驳：历史样本 tail event 不足 → bootstrap 只是把"正态低估偏差"乘 200 遍。
+即使按示例做 200 轮 bootstrap，仍有一个风险：历史样本 tail event 不足 → bootstrap 只是把"正态低估偏差"乘 200 遍。
 
 **补救（synthetic tail injection）**：
 - 在 bootstrap 基础上注入 **人为 ±5σ 事件**（按 Extremistan 规律，A 股每 5-7 年一次 -20% 单月）
@@ -237,7 +239,7 @@ Research backlog 重排：
 
 **3. Baseline 清洗的 via negativa**
 
-`feedback_baseline_integrity_first` 要求完整性检查，但这是防漏。Taleb 版本：**主动删除可疑部分**——
+在识别基线数据缺口后，记录受影响切片和排除理由。分析中可排除不可验证样本，原始记录仍需保全。
 - 行业历史数据明显缺失 → 删除而非插值
 - Corporate action 数据不全 → 退出样本池，不"近似处理"
 
