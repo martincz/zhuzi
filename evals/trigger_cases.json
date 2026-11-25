@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "purpose": "各 Skill 显隐式触发边界回归集；覆盖真实带噪正例（should_trigger）与日常编码/高混淆词反例（should_not_trigger）。",
+  "skills": {
+    "zhuzi": {
+      "should_trigger": [
+        "$zhuzi roundtable 我们要把订单表从单库迁到分片集群，先审一下迁移方案的风险和验证信号",
+        "/zhuzi quick 两人小团队该自研轻量队列还是直接上托管服务？听几个独立短评",
+        "$zhuzi linus 帮我看下这个状态机的分支是不是可以靠调整数据结构消掉"
+      ],
+      "should_not_trigger": [
+        "帮我 review 一下 PR #42 里 order_service.py 的空指针边界并补个单测",
+        "这段分布式锁代码在高并发下会不会死锁？请直接给出修复补丁",
+        "对比一下 Redis Stream 和 Kafka 在我们当前日活 10 万场景下的运维成本"
+      ]
+    },
+    "linus-torvalds-engineer": {
+      "should_trigger": [
+        "请用 Linus 视角（#linus）看看这段链表删除代码是不是塞了太多多余的特殊情况分支",
+        "$linus-torvalds-engineer 我们准备直接删掉旧版 CLI 的 --output 参数，按 Torvalds 的兼容性标准审一下"
+      ],
+      "should_not_trigger": [
+        "给这个 Python 数据清洗脚本加一下类型注解并跑通 ruff 检查",
+        "检查下我们的 REST API 变更有没有破坏老版本客户端兼容（普通代码评审）"
+      ]
+    },
+    "munger-checklist": {
+      "should_trigger": [
+        "用芒格视角（#munger）逆向推演一下：如果我们把销售提成全绑在新客签约额上会出什么灾难？",
+        "$munger-checklist 按能力圈、机会成本和 Lollapalooza 清单审视这笔并购交易"
+      ],
+      "should_not_trigger": [
+        "帮我写个 SQL 统计上季度各渠道获客成本和留存率",
+        "总结一下这份财报摘要里的营收同比增速和毛利率变化"
+      ]
+    },
+    "taleb-antifragile": {
+      "should_trigger": [
+        "用塔勒布视角（#taleb）审视这套高杠杆网格策略是否存在单次厚尾归零吸收壁",
+        "$taleb-antifragile 分析这个供应商单一区域集中部署是 fragile 还是 robust，有没有杠铃改造办法"
+      ],
+      "should_not_trigger": [
+        "帮我在请求客户端里加上指数退避重试和 5 秒超时配置",
+        "计算这组样本数据的均值、标准差和 95% 分位数"
+      ]
+    },
+    "lopezdeprado-scientist": {
+      "should_trigger": [
+        "用 López de Prado 视角（#prado）审计这篇因子回测：跑了 60 组参数挑最优且用了随机 K-Fold 切分",
+        "$lopezdeprado-scientist 检查我们的策略评估报告是不是把关联规律包装成了因果声明"
+      ],
+      "should_not_trigger": [
+        "scikit-learn 的 TimeSeriesSplit 报索引越界错误了，帮我修一下第 38 行代码",
+        "把这个实验结果 CSV 画成折线图并导出为 PNG"
+      ]
+    },
+    "feynman-explainer": {
+      "should_trigger": [
+        "用费曼视角（#feynman）拆解这份架构文档：到底什么是自适应智能协同层？去掉黑话写出具体机制",
+        "$feynman-explainer 按五要素检查这段缓存一致性 spec 有没有让 AI 误读的多义词"
+      ],
+      "should_not_trigger": [
+        "把这篇 README 的英文翻译成通顺的中文并修正错别字",
+        "给 add_user 函数补三行标准的 Google 风格 docstring"
+      ]
+    },
+    "paul-graham-perspective": {
+      "should_trigger": [
+        "用 Paul Graham 视角（#pg）看看我们还没找过真实用户就准备花三个月写后台的创业计划",
+        "$paul-graham-perspective 按 Writing = Thinking 审一下这篇技术随笔有没有产生真正的 surprise"
+      ],
+      "should_not_trigger": [
+        "帮我生成一份标准的 SaaS 产品周报模板",
+        "把这篇 Markdown 文章转成带目录的 HTML 页面"
+      ]
+    },
+    "donald-trump-perspective": {
+      "should_trigger": [
+        "用 Trump 商业博弈视角（#trump）拆解这场独家代理续约谈判里谁更急迫、我们的 BATNA 底牌在哪",
+        "$donald-trump-perspective 分析竞品突然发公关稿抢占注意力窗口时，7 天内的反击节奏与筹码"
+      ],
+      "should_not_trigger": [
+        "帮我核对这份采购合同里的付款账期与违约金计算公式是否有笔误",
+        "写一段商业合作询价的常规英文开发信"
+      ]
+    },
+    "don-norman-perspective": {
+      "should_trigger": [
+        "用诺曼视角（#norman）诊断为什么用户总把旁边的取消图标当成清空输入框：是执行鸿沟还是 signifier 缺失？",
+        "$don-norman-perspective 评审这个极简无文字纯手势弹窗对老年用户的可发现性与 slip 防呆缺陷"
+      ],
+      "should_not_trigger": [
+        "把这个 React 按钮组件的圆角改成 8px 并修一下 hover 边框颜色",
+        "跑一下 Lighthouse 看看首页 LCP 为什么超过 4 秒"
+      ]
+    },
+    "steve-jobs-perspective": {
+      "should_trigger": [
+        "用乔布斯视角（#jobs）审一下这个塞了 14 个入口的工具首页：一句话定位是什么、该砍掉哪 10 个功能？",
+        "$steve-jobs-perspective 从开箱上手端到端体验链检查这套硬件配网流程的割裂断点"
+      ],
+      "should_not_trigger": [
+        "给后台管理系统的导出表格加一个按创建时间筛选的下拉框",
+        "整理一下本次迭代的 Jira 任务排期与工时估算"
+      ]
+    },
+    "elon-musk-perspective": {
+      "should_trigger": [
+        "用马斯克视角（#musk）按原材料白痴指数和五步删减算法拆解这套定制传感器外壳为什么报价比铝锭贵 40 倍",
+        "$elon-musk-perspective 检查我们是不是还没质疑需求、删除冗余审批步骤就急着写自动化脚本了"
+      ],
+      "should_not_trigger": [
+        "估算一下这台 AWS EC2 实例按需计费一个月的账单金额",
+        "把 GitHub Actions 里的单元测试步骤改成矩阵并行执行"
+      ]
+    },
+    "zhangxuefeng-perspective": {
+      "should_trigger": [
+        "用张雪峰视角（#张雪峰）从普通毕业生五年就业中位数和电网校招名单倒推河南理科 580 分怎么选专业",
+        "$zhangxuefeng-perspective 双非文科生家里没背景、试错成本低，跨考法硕还是先考公去基层？"
+      ],
+      "should_not_trigger": [
+        "帮我修改一下应聘后端工程师岗位的个人简历项目经历描述",
+        "查询美国 CS 博士申请通常需要准备几封推荐信和 GRE 要求"
+      ]
+    }
+  }
+}

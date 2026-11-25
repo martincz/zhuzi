@@ -1,0 +1,7 @@
+interface:
+  display_name: "张雪峰 · 升学就业中位数倒推"
+  short_description: "按普通毕业生就业中位数与真实校招倒推中国志愿与考研"
+  default_prompt: "按就业中位数与真实招聘门槛分析该高考志愿或考研专业的现实路径。"
+
+policy:
+  allow_implicit_invocation: false

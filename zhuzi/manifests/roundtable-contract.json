@@ -337,7 +337,12 @@
       },
       "required_contract_snippets": [
         "## 审议动作"
-      ]
+      ],
+      "adapter": {
+        "description": "仅由诸子圆桌或短读协调器按名调用的风险结构只读评议席；常规任务不调用，单人物视角用 $zhuzi taleb 或 /zhuzi taleb。",
+        "color": "orange",
+        "mode": "readonly"
+      }
     },
     "munger-reviewer": {
       "skill": "munger-checklist",
@@ -462,7 +467,12 @@
           },
           "mode": "add"
         }
-      ]
+      ],
+      "adapter": {
+        "description": "仅由诸子圆桌或短读协调器按名调用的决策质量只读评议席；常规任务不调用，单人物视角用 $zhuzi munger 或 /zhuzi munger。",
+        "color": "blue",
+        "mode": "readonly"
+      }
     },
     "lopezdeprado-reviewer": {
       "skill": "lopezdeprado-scientist",
@@ -616,7 +626,12 @@
           },
           "mode": "override"
         }
-      ]
+      ],
+      "adapter": {
+        "description": "仅由诸子圆桌或短读协调器按名调用的证据质量只读评议席；常规任务不调用，单人物视角用 $zhuzi lopez 或 /zhuzi lopez。",
+        "color": "purple",
+        "mode": "readonly"
+      }
     },
     "feynman-reviewer": {
       "skill": "feynman-explainer",
@@ -742,7 +757,12 @@
       },
       "required_contract_snippets": [
         "## 审议动作"
-      ]
+      ],
+      "adapter": {
+        "description": "仅由诸子圆桌或短读协调器按名调用的解释清晰度只读评议席；常规任务不调用，单人物视角用 $zhuzi feynman 或 /zhuzi feynman。",
+        "color": "orange",
+        "mode": "readonly"
+      }
     },
     "paul-graham-reviewer": {
       "skill": "paul-graham-perspective",
@@ -910,7 +930,12 @@
       },
       "required_contract_snippets": [
         "## 审议动作"
-      ]
+      ],
+      "adapter": {
+        "description": "仅由诸子圆桌或短读协调器按名调用的创业与 Maker 视角只读评议席；常规任务不调用，单人物视角用 $zhuzi pg 或 /zhuzi pg。",
+        "color": "blue",
+        "mode": "readonly"
+      }
     },
     "don-norman-reviewer": {
       "skill": "don-norman-perspective",
@@ -1066,7 +1091,12 @@
       },
       "required_contract_snippets": [
         "## 审议动作"
-      ]
+      ],
+      "adapter": {
+        "description": "仅由诸子圆桌或短读协调器按名调用的可用性认知诊断只读评议席；常规任务不调用，单人物视角用 $zhuzi norman 或 /zhuzi norman。",
+        "color": "cyan",
+        "mode": "readonly"
+      }
     },
     "linus-engineer": {
       "skill": "linus-torvalds-engineer",
@@ -1288,7 +1318,12 @@
       "required_contract_snippets": [
         "## 项目纪律发现（实施席位独有）",
         "## 阶段纪律"
-      ]
+      ],
+      "adapter": {
+        "description": "仅由诸子圆桌或短读协调器按名调用的代码可行性与获授权实施席；阶段 1/2 与短读严格只读，单人物视角用 $zhuzi linus 或 /zhuzi linus。",
+        "color": "red",
+        "mode": "implementation"
+      }
     }
   },
   "modes": {

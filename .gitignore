@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
+*:Zone.Identifier
 
 # Serena: keep shared project config, ignore local cache/state
 .serena/*
@@ -9,5 +10,5 @@ __pycache__/
 # Claude: keep shared config entry points, ignore local-only state
 .claude/*
 !.claude/settings.json
-!.claude/commands/
-!.claude/commands/**
+!.claude/skills/
+!.claude/skills/**

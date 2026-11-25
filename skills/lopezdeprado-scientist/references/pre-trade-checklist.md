@@ -17,6 +17,28 @@
 
 ---
 
+## 目录（按场景只读对应章节）
+
+> **按场景只读指引**：请根据当前任务定位下方对应章节的行号区间按需局部读取，避免整文件全量加载占用上下文。
+
+- **使用方法**（第 `42–53` 行）
+- **Step 1: Claim Classification（声明分类：Associational 还是 Causal？）**（第 `54–86` 行）
+- **Step 2: Causal Graph 可见性（DAG 与 Mechanism 披露）**（第 `87–119` 行）
+- **Step 3: Variable Selection Discipline（特征选择纪律：MDI/MDA 替代 p-value）**（第 `120–153` 行）
+- **Step 4: Confounder / Collider Audit（do-calculus 因果调整）**（第 `154–204` 行）
+- **Step 5: Data Structure Audit（数据结构：Tick/Volume/Dollar Bars + FracDiff）**（第 `205–246` 行）
+- **Step 6: CV Protocol（交叉验证：Purged K-Fold / Embargo / CPCV）**（第 `247–292` 行）
+- **Step 7: Trial Count Disclosure（披露试验次数：DSR / PBO 的前提）**（第 `293–337` 行）
+- **Step 8: Deflated Sharpe Ratio & PBO（选择偏误校正：DSR / PBO / MinBTL）**（第 `338–390` 行）
+- **Step 9: FDR / Multiple Testing Adjustment（多重检验修正：BH / BY）**（第 `391–439` 行）
+- **Step 10: Sisyphus vs Meta-Strategy（组织层审查：研究流水线是否工业化）**（第 `440–502` 行）
+- **元原则**（第 `503–519` 行）
+- **速查卡（10 步 + 10 个核心指标）**（第 `520–548` 行）
+- **与 Taleb / Munger 10 步的对比**（第 `549–575` 行）
+- **一句话记忆**（第 `576–584` 行）
+
+---
+
 ## 使用方法
 
 收到一份策略报告 / 因子论文 / 回测结果 / 研究 notebook 时，按 1 → 10 顺序走。每步答得出"这个研究通过了 X 检查因为 Y" → 继续下一步。答不上就停——这项研究还没达到"可以被称为 alpha"的科学门槛。

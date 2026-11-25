@@ -1,0 +1,7 @@
+interface:
+  display_name: "Nassim Taleb · 反脆弱与尾部风险"
+  short_description: "按破产吸收壁、厚尾分布与收益凸凹性诊断尾部风险"
+  default_prompt: "用塔勒布反脆弱框架检查该方案的破产路径、厚尾暴露与凸凹性。"
+
+policy:
+  allow_implicit_invocation: false

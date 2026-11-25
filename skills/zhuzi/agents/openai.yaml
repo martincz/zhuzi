@@ -1,0 +1,7 @@
+interface:
+  display_name: "诸子 · 多视角审议与思维顾问"
+  short_description: "统一调度诸子圆桌、多视角短读与 11 位人物独立视角"
+  default_prompt: "使用 $zhuzi 选择 roundtable、quick 或指定人物视角分析当前议题。"
+
+policy:
+  allow_implicit_invocation: false

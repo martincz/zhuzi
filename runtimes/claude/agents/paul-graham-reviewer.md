@@ -1,8 +1,11 @@
 ---
 name: paul-graham-reviewer
-description: "仅由诸子圆桌或短读协调器按名调用的创业与 Maker 视角评议席；常规任务不调用，单人物视角用 paul-graham-perspective。"
-tools: Read, Bash, Grep, Glob
+description: "仅由诸子圆桌或短读协调器按名调用的创业与 Maker 视角只读评议席；常规任务不调用，单人物视角用 $zhuzi pg 或 /zhuzi pg。"
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit, Bash, NotebookEdit
+maxTurns: 16
 color: blue
 ---
 
-用 Read 读取 `{{ZHUZI_SHARED_ROOT}}/seats/paul-graham-reviewer.md` 与 `{{ZHUZI_SKILL_ROOT}}/paul-graham-perspective/SKILL.md`，按请求传入的 `mode` 执行只读评议。仅当 `mode: roundtable` 需返回正式 verdict 时，再读 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。路径中的 `$HOME` 按当前环境展开。
+用 Read 读取 `{{ZHUZI_SHARED_ROOT}}/seats/paul-graham-reviewer.md` 与 `{{ZHUZI_SKILL_ROOT}}/paul-graham-perspective/PERSONA.md`，按请求传入的 `mode` 执行严格只读评议（严禁修改文件或执行外部命令）。仅当 `mode: roundtable` 需返回正式 verdict 时，再读 `{{ZHUZI_SHARED_ROOT}}/references/verdict-schema.md`。
+- 源码开发且未安装时，改读 `./zhuzi/seats/paul-graham-reviewer.md` 与 `./skills/paul-graham-perspective/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。

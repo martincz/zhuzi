@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render roundtable contract docs from the structured contract manifest."""
+"""Render contract docs, JSON Schema, dual-runtime adapters, sidecars, and inventory from SSOT manifests."""
 
 from __future__ import annotations
 
@@ -9,14 +9,22 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    import tomllib
+except ImportError:  # Python 3.10
+    import tomli as tomllib
+
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from zhuzi.validators.verdict import build_schema
+
 ROUNDTABLE_CONTRACT_PATH = ROOT / "zhuzi" / "manifests" / "roundtable-contract.json"
+SHIPPED_SURFACE_PATH = ROOT / "zhuzi" / "manifests" / "shipped-surface.json"
 
 SEAT_REGISTRY_PATH = "zhuzi/references/seat-registry.md"
 VERDICT_SCHEMA_PATH = "zhuzi/references/verdict-schema.md"
+INVENTORY_PATH = "docs/INVENTORY.md"
 
 STATIC_GENERATED_DOCS = {
     SEAT_REGISTRY_PATH: [
@@ -36,11 +44,36 @@ STATIC_GENERATED_DOCS = {
     ],
 }
 
+INVENTORY_FAMILY_ORDER = [
+    ("Skills", "skills"),
+    ("OpenAI Sidecars", "openai_sidecars"),
+    ("Claude Skills", "claude_skills"),
+    ("Agents", "agents"),
+    ("Codex Agents", "codex_agents"),
+    ("Workflows", "workflows"),
+    ("Seats", "seats"),
+    ("References", "references"),
+    ("Templates", "templates"),
+    ("Manifests", "manifests"),
+    ("Examples", "examples"),
+    ("Tools", "tools"),
+    ("Schemas", "schemas"),
+    ("Validators", "validators"),
+    ("Evals", "evals"),
+]
+
 
 def load_roundtable_contract(path: Path = ROUNDTABLE_CONTRACT_PATH) -> dict[str, object]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise ValueError(f"roundtable contract must be a JSON object: {path}")
+    return payload
+
+
+def load_shipped_surface(path: Path = SHIPPED_SURFACE_PATH) -> dict[str, object]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"shipped surface manifest must be a JSON object: {path}")
     return payload
 
 
@@ -508,22 +541,241 @@ def render_doc_text(relative_path: str, text: str, contract: dict[str, object]) 
     return rendered
 
 
+def format_toml_scalar(value: object) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False)
+    if isinstance(value, list):
+        return "[" + ", ".join(format_toml_scalar(item) for item in value) + "]"
+    raise TypeError(f"unsupported TOML scalar value: {value!r}")
+
+
+def serialize_agent_toml(payload: dict[str, object]) -> str:
+    """Serialize custom agent TOML with top-level scalars first, then [section] tables."""
+    scalar_lines: list[str] = []
+    table_blocks: list[str] = []
+
+    for key, value in payload.items():
+        if isinstance(value, dict):
+            lines = [f"[{key}]"]
+            for sub_key, sub_val in value.items():
+                lines.append(f"{sub_key} = {format_toml_scalar(sub_val)}")
+            table_blocks.append("\n".join(lines))
+        elif key == "developer_instructions" and isinstance(value, str) and "'''" not in value and "\n" in value:
+            body = value if value.endswith("\n") else value + "\n"
+            scalar_lines.append(f"{key} = '''\n{body}'''")
+        else:
+            scalar_lines.append(f"{key} = {format_toml_scalar(value)}")
+
+    sections = ["\n".join(scalar_lines)]
+    sections.extend(table_blocks)
+    rendered = "\n\n".join(section for section in sections if section) + "\n"
+    tomllib.loads(rendered)
+    return rendered
+
+
+def render_claude_seat_adapter(seat_name: str, config: dict[str, object]) -> str:
+    skill_name = expect_string(config.get("skill"), f"{seat_name}.skill")
+    adapter = config.get("adapter")
+    if not isinstance(adapter, dict):
+        raise ValueError(f"{seat_name} missing adapter metadata")
+    description = expect_string(adapter.get("description"), f"{seat_name}.adapter.description")
+    color = expect_string(adapter.get("color"), f"{seat_name}.adapter.color")
+    mode = expect_string(adapter.get("mode"), f"{seat_name}.adapter.mode")
+
+    if mode == "implementation":
+        tools_line = "tools: Read, Edit, Write, Bash, Grep, Glob"
+        extra_guard_lines = ["maxTurns: 40"]
+        action_clause = "按请求传入的 `mode` 与阶段执行（短读与阶段 1/2 全程只读；仅阶段 4 在锁定授权范围内实施与验证）"
+    elif mode == "readonly":
+        tools_line = "tools: Read, Grep, Glob"
+        extra_guard_lines = [
+            "disallowedTools: Write, Edit, Bash, NotebookEdit",
+            "maxTurns: 16",
+        ]
+        action_clause = "按请求传入的 `mode` 执行严格只读评议（严禁修改文件或执行外部命令）"
+    else:
+        raise ValueError(f"{seat_name}.adapter.mode must be 'readonly' or 'implementation'")
+
+    header_lines = [
+        "---",
+        f"name: {seat_name}",
+        f"description: {json.dumps(description, ensure_ascii=False)}",
+        tools_line,
+        *extra_guard_lines,
+        f"color: {color}",
+        "---",
+    ]
+    body_lines = [
+        f"用 Read 读取 `{{{{ZHUZI_SHARED_ROOT}}}}/seats/{seat_name}.md` 与 `{{{{ZHUZI_SKILL_ROOT}}}}/{skill_name}/PERSONA.md`，{action_clause}。仅当 `mode: roundtable` 需返回正式 verdict 时，再读 `{{{{ZHUZI_SHARED_ROOT}}}}/references/verdict-schema.md`。",
+        f"- 源码开发且未安装时，改读 `./zhuzi/seats/{seat_name}.md` 与 `./skills/{skill_name}/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。",
+    ]
+    return "\n".join(header_lines) + "\n\n" + "\n".join(body_lines) + "\n"
+
+
+def render_codex_seat_adapter(seat_name: str, config: dict[str, object]) -> str:
+    skill_name = expect_string(config.get("skill"), f"{seat_name}.skill")
+    adapter = config.get("adapter")
+    if not isinstance(adapter, dict):
+        raise ValueError(f"{seat_name} missing adapter metadata")
+    description = expect_string(adapter.get("description"), f"{seat_name}.adapter.description")
+    mode = expect_string(adapter.get("mode"), f"{seat_name}.adapter.mode")
+
+    if mode == "implementation":
+        action_clause = "按请求传入的 `mode` 与阶段执行（短读与阶段 1/2 全程只读；仅阶段 4 在锁定授权范围内实施与验证）"
+        features: dict[str, object] = {"request_permissions_tool": False}
+    elif mode == "readonly":
+        action_clause = "按请求传入的 `mode` 执行严格只读评议（严禁修改文件或执行外部命令）"
+        features = {"shell_tool": False, "request_permissions_tool": False}
+    else:
+        raise ValueError(f"{seat_name}.adapter.mode must be 'readonly' or 'implementation'")
+
+    instructions = (
+        f"读取 `{{{{ZHUZI_SHARED_ROOT}}}}/seats/{seat_name}.md` 与 `{{{{ZHUZI_SKILL_ROOT}}}}/{skill_name}/PERSONA.md`，{action_clause}。\n"
+        f"仅当 `mode: roundtable` 需返回正式 verdict 时，再查 `{{{{ZHUZI_SHARED_ROOT}}}}/references/verdict-schema.md`。\n"
+        f"- 源码开发且未安装时，改读 `./zhuzi/seats/{seat_name}.md` 与 `./skills/{skill_name}/SKILL.md`，正式输出查 `./zhuzi/references/verdict-schema.md`。\n"
+    )
+    payload: dict[str, object] = {
+        "name": seat_name,
+        "description": description,
+        "developer_instructions": instructions,
+        "features": features,
+        "skills": {"include_instructions": False},
+    }
+    return serialize_agent_toml(payload)
+
+
+def render_openai_sidecar(skill_entry: dict[str, object]) -> str:
+    entry_name = expect_string(skill_entry.get("entry"), "skills[].entry")
+    openai_meta = skill_entry.get("openai")
+    if not isinstance(openai_meta, dict):
+        raise ValueError(f"skill {entry_name} missing openai sidecar config")
+    display_name = expect_string(openai_meta.get("display_name"), f"{entry_name}.openai.display_name")
+    short_desc = expect_string(openai_meta.get("short_description"), f"{entry_name}.openai.short_description")
+    default_prompt = expect_string(openai_meta.get("default_prompt"), f"{entry_name}.openai.default_prompt")
+    implicit = bool(skill_entry.get("implicit_invocation", False))
+
+    lines = [
+        "interface:",
+        f"  display_name: {json.dumps(display_name, ensure_ascii=False)}",
+        f"  short_description: {json.dumps(short_desc, ensure_ascii=False)}",
+        f"  default_prompt: {json.dumps(default_prompt, ensure_ascii=False)}",
+        "",
+        "policy:",
+        f"  allow_implicit_invocation: {'true' if implicit else 'false'}",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def render_claude_skill_overlay(source_skill_md: str, skill_entry: dict[str, object]) -> str:
+    match = re.match(r"\A---\r?\n(.*?)\r?\n---[ \t]*\r?\n", source_skill_md, re.DOTALL)
+    if not match:
+        raise ValueError("source SKILL.md missing YAML frontmatter")
+    fm_body = match.group(1).rstrip()
+    rest = source_skill_md[match.end():]
+    extra_lines: list[str] = []
+    arg_hint = skill_entry.get("claude_argument_hint")
+    if isinstance(arg_hint, str) and arg_hint:
+        extra_lines.append(f"argument-hint: {json.dumps(arg_hint, ensure_ascii=False)}")
+    if not bool(skill_entry.get("implicit_invocation", False)):
+        extra_lines.append("disable-model-invocation: true")
+    merged_fm = "\n".join([fm_body, *extra_lines])
+    return f"---\n{merged_fm}\n---\n{rest}"
+
+
+def render_inventory_markdown(surface: dict[str, object]) -> str:
+    families = surface.get("families")
+    if not isinstance(families, dict):
+        raise ValueError("shipped surface missing families object")
+
+    blocks = [
+        "# zhuzi Shipped Surface Inventory",
+        "",
+        "> 人读清单由 `tools/render_roundtable_contract_docs.py` 从 `zhuzi/manifests/shipped-surface.json` 确定性生成；机器合同另见 `zhuzi/manifests/roundtable-contract.json`。",
+    ]
+    for label, key in INVENTORY_FAMILY_ORDER:
+        entries = families.get(key, [])
+        if not isinstance(entries, list):
+            raise ValueError(f"shipped surface family {key} must be a list")
+        blocks.append("")
+        blocks.append(f"## {label} ({len(entries)} shipped)")
+        blocks.append("")
+        rows = [
+            [
+                f"`{expect_string(item.get('entry'), f'{key}[].entry')}`",
+                f"`{expect_string(item.get('path'), f'{key}[].path')}`",
+                expect_string(item.get("role"), f"{key}[].role"),
+            ]
+            for item in entries
+            if isinstance(item, dict)
+        ]
+        blocks.append(render_markdown_table(["Entry", "Path", "Role"], rows))
+    return "\n".join(blocks) + "\n"
+
+
+def build_full_rendered_files(
+    contract: dict[str, object],
+    surface: dict[str, object],
+) -> dict[str, str]:
+    rendered_files: dict[str, str] = {}
+
+    schema_relative = expect_string(
+        contract["references"]["verdict_json_schema"],
+        "references.verdict_json_schema",
+    )
+    rendered_files[schema_relative] = json.dumps(build_schema(contract), ensure_ascii=False, indent=2) + "\n"
+
+    for seat_name, config in iter_seats(contract):
+        rendered_files[f"runtimes/claude/agents/{seat_name}.md"] = render_claude_seat_adapter(seat_name, config)
+        rendered_files[f"runtimes/codex/agents/{seat_name}.toml"] = render_codex_seat_adapter(seat_name, config)
+
+    families = surface.get("families", {})
+    if not isinstance(families, dict):
+        raise ValueError("shipped surface missing families")
+    skills_list = families.get("skills", [])
+    if not isinstance(skills_list, list):
+        raise ValueError("shipped surface skills must be a list")
+
+    skills_by_entry: dict[str, dict[str, object]] = {}
+    for item in skills_list:
+        if isinstance(item, dict):
+            entry_name = expect_string(item.get("entry"), "skills[].entry")
+            skills_by_entry[entry_name] = item
+            rendered_files[f"skills/{entry_name}/agents/openai.yaml"] = render_openai_sidecar(item)
+
+    zhuzi_entry = skills_by_entry.get("zhuzi")
+    if zhuzi_entry is None:
+        raise ValueError("shipped surface skills missing zhuzi umbrella entry")
+    zhuzi_source = (ROOT / "skills" / "zhuzi" / "SKILL.md").read_text(encoding="utf-8")
+    rendered_files["runtimes/claude/skills/zhuzi/SKILL.md"] = render_claude_skill_overlay(zhuzi_source, zhuzi_entry)
+    rendered_files["runtimes/claude/skills/zhuzi/references/routing.md"] = (
+        ROOT / "skills" / "zhuzi" / "references" / "routing.md"
+    ).read_text(encoding="utf-8")
+
+    rendered_files[INVENTORY_PATH] = render_inventory_markdown(surface)
+    return rendered_files
+
+
 def render_docs(*, check: bool) -> int:
     contract = load_roundtable_contract()
+    surface = load_shipped_surface()
     generated_docs = get_generated_docs(contract)
     stale: list[str] = []
     changed: list[str] = []
 
-    schema_relative = contract["references"]["verdict_json_schema"]
-    schema_path = ROOT / schema_relative
-    schema_text = json.dumps(build_schema(contract), ensure_ascii=False, indent=2) + "\n"
-    if not schema_path.exists() or schema_path.read_text(encoding="utf-8") != schema_text:
-        if check:
-            stale.append(schema_relative)
-        else:
-            schema_path.parent.mkdir(parents=True, exist_ok=True)
-            schema_path.write_text(schema_text, encoding="utf-8")
-            changed.append(schema_relative)
+    for relative_path, expected_text in build_full_rendered_files(contract, surface).items():
+        path = ROOT / relative_path
+        if not path.exists() or path.read_text(encoding="utf-8") != expected_text:
+            if check:
+                stale.append(relative_path)
+            else:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(expected_text, encoding="utf-8")
+                changed.append(relative_path)
 
     for relative_path in generated_docs:
         path = ROOT / relative_path
@@ -539,7 +791,7 @@ def render_docs(*, check: bool) -> int:
 
     if check:
         if stale:
-            print("Roundtable contract docs are stale:")
+            print("Roundtable contract & adapter outputs are stale:")
             for relative_path in stale:
                 print(f"  - {relative_path}")
             print("Run: python3 tools/render_roundtable_contract_docs.py")
@@ -548,7 +800,7 @@ def render_docs(*, check: bool) -> int:
         return 0
 
     if changed:
-        print("Updated roundtable contract docs:")
+        print("Updated roundtable contract & adapter outputs:")
         for relative_path in changed:
             print(f"  + {relative_path}")
     else:
@@ -561,7 +813,7 @@ def main() -> int:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="fail if generated doc blocks are stale",
+        help="fail if generated doc blocks or adapters are stale",
     )
     args = parser.parse_args()
     return render_docs(check=args.check)

@@ -1,6 +1,6 @@
 ---
 name: don-norman-perspective
-description: "用户点名诺曼视角（Don Norman / #norman / Norman door）诊断界面可发现性、反馈、概念模型与误操作归因时使用；常规 UX 评审或多席圆桌不触发。"
+description: "按执行/评估两道鸿沟、可发现性、signifier 与失误分类（slip/mistake）做界面认知诊断（Norman / #norman）；仅在点名或显式调用时启用，常规 UX 评审或多席圆桌不触发。"
 ---
 
 # Don Norman · 可用性认知诊断

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Donald Trump · 商业谈判与筹码"
+  short_description: "围绕交易筹码、BATNA 退出底牌与稀缺叙事拆解商业博弈"
+  default_prompt: "仅从商业谈判筹码、急迫度与 BATNA 底牌角度拆解这场商业博弈。"
+
+policy:
+  allow_implicit_invocation: false

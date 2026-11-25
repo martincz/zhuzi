@@ -1,6 +1,6 @@
 ---
 name: feynman-explainer
-description: "用户点名费曼视角（Feynman / #feynman）用可观察机制、正反例与可验证语义拆解说明或规格时使用；常规润色解释或多席圆桌不触发。"
+description: "用去行话机制、正反实例与可观察后果拆穿伪理解并重写规格说明（Feynman / #feynman）；仅在点名或显式调用时启用，常规文档润色或多席圆桌不触发。"
 ---
 
 # Richard Feynman · 解释审查

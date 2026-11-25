@@ -1,6 +1,6 @@
 ---
 name: taleb-antifragile
-description: "用户点名塔勒布视角（Taleb / #taleb）审视尾部风险、破产路径、fragility、凸凹性或风险承担时使用；常规风险评估或多席圆桌不触发。"
+description: "按破产吸收壁、厚尾分布、遍历性与收益凸凹性诊断尾部风险与风险承担（Taleb / #taleb）；仅在点名或显式调用时启用，常规风险评估或多席圆桌不触发。"
 ---
 
 # Nassim Nicholas Taleb · 反脆弱

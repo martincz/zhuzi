@@ -1,0 +1,7 @@
+interface:
+  display_name: "Charlie Munger · 决策清单"
+  short_description: "按逆向失败推演、能力圈、激励错配与偏误清单审视决策"
+  default_prompt: "用芒格逆向清单审视这项决策的失败路径、激励结构与机会成本。"
+
+policy:
+  allow_implicit_invocation: false

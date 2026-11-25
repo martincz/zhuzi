@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Install Codex assets with verified backups, legacy migration and rollback.
+"""Transactional dual-runtime installer for zhuzi (Claude Code + OpenAI Codex).
 
-Called by ``install.sh`` as part of the default shipped-surface install so
-Codex skills, agents and shared assets are handled together. The shell installer
-must not overwrite the previous Codex manifest before ownership is inspected.
-
-Native agents use TOML. Fresh user installs discover skills in ``~/.agents/skills``.
-Explicit install roots stay isolated; installed references always resolve to that root.
-Only current manifest entries can be replaced or migrated; other packages and
-provider/auth configuration are outside the installation plan.
+Installs a single clean ``zhuzi/`` umbrella skill directory by default (bundling
+runtime persona guides under ``zhuzi/personas/<name>/PERSONA.md`` while excluding
+``references/research/`` and historical build drafts), renders concrete paths for
+all 7 subagent seats, supports ``--pin`` / ``--unpin`` for standalone top-level
+skill shortcuts, and migrates legacy scattered skill directories with verified
+SHA-256 backups and automatic rollback.
 """
 
 from __future__ import annotations
@@ -32,11 +30,26 @@ except ImportError:  # Python 3.10
     except ImportError as exc:
         raise SystemExit("Python < 3.11 needs tomli; install requirements-dev.txt first") from exc
 
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT / "tools") not in sys.path:
+    sys.path.insert(0, str(ROOT / "tools"))
+
+from render_roundtable_contract_docs import render_claude_skill_overlay, serialize_agent_toml
+
 MANIFEST_PATH = ROOT / "zhuzi" / "manifests" / "shipped-surface.json"
 CODEX_AGENT_FAMILY = "codex_agents"
-CODEX_SKILL_FAMILY = "codex_skills"
+CLAUDE_AGENT_FAMILY = "agents"
+CLAUDE_SKILL_FAMILY = "claude_skills"
+SKILL_NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|$)", re.DOTALL)
+
+KNOWN_RETIRED_SKILLS = {
+    "zhuzi-roundtable",
+    "zhuzi-quick",
+    "linus-torvalds-perspective",
+    "munger-perspective",
+    "luxun-zawen",
+}
 
 
 def render_text(text: str, *, skill_root: Path, shared_root: Path) -> str:
@@ -47,56 +60,60 @@ def render_text(text: str, *, skill_root: Path, shared_root: Path) -> str:
 
 
 def collapse_repo_fallbacks(text: str) -> str:
-    # Source adapters put repository fallbacks on their own line.
     return "\n".join(
-        line for line in text.splitlines() if "`./skills" not in line and "`./zhuzi" not in line
+        line
+        for line in text.splitlines()
+        if "`./skills" not in line and "`./zhuzi" not in line and "`../" not in line
     ) + "\n"
+
+
+def strip_frontmatter(text: str) -> str:
+    match = FRONTMATTER_RE.match(text)
+    return text[match.end():].lstrip("\r\n") if match else text
 
 
 def render_file(src: Path, dst: Path, *, skill_root: Path, shared_root: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     text = src.read_text(encoding="utf-8")
-    # Decode TOML before inserting paths: quotes or backslashes in an install root
-    # must remain instruction text rather than changing TOML syntax.
     if src.suffix == ".toml":
         payload = tomllib.loads(text)
         payload["developer_instructions"] = collapse_repo_fallbacks(
             render_text(payload["developer_instructions"], skill_root=skill_root, shared_root=shared_root)
         )
-        rendered = "\n".join(f"{key} = {json.dumps(value, ensure_ascii=False)}" for key, value in payload.items()) + "\n"
-        tomllib.loads(rendered)
+        rendered = serialize_agent_toml(payload)
     else:
         rendered = collapse_repo_fallbacks(render_text(text, skill_root=skill_root, shared_root=shared_root))
     dst.write_text(rendered, encoding="utf-8")
 
 
-def copy_tree_with_render(src: Path, dst: Path, *, skill_root: Path, shared_root: Path) -> None:
-    if dst.exists():
-        shutil.rmtree(dst)
-    dst.mkdir(parents=True, exist_ok=True)
-
-    for path in src.rglob("*"):
-        target = dst / path.relative_to(src)
-        if path.is_dir():
-            target.mkdir(parents=True, exist_ok=True)
-            continue
-        if path.suffix == ".md":
-            render_file(path, target, skill_root=skill_root, shared_root=shared_root)
-            continue
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(path, target)
-
-
-def load_manifest_families() -> dict[str, list[dict[str, str]]]:
+def load_surface_payload() -> dict[str, object]:
     payload = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"invalid manifest object: {MANIFEST_PATH}")
+    return payload
+
+
+def load_manifest_families() -> dict[str, list[dict[str, object]]]:
+    payload = load_surface_payload()
     families = payload.get("families")
     if not isinstance(families, dict):
         raise ValueError(f"invalid manifest families object: {MANIFEST_PATH}")
     return families
 
 
+def load_runtime_exclusions() -> tuple[set[str], set[str], tuple[str, ...]]:
+    payload = load_surface_payload()
+    raw = payload.get("runtime_exclusions", {})
+    if not isinstance(raw, dict):
+        return {"references/research", "references/sources"}, set(), (":Zone.Identifier", ".pyc")
+    subdirs = {str(x).strip("/") for x in raw.get("skill_subdirs", [])}
+    filenames = {str(x) for x in raw.get("filenames", [])}
+    suffixes = tuple(str(x) for x in raw.get("suffixes", []))
+    return subdirs, filenames, suffixes
+
+
 def manifest_family_paths(
-    families: dict[str, list[dict[str, str]]], family: str
+    families: dict[str, list[dict[str, object]]], family: str
 ) -> list[Path]:
     entries = families.get(family)
     if not isinstance(entries, list):
@@ -121,6 +138,20 @@ def manifest_family_paths(
     return resolved
 
 
+def resolve_skill_entry_name(name_or_alias: str, families: dict[str, list[dict[str, object]]]) -> str:
+    target = name_or_alias.strip().lower()
+    for item in families.get("skills", []):
+        if not isinstance(item, dict):
+            continue
+        entry = item.get("entry")
+        aliases = item.get("aliases", [])
+        if entry == target or (isinstance(aliases, list) and target in aliases):
+            if entry == "zhuzi":
+                raise ValueError("umbrella skill 'zhuzi' is always installed by default and does not need --pin")
+            return str(entry)
+    raise ValueError(f"unknown zhuzi skill or alias: {name_or_alias!r}")
+
+
 def resolve_skill_root(codex_home: Path) -> Path:
     override = os.environ.get("CODEX_SKILL_DIR")
     if override:
@@ -128,6 +159,15 @@ def resolve_skill_root(codex_home: Path) -> Path:
     if os.environ.get("CODEX_HOME") or codex_home.resolve() != (Path.home() / ".codex").resolve():
         return codex_home.resolve() / "skills"
     return Path.home() / ".agents" / "skills"
+
+
+def resolve_claude_dir(claude_dir: Path | None = None) -> Path:
+    if claude_dir is not None:
+        return claude_dir.expanduser().resolve()
+    override = os.environ.get("CLAUDE_DIR")
+    if override:
+        return Path(override).expanduser().resolve()
+    return (Path.home() / ".claude").resolve()
 
 
 def exists(path: Path) -> bool:
@@ -156,6 +196,7 @@ def entry_digest(path: Path) -> str | None:
     if not exists(path):
         return None
     digest = hashlib.sha256()
+
     def visit(item: Path, relative: str) -> None:
         digest.update(relative.encode())
         if item.is_symlink():
@@ -169,26 +210,123 @@ def entry_digest(path: Path) -> str | None:
             with item.open("rb") as stream:
                 for block in iter(lambda: stream.read(1024 * 1024), b""):
                     digest.update(block)
+
     visit(path, "")
     return digest.hexdigest()
 
 
-def previous_skill_names(codex_home: Path) -> set[str]:
-    manifest = codex_home / "zhuzi/manifests/shipped-surface.json"
+def is_excluded_skill_relpath(
+    rel_posix: str,
+    *,
+    excluded_subdirs: set[str],
+    excluded_filenames: set[str],
+    excluded_suffixes: tuple[str, ...],
+) -> bool:
+    parts = rel_posix.split("/")
+    if "__pycache__" in parts:
+        return True
+    filename = parts[-1]
+    if filename in excluded_filenames or any(filename.endswith(sfx) for sfx in excluded_suffixes):
+        return True
+    for sub in excluded_subdirs:
+        if rel_posix == sub or rel_posix.startswith(sub + "/"):
+            return True
+    return False
+
+
+def copy_filtered_skill_refs(src_skill_dir: Path, dst_dir: Path) -> None:
+    excluded_subdirs, excluded_filenames, excluded_suffixes = load_runtime_exclusions()
+    ref_root = src_skill_dir / "references"
+    if not ref_root.is_dir():
+        return
+    for item in sorted(ref_root.rglob("*")):
+        if not item.is_file():
+            continue
+        rel_posix = item.relative_to(src_skill_dir).as_posix()
+        if is_excluded_skill_relpath(
+            rel_posix,
+            excluded_subdirs=excluded_subdirs,
+            excluded_filenames=excluded_filenames,
+            excluded_suffixes=excluded_suffixes,
+        ):
+            continue
+        out = dst_dir / rel_posix
+        out.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(item, out)
+
+
+def copy_clean_shared_zhuzi(dst_shared: Path) -> None:
+    _, _, excluded_suffixes = load_runtime_exclusions()
+    src_shared = ROOT / "zhuzi"
+    for item in sorted(src_shared.rglob("*")):
+        if not item.is_file():
+            continue
+        rel_parts = item.relative_to(src_shared).parts
+        if "__pycache__" in rel_parts or any(item.name.endswith(sfx) for sfx in excluded_suffixes):
+            continue
+        out = dst_shared / item.relative_to(src_shared)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(item, out)
+
+
+def read_pinned_skills(runtime_home: Path, families: dict[str, list[dict[str, object]]]) -> set[str]:
+    pin_file = runtime_home / "pinned-skills.json"
+    if not pin_file.is_file():
+        return set()
+    try:
+        data = json.loads(pin_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return set()
+    valid = {
+        str(item["entry"])
+        for item in families.get("skills", [])
+        if isinstance(item, dict) and not item.get("default_install", False)
+    }
+    raw_list = data.get("pinned", []) if isinstance(data, dict) else []
+    return {str(name) for name in raw_list if isinstance(name, str) and str(name) in valid}
+
+
+def compute_desired_pins(
+    runtime_home: Path,
+    families: dict[str, list[dict[str, object]]],
+    *,
+    pin: list[str] | None = None,
+    unpin: list[str] | None = None,
+) -> set[str]:
+    desired = read_pinned_skills(runtime_home, families)
+    for item in pin or []:
+        desired.add(resolve_skill_entry_name(item, families))
+    for item in unpin or []:
+        desired.discard(resolve_skill_entry_name(item, families))
+    return desired
+
+
+def previous_skill_names(runtime_home: Path) -> set[str]:
+    manifest = runtime_home / "zhuzi" / "manifests" / "shipped-surface.json"
     if not manifest.is_file():
         return set()
     payload = json.loads(manifest.read_text(encoding="utf-8"))
     families = payload.get("families")
     if not isinstance(families, dict):
         raise ValueError("installed shipped-surface manifest is invalid; nothing was migrated")
-    names = set()
-    for family in ("skills", CODEX_SKILL_FAMILY):
+    names: set[str] = set()
+    for family in ("skills", "codex_skills", "claude_skills"):
         for entry in families.get(family, []):
-            name, raw = entry.get("entry", ""), entry.get("path", "")
+            if not isinstance(entry, dict):
+                continue
+            name = entry.get("entry", "")
+            raw = entry.get("path", "")
+            if not isinstance(name, str) or not isinstance(raw, str):
+                continue
             path = Path(raw)
-            if (re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name)
-                    and not path.is_absolute() and ".." not in path.parts
-                    and len(path.parts) >= 2 and path.parts[-2:] == (name, "SKILL.md")):
+            if (
+                SKILL_NAME_RE.fullmatch(name)
+                and len(name) <= 64
+                and not path.is_absolute()
+                and ".." not in path.parts
+                and len(path.parts) >= 2
+                and path.parts[-2:] == (name, "SKILL.md")
+            ):
                 names.add(name)
     return names
 
@@ -197,55 +335,253 @@ def skill_identity(path: Path) -> str | None:
     entry = path / "SKILL.md"
     if not entry.is_file():
         return None
-    text = entry.read_text(encoding="utf-8")
-    if not text.startswith("---\n"):
+    text = entry.read_text(encoding="utf-8", errors="replace")
+    match = FRONTMATTER_RE.match(text)
+    if not match:
         return None
-    frontmatter = text.split("---", 2)[1]
-    match = re.search(r"^name:\s*(.+?)\s*$", frontmatter, re.MULTILINE)
-    return match.group(1).strip("\"'") if match else None
+    name_match = re.search(r"^name:\s*(.+?)\s*$", match.group(1), re.MULTILINE)
+    if not name_match:
+        return None
+    candidate = name_match.group(1).strip().strip("\"'")
+    return candidate if SKILL_NAME_RE.fullmatch(candidate) and len(candidate) <= 64 else None
 
 
-def stage_assets(codex_home: Path, skill_root: Path, stage: Path) -> tuple[dict[Path, Path], list[Path]]:
+def build_umbrella_zhuzi_dir(
+    stage_zhuzi: Path,
+    *,
+    runtime: str,
+    persona_install_root: Path,
+    shared_install_root: Path,
+    families: dict[str, list[dict[str, object]]],
+) -> None:
+    stage_zhuzi.mkdir(parents=True, exist_ok=True)
+    if runtime == "claude":
+        umbrella_src = ROOT / "runtimes" / "claude" / "skills" / "zhuzi" / "SKILL.md"
+    else:
+        umbrella_src = ROOT / "skills" / "zhuzi" / "SKILL.md"
+
+    render_file(
+        umbrella_src,
+        stage_zhuzi / "SKILL.md",
+        skill_root=persona_install_root,
+        shared_root=shared_install_root,
+    )
+    copy_filtered_skill_refs(ROOT / "skills" / "zhuzi", stage_zhuzi)
+    if runtime == "codex":
+        sidecar_src = ROOT / "skills" / "zhuzi" / "agents" / "openai.yaml"
+        sidecar_dst = stage_zhuzi / "agents" / "openai.yaml"
+        sidecar_dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(sidecar_src, sidecar_dst)
+
+    for item in families.get("skills", []):
+        if not isinstance(item, dict) or item.get("default_install", False):
+            continue
+        entry = str(item["entry"])
+        src_dir = ROOT / "skills" / entry
+        persona_dst = stage_zhuzi / "personas" / entry
+        persona_dst.mkdir(parents=True, exist_ok=True)
+        persona_body = strip_frontmatter((src_dir / "SKILL.md").read_text(encoding="utf-8"))
+        (persona_dst / "PERSONA.md").write_text(persona_body, encoding="utf-8")
+        copy_filtered_skill_refs(src_dir, persona_dst)
+
+
+def build_pinned_skill_dir(
+    stage_skill_dst: Path,
+    *,
+    skill_entry: dict[str, object],
+    runtime: str,
+) -> None:
+    entry = str(skill_entry["entry"])
+    src_dir = ROOT / "skills" / entry
+    stage_skill_dst.mkdir(parents=True, exist_ok=True)
+    raw_skill_md = (src_dir / "SKILL.md").read_text(encoding="utf-8")
+    if runtime == "claude":
+        rendered_md = render_claude_skill_overlay(raw_skill_md, skill_entry)
+        (stage_skill_dst / "SKILL.md").write_text(rendered_md, encoding="utf-8")
+    else:
+        (stage_skill_dst / "SKILL.md").write_text(raw_skill_md, encoding="utf-8")
+        sidecar_src = src_dir / "agents" / "openai.yaml"
+        if sidecar_src.is_file():
+            sidecar_dst = stage_skill_dst / "agents" / "openai.yaml"
+            sidecar_dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(sidecar_src, sidecar_dst)
+    copy_filtered_skill_refs(src_dir, stage_skill_dst)
+
+
+def stage_codex_assets(
+    codex_home: Path,
+    skill_root: Path,
+    stage: Path,
+    *,
+    desired_pins: set[str],
+) -> tuple[dict[Path, Path], list[Path]]:
     families = load_manifest_families()
     targets: dict[Path, Path] = {}
-    for entry in manifest_family_paths(families, "skills"):
-        src, dst = entry.parent, stage / "skills" / entry.parent.name
-        shutil.copytree(src, dst, symlinks=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-        targets[skill_root / src.name] = dst
-    for entry in manifest_family_paths(families, CODEX_SKILL_FAMILY):
-        src, dst = entry.parent, stage / "skills" / entry.parent.name
-        copy_tree_with_render(src, dst, skill_root=skill_root, shared_root=codex_home / "zhuzi")
-        targets[skill_root / src.name] = dst
-    wrappers = []
+    persona_root = skill_root / "zhuzi" / "personas"
+    shared_root = codex_home / "zhuzi"
+
+    umbrella_stage = stage / "skills" / "zhuzi"
+    build_umbrella_zhuzi_dir(
+        umbrella_stage,
+        runtime="codex",
+        persona_install_root=persona_root,
+        shared_install_root=shared_root,
+        families=families,
+    )
+    targets[skill_root / "zhuzi"] = umbrella_stage
+
+    skills_by_entry = {str(s["entry"]): s for s in families.get("skills", []) if isinstance(s, dict)}
+    for pinned_name in sorted(desired_pins):
+        pin_stage = stage / "skills" / pinned_name
+        build_pinned_skill_dir(pin_stage, skill_entry=skills_by_entry[pinned_name], runtime="codex")
+        targets[skill_root / pinned_name] = pin_stage
+
+    if desired_pins or (codex_home / "pinned-skills.json").exists():
+        pin_meta = stage / "pinned-skills.json"
+        pin_meta.write_text(
+            json.dumps({"pinned": sorted(desired_pins)}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        targets[codex_home / "pinned-skills.json"] = pin_meta
+
+    wrappers: list[Path] = []
     for src in manifest_family_paths(families, CODEX_AGENT_FAMILY):
         if src.suffix != ".toml":
             raise ValueError(f"Codex agent manifest entry must be TOML: {src}")
         dst = stage / "agents" / src.name
-        render_file(src, dst, skill_root=skill_root, shared_root=codex_home / "zhuzi")
+        render_file(src, dst, skill_root=persona_root, shared_root=shared_root)
         targets[codex_home / "agents" / src.name] = dst
         wrappers.append(codex_home / "agents" / f"{src.stem}.md")
-    shared = stage / "shared"
-    shutil.copytree(ROOT / "zhuzi", shared, symlinks=True,
-                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    targets[codex_home / "zhuzi"] = shared
+
+    shared_stage = stage / "shared"
+    copy_clean_shared_zhuzi(shared_stage)
+    targets[shared_root] = shared_stage
     return targets, wrappers
 
 
-def migration_candidates(codex_home: Path, skill_root: Path, targets: dict[Path, Path], wrappers: list[Path]) -> list[Path]:
-    old_root = codex_home / "skills"
-    owned = previous_skill_names(codex_home)
-    legacy = [p for p in wrappers if exists(p)]
-    if old_root.resolve() != skill_root.resolve():
-        for target, staged in targets.items():
-            if target.parent != skill_root:
+def stage_claude_assets(
+    claude_dir: Path,
+    stage: Path,
+    *,
+    desired_pins: set[str],
+) -> tuple[dict[Path, Path], list[Path]]:
+    families = load_manifest_families()
+    targets: dict[Path, Path] = {}
+    skill_root = claude_dir / "skills"
+    persona_root = skill_root / "zhuzi" / "personas"
+    shared_root = claude_dir / "zhuzi"
+
+    umbrella_stage = stage / "skills" / "zhuzi"
+    build_umbrella_zhuzi_dir(
+        umbrella_stage,
+        runtime="claude",
+        persona_install_root=persona_root,
+        shared_install_root=shared_root,
+        families=families,
+    )
+    targets[skill_root / "zhuzi"] = umbrella_stage
+
+    skills_by_entry = {str(s["entry"]): s for s in families.get("skills", []) if isinstance(s, dict)}
+    for pinned_name in sorted(desired_pins):
+        pin_stage = stage / "skills" / pinned_name
+        build_pinned_skill_dir(pin_stage, skill_entry=skills_by_entry[pinned_name], runtime="claude")
+        targets[skill_root / pinned_name] = pin_stage
+
+    if desired_pins or (claude_dir / "pinned-skills.json").exists():
+        pin_meta = stage / "pinned-skills.json"
+        pin_meta.write_text(
+            json.dumps({"pinned": sorted(desired_pins)}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        targets[claude_dir / "pinned-skills.json"] = pin_meta
+
+    for src in manifest_family_paths(families, CLAUDE_AGENT_FAMILY):
+        dst = stage / "agents" / src.name
+        render_file(src, dst, skill_root=persona_root, shared_root=shared_root)
+        targets[claude_dir / "agents" / src.name] = dst
+
+    shared_stage = stage / "shared"
+    copy_clean_shared_zhuzi(shared_stage)
+    targets[shared_root] = shared_stage
+
+    legacy_Namespace_dirs = [claude_dir / "commands" / "zhuzi"]
+    return targets, legacy_Namespace_dirs
+
+
+def source_skill_digest_cache(families: dict[str, list[dict[str, object]]]) -> dict[str, set[str]]:
+    digests: dict[str, set[str]] = {}
+    with tempfile.TemporaryDirectory(prefix="zhuzi-src-digest-") as raw:
+        tmp = Path(raw)
+        for item in families.get("skills", []):
+            if not isinstance(item, dict):
                 continue
-            old = old_root / target.name
-            if not exists(old):
+            entry = str(item["entry"])
+            src = ROOT / "skills" / entry
+            d_raw = entry_digest(src)
+            s_set = {d_raw} if d_raw else set()
+            for rt in ("codex", "claude"):
+                p_dir = tmp / rt / entry
+                build_pinned_skill_dir(p_dir, skill_entry=item, runtime=rt)
+                d_pin = entry_digest(p_dir)
+                if d_pin:
+                    s_set.add(d_pin)
+            digests[entry] = s_set
+    return digests
+
+
+def migration_candidates(
+    runtime_home: Path,
+    skill_root: Path,
+    targets: dict[Path, Path],
+    extra_legacy_paths: list[Path],
+    *,
+    desired_pins: set[str],
+) -> list[Path]:
+    families = load_manifest_families()
+    known_skill_names = {
+        str(item["entry"])
+        for item in families.get("skills", [])
+        if isinstance(item, dict) and not item.get("default_install", False)
+    } | KNOWN_RETIRED_SKILLS
+
+    has_installed_manifest = (runtime_home / "zhuzi" / "manifests" / "shipped-surface.json").is_file()
+    owned = previous_skill_names(runtime_home) | read_pinned_skills(runtime_home, families)
+    known_digests = source_skill_digest_cache(families)
+
+    legacy: list[Path] = [p for p in extra_legacy_paths if exists(p)]
+    seen_legacy = {p.resolve() if not p.is_symlink() else p for p in legacy}
+
+    # 1. Check deprecated $CODEX_HOME/skills when distinct from skill_root
+    old_root = runtime_home / "skills"
+    if old_root.resolve() != skill_root.resolve() and old_root.is_dir():
+        for name in sorted(known_skill_names | {"zhuzi"}):
+            old = old_root / name
+            if not exists(old) or old in targets:
                 continue
-            verified_owner = target.name in owned and skill_identity(old) == target.name
-            if not verified_owner and entry_digest(old) != entry_digest(staged):
+            verified_owner = name in owned and skill_identity(old) == name
+            digest_matches = entry_digest(old) in known_digests.get(name, set())
+            if not verified_owner and not digest_matches:
                 raise ValueError(f"cannot confirm ownership of legacy skill {old}; installation left untouched")
             legacy.append(old)
+            seen_legacy.add(old)
+
+    # 2. Check scattered top-level zhuzi skills in skill_root that are not currently pinned
+    if skill_root.is_dir():
+        for name in sorted(known_skill_names - desired_pins):
+            cand = skill_root / name
+            if not exists(cand) or cand in targets or cand in seen_legacy:
+                continue
+            ident = skill_identity(cand)
+            digest_matches = entry_digest(cand) in known_digests.get(name, set())
+            if name in owned and (ident == name or ident is None):
+                legacy.append(cand)
+            elif not has_installed_manifest and ident == name:
+                legacy.append(cand)
+            elif digest_matches:
+                legacy.append(cand)
+            else:
+                raise ValueError(f"cannot confirm ownership of legacy skill {cand}; installation left untouched")
+
     paths = list(targets) + legacy
     for index, path in enumerate(paths):
         if path == ROOT or ROOT in path.parents or path in ROOT.parents:
@@ -254,6 +590,27 @@ def migration_candidates(codex_home: Path, skill_root: Path, targets: dict[Path,
             if path == other or path in other.parents or other in path.parents:
                 raise ValueError(f"overlapping install/migration destinations: {path}, {other}")
     return legacy
+
+
+def uninstall_candidates(runtime_home: Path, skill_root: Path, *, runtime: str) -> list[Path]:
+    families = load_manifest_families()
+    owned = previous_skill_names(runtime_home) | read_pinned_skills(runtime_home, families) | {"zhuzi"}
+    candidates: list[Path] = []
+    for skill_name in sorted(owned | KNOWN_RETIRED_SKILLS):
+        cand = skill_root / skill_name
+        if exists(cand) and (skill_name in owned or skill_identity(cand) == skill_name):
+            candidates.append(cand)
+    agent_family = CLAUDE_AGENT_FAMILY if runtime == "claude" else CODEX_AGENT_FAMILY
+    for src in manifest_family_paths(families, agent_family):
+        agent_dst = runtime_home / "agents" / src.name
+        if exists(agent_dst):
+            candidates.append(agent_dst)
+    if runtime == "claude" and exists(runtime_home / "commands" / "zhuzi"):
+        candidates.append(runtime_home / "commands" / "zhuzi")
+    for meta in (runtime_home / "pinned-skills.json", runtime_home / "zhuzi"):
+        if exists(meta):
+            candidates.append(meta)
+    return candidates
 
 
 def replace_entry(src: Path, dst: Path) -> None:
@@ -266,13 +623,26 @@ def replace_entry(src: Path, dst: Path) -> None:
         os.replace(prepared, dst)
 
 
-def apply_install(targets: dict[Path, Path], legacy: list[Path], codex_home: Path, skill_root: Path) -> dict:
+def apply_install(
+    targets: dict[Path, Path],
+    legacy: list[Path],
+    runtime_home: Path,
+    skill_root: Path,
+    *,
+    home_key: str = "codex_home",
+) -> dict[str, object]:
     changed = {dst: src for dst, src in targets.items() if entry_digest(dst) != entry_digest(src)}
-    report = {"codex_home": str(codex_home), "skill_root": str(skill_root),
-              "updated": [str(p) for p in changed], "migrated": [str(p) for p in legacy], "backup": None}
+    report: dict[str, object] = {
+        home_key: str(runtime_home),
+        "skill_root": str(skill_root),
+        "updated": [str(p) for p in changed],
+        "migrated": [str(p) for p in legacy],
+        "backup": None,
+    }
     if not changed and not legacy:
         return report
-    backup_parent = codex_home / "backups/zhuzi"
+
+    backup_parent = runtime_home / "backups" / "zhuzi"
     backup_parent.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-")
     backup = Path(tempfile.mkdtemp(prefix=stamp, dir=backup_parent))
@@ -285,14 +655,20 @@ def apply_install(targets: dict[Path, Path], legacy: list[Path], codex_home: Pat
             copy_entry(path, saved)
             if entry_digest(saved) != before:
                 raise OSError(f"backup verification failed: {path}")
-        records[path] = {"path": str(path), "backup": str(saved.relative_to(backup)) if before else None,
-                         "before_sha256": before}
+        records[path] = {
+            "path": str(path),
+            "backup": str(saved.relative_to(backup)) if before else None,
+            "before_sha256": before,
+        }
+
     journal = {**report, "status": "backed_up", "entries": list(records.values())}
     journal_path = backup / "migration.json"
+
     def save() -> None:
         journal_path.write_text(json.dumps(journal, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
     save()
-    touched = []
+    touched: list[Path] = []
     try:
         for path, staged in changed.items():
             if entry_digest(path) != records[path]["before_sha256"]:
@@ -324,7 +700,10 @@ def apply_install(targets: dict[Path, Path], legacy: list[Path], codex_home: Pat
                     raise OSError("restored content differs from backup")
             except OSError as exc:
                 rollback_errors.append(f"{path}: {exc}")
-        journal.update(status="rollback_failed" if rollback_errors else "rolled_back", rollback_errors=rollback_errors)
+        journal.update(
+            status="rollback_failed" if rollback_errors else "rolled_back",
+            rollback_errors=rollback_errors,
+        )
         save()
         if rollback_errors:
             raise RuntimeError(f"rollback incomplete; preserved backup: {backup}; {rollback_errors}")
@@ -332,16 +711,50 @@ def apply_install(targets: dict[Path, Path], legacy: list[Path], codex_home: Pat
     return report
 
 
-def install_codex_assets(codex_home: Path, *, dry_run: bool = False) -> dict:
+def install_codex_assets(
+    codex_home: Path,
+    *,
+    dry_run: bool = False,
+    pin: list[str] | None = None,
+    unpin: list[str] | None = None,
+    uninstall: bool = False,
+) -> dict[str, object]:
     codex_home = codex_home.expanduser().resolve()
     skill_root = resolve_skill_root(codex_home).resolve()
-    with tempfile.TemporaryDirectory(prefix="zhuzi-install-stage-") as raw:
-        targets, wrappers = stage_assets(codex_home, skill_root, Path(raw))
+    families = load_manifest_families()
+
+    if uninstall:
+        legacy = uninstall_candidates(codex_home, skill_root, runtime="codex")
         if dry_run:
-            legacy = migration_candidates(codex_home, skill_root, targets, wrappers)
-            return {"codex_home": str(codex_home), "skill_root": str(skill_root), "dry_run": True,
-                    "updated": [str(p) for p, src in targets.items() if entry_digest(p) != entry_digest(src)],
-                    "migrated": [str(p) for p in legacy], "backup": None}
+            return {
+                "codex_home": str(codex_home),
+                "skill_root": str(skill_root),
+                "dry_run": True,
+                "updated": [],
+                "migrated": [str(p) for p in legacy],
+                "backup": None,
+            }
+        import fcntl
+        codex_home.mkdir(parents=True, exist_ok=True)
+        with (codex_home / ".zhuzi-install.lock").open("a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return apply_install({}, legacy, codex_home, skill_root, home_key="codex_home")
+
+    desired_pins = compute_desired_pins(codex_home, families, pin=pin, unpin=unpin)
+    with tempfile.TemporaryDirectory(prefix="zhuzi-install-stage-") as raw:
+        targets, wrappers = stage_codex_assets(codex_home, skill_root, Path(raw), desired_pins=desired_pins)
+        if dry_run:
+            legacy = migration_candidates(
+                codex_home, skill_root, targets, wrappers, desired_pins=desired_pins
+            )
+            return {
+                "codex_home": str(codex_home),
+                "skill_root": str(skill_root),
+                "dry_run": True,
+                "updated": [str(p) for p, src in targets.items() if entry_digest(p) != entry_digest(src)],
+                "migrated": [str(p) for p in legacy],
+                "backup": None,
+            }
         import fcntl
         codex_home.mkdir(parents=True, exist_ok=True)
         with (codex_home / ".zhuzi-install.lock").open("a") as lock:
@@ -349,42 +762,145 @@ def install_codex_assets(codex_home: Path, *, dry_run: bool = False) -> dict:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError as exc:
                 raise RuntimeError("another zhuzi installation is running") from exc
-            legacy = migration_candidates(codex_home, skill_root, targets, wrappers)
-            return apply_install(targets, legacy, codex_home, skill_root)
+            legacy = migration_candidates(
+                codex_home, skill_root, targets, wrappers, desired_pins=desired_pins
+            )
+            return apply_install(targets, legacy, codex_home, skill_root, home_key="codex_home")
+
+
+def install_claude_assets(
+    claude_dir: Path | None = None,
+    *,
+    dry_run: bool = False,
+    pin: list[str] | None = None,
+    unpin: list[str] | None = None,
+    uninstall: bool = False,
+) -> dict[str, object]:
+    resolved_claude = resolve_claude_dir(claude_dir)
+    skill_root = resolved_claude / "skills"
+    families = load_manifest_families()
+
+    if uninstall:
+        legacy = uninstall_candidates(resolved_claude, skill_root, runtime="claude")
+        if dry_run:
+            return {
+                "claude_dir": str(resolved_claude),
+                "skill_root": str(skill_root),
+                "dry_run": True,
+                "updated": [],
+                "migrated": [str(p) for p in legacy],
+                "backup": None,
+            }
+        import fcntl
+        resolved_claude.mkdir(parents=True, exist_ok=True)
+        with (resolved_claude / ".zhuzi-install.lock").open("a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return apply_install({}, legacy, resolved_claude, skill_root, home_key="claude_dir")
+
+    desired_pins = compute_desired_pins(resolved_claude, families, pin=pin, unpin=unpin)
+    with tempfile.TemporaryDirectory(prefix="zhuzi-claude-stage-") as raw:
+        targets, legacy_dirs = stage_claude_assets(resolved_claude, Path(raw), desired_pins=desired_pins)
+        if dry_run:
+            legacy = migration_candidates(
+                resolved_claude, skill_root, targets, legacy_dirs, desired_pins=desired_pins
+            )
+            return {
+                "claude_dir": str(resolved_claude),
+                "skill_root": str(skill_root),
+                "dry_run": True,
+                "updated": [str(p) for p, src in targets.items() if entry_digest(p) != entry_digest(src)],
+                "migrated": [str(p) for p in legacy],
+                "backup": None,
+            }
+        import fcntl
+        resolved_claude.mkdir(parents=True, exist_ok=True)
+        with (resolved_claude / ".zhuzi-install.lock").open("a") as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError as exc:
+                raise RuntimeError("another zhuzi Claude installation is running") from exc
+            legacy = migration_candidates(
+                resolved_claude, skill_root, targets, legacy_dirs, desired_pins=desired_pins
+            )
+            return apply_install(targets, legacy, resolved_claude, skill_root, home_key="claude_dir")
 
 
 def install_source_only_adapters(codex_home: Path, *, render_concrete: bool | None = None) -> list[Path]:
-    # Retain the original callable for older local automation.
     result = install_codex_assets(codex_home)
-    return [Path(path) for path in result["updated"]]
+    return [Path(path) for path in result["updated"]]  # type: ignore[index]
+
+
+def print_human_report(label: str, result: dict[str, object], *, dry_run: bool) -> None:
+    print(f"[{label}]")
+    for path in result.get("updated", []):  # type: ignore[union-attr]
+        print(f"  + {path}")
+    for path in result.get("migrated", []):  # type: ignore[union-attr]
+        print(f"  - migrated legacy entry: {path}")
+    if result.get("backup"):
+        print(f"  backup: {result['backup']}")
+    print(f"{label} preview only." if dry_run else f"{label} complete.")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--print-skill-root", action="store_true")
+    parser.add_argument("--codex-only", action="store_true", help="operate on Codex runtime only")
+    parser.add_argument("--claude-only", action="store_true", help="operate on Claude runtime only")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--json", action="store_true", help="machine-readable migration report")
+    parser.add_argument("--pin", action="append", default=[], help="pin a persona skill as top-level shortcut")
+    parser.add_argument("--unpin", action="append", default=[], help="unpin a previously pinned persona skill")
+    parser.add_argument("--uninstall", action="store_true", help="backup and remove installed zhuzi assets")
     args = parser.parse_args()
+
+    if args.codex_only and args.claude_only:
+        parser.error("cannot combine --codex-only and --claude-only")
+    if args.uninstall and (args.pin or args.unpin):
+        parser.error("cannot combine --uninstall with --pin or --unpin")
+
     codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
     if args.print_skill_root:
         print(resolve_skill_root(codex_home))
         return 0
+
     try:
-        result = install_codex_assets(codex_home, dry_run=args.dry_run)
+        if args.codex_only:
+            result = install_codex_assets(
+                codex_home, dry_run=args.dry_run, pin=args.pin, unpin=args.unpin, uninstall=args.uninstall
+            )
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                print_human_report("Codex installation", result, dry_run=args.dry_run)
+            return 0
+
+        if args.claude_only:
+            result = install_claude_assets(
+                None, dry_run=args.dry_run, pin=args.pin, unpin=args.unpin, uninstall=args.uninstall
+            )
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                print_human_report("Claude installation", result, dry_run=args.dry_run)
+            return 0
+
+        claude_res = install_claude_assets(
+            None, dry_run=args.dry_run, pin=args.pin, unpin=args.unpin, uninstall=args.uninstall
+        )
+        codex_res = install_codex_assets(
+            codex_home, dry_run=args.dry_run, pin=args.pin, unpin=args.unpin, uninstall=args.uninstall
+        )
+        combined = {"claude": claude_res, "codex": codex_res, "dry_run": args.dry_run}
+        if args.json:
+            print(json.dumps(combined, ensure_ascii=False, indent=2))
+        else:
+            print_human_report("Claude installation", claude_res, dry_run=args.dry_run)
+            print()
+            print_human_report("Codex installation", codex_res, dry_run=args.dry_run)
+        return 0
     except (OSError, ValueError, RuntimeError) as exc:
-        print(f"Codex installation failed: {exc}", file=sys.stderr)
+        print(f"Installation failed: {exc}", file=sys.stderr)
         return 1
-    if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
-    else:
-        for path in result["updated"]:
-            print(f"  + {path}")
-        for path in result["migrated"]:
-            print(f"  - migrated legacy entry: {path}")
-        if result["backup"]:
-            print(f"  backup: {result['backup']}")
-        print("Codex migration preview only." if args.dry_run else "Codex installation complete.")
-    return 0
 
 
 if __name__ == "__main__":

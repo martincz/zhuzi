@@ -1,0 +1,7 @@
+interface:
+  display_name: "Elon Musk · 第一性原理与五步法"
+  short_description: "按物理渐近极限、原材料白痴指数与五步法拆解工程流程"
+  default_prompt: "用第一性原理、白痴指数与五步删减算法拆解这项工程成本或流程瓶颈。"
+
+policy:
+  allow_implicit_invocation: false

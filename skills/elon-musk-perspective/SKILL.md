@@ -1,6 +1,6 @@
 ---
 name: elon-musk-perspective
-description: "用户点名马斯克视角（Elon Musk / Musk / #musk）用第一性原理、物理极限、白痴指数与五步算法拆解工程成本或流程时使用；常规工程评估不触发。"
+description: "按物理渐近极限、原材料白痴指数与五步删减算法拆解工程成本或制造流程（Elon Musk / #musk）；仅在点名或显式调用时启用，常规工程估算或社会治理议题不触发。"
 ---
 
 # Elon Musk · 工程实用主义

@@ -12,23 +12,23 @@
 
 | 任务类型 | 按需读取与修改入口 |
 |---|---|
-| 单人物方法、触发与边界 | 对应 [skills/](skills/) 下 `<name>/SKILL.md`，仅在任务需要时选读其 `references/` 子文档。新增人物判断、反模式或方法论约束须有一手来源依据。 |
+| 统一入口与单人物方法 | 总控路由见 [skills/zhuzi/SKILL.md](skills/zhuzi/SKILL.md)，单人物内核见 [skills/](skills/) 下 `<name>/SKILL.md`，仅按目标章节只读 `references/` 子文档。新增人物判断、反模式或方法论约束须有一手来源依据。 |
 | 正式圆桌与多视角短读 | 编排流程见 [zhuzi/workflows/](zhuzi/workflows/)，席位职责与读写边界见 [zhuzi/seats/](zhuzi/seats/)，输出骨架见 [zhuzi/templates/](zhuzi/templates/)。 |
-| 机器合同、Schema 与校验 | [roundtable-contract.json](zhuzi/manifests/roundtable-contract.json) 为路由、字段与类型的唯一真相源，[verdict.py](zhuzi/validators/verdict.py) 执行跨字段与覆盖率校验。修改合同后运行 renderer 更新生成物。 |
-| 运行时适配、安装与分发 | [runtimes/](runtimes/)、[install.sh](install.sh)、[install_codex_source_adapters.py](tools/install_codex_source_adapters.py)。分发面以 [shipped-surface.json](zhuzi/manifests/shipped-surface.json) 为准并同步 [INVENTORY.md](docs/INVENTORY.md)；跨 CLI 规范与评测见 [openai-alignment.md](docs/openai-alignment.md)。 |
+| 机器合同、Schema 与校验 | [roundtable-contract.json](zhuzi/manifests/roundtable-contract.json) 与 [shipped-surface.json](zhuzi/manifests/shipped-surface.json) 为唯一真相源，[verdict.py](zhuzi/validators/verdict.py) 执行跨字段与覆盖率校验。修改清单后运行 [render_roundtable_contract_docs.py](tools/render_roundtable_contract_docs.py) 更新生成物。 |
+| 运行时适配、安装与分发 | [runtimes/](runtimes/)、[install.sh](install.sh)、[install_codex_source_adapters.py](tools/install_codex_source_adapters.py)。分发清单同步至 [INVENTORY.md](docs/INVENTORY.md)；跨 CLI 规范与评测见 [openai-alignment.md](docs/openai-alignment.md)。 |
 
 ## 架构与口径不变量
 
-- **共享源与薄 Adapter**：人物内核留在 `skills/`，席位契约留在 `zhuzi/seats/`，议事编排留在 `zhuzi/workflows/`。共享资产保持跨运行时（兼容 Codex CLI、Antigravity CLI、Claude Code CLI），严禁硬编码机器专属路径或绑定单一运行时工具原语。`runtimes/` 仅装载共享资产并映射宿主能力，不内联复制人物正文或 verdict schema。`CLAUDE.md` 仅保留 `@AGENTS.md`。
-- **生成物与机器合同口径**：严禁手改 `<!-- GENERATED:... -->` 区块与 `zhuzi/schemas/verdict.schema.json`。正式圆桌 verdict 四层结构（`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`）、`truths` 逐条全覆盖、首轮盲审 `peer_disagreements: []`、阶段 4 `commit_status: not_committed` 及条件路由 `override` 不可被 `add` 放宽等不变量不得弱化。业务项目参数留在对应项目或 `examples/`。
-- **路由隔离**：单人物咨询仅触发对应 `skills/<name>`（常规开发/文档/UX 请求不触发人物 skill）；多席位审议才由圆桌或短读协调器按名调用具名席位。
+- **纯开放共享源与下沉薄 Adapter**：根 `skills/*/SKILL.md` 严守 `agentskills.io` 开放规范（不混入单一宿主私有字段），Codex 侧车统一由 `agents/openai.yaml` 承载，Claude 控制项与席位工具白名单收敛在 `runtimes/claude/`。默认仅安装单一顶层 `skills/zhuzi/` 目录（内含各人物运行期 `personas/`，排除 `references/research/` 等研发底稿，支持 `--pin` 按需固定高频独立入口）。`CLAUDE.md` 仅保留 `@AGENTS.md`。
+- **生成物与机器合同口径**：严禁手改 `<!-- GENERATED:... -->` 区块、`zhuzi/schemas/verdict.schema.json`、双端席位 adapter、`agents/openai.yaml` 与 `docs/INVENTORY.md`。正式圆桌 verdict 四层结构（`core` / `must_haves_review` / `must_haves_challenge` / `seat_specific`）、`truths` 逐条全覆盖、首轮盲审 `peer_disagreements: []`、阶段 4 `commit_status: not_committed` 及条件路由 `override` 不可被 `add` 放宽等不变量不得弱化。
+- **路由与权限隔离**：总控入口与人物视角默认关闭隐式自动触发（常规开发/文档/UX 请求不自动触发人物或圆桌）；评议席位（`*-reviewer`）锁死只读工具集，仅实施席 `linus-engineer` 在阶段 4 锁定授权范围内可修改代码与运行验证。
 
 ## 验证与完成标准
 
 修改任务须完成 **实现 → 运行对应检查 → 核对输出 → 修复失败 → 重新验证通过** 闭环后方可结束：
 
 ```bash
-python3 -B tools/render_roundtable_contract_docs.py --check  # 改机器合同先去掉 --check 重渲染
+python3 -B tools/render_roundtable_contract_docs.py --check  # 改清单先去掉 --check 重渲染
 python3 -B tools/check_consistency.py
 python3 -B -m unittest discover -s tests -v
 python3 -B tools/smoke_test_codex_roundtable.py --offline

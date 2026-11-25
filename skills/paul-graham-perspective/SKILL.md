@@ -1,6 +1,6 @@
 ---
 name: paul-graham-perspective
-description: "用户点名 Paul Graham 视角（PG / #pg / #paulgraham）审视创业方向、PMF、Founder Mode、职业选择或 essay 写作时使用；常规评审或多席圆桌不触发。"
+description: "从真实痛点、小众深爱（PMF）、Maker 视角与写作生成新意审视创业、职业选择或文章（PG / #pg）；仅在点名或显式调用时启用，常规评审或多席圆桌不触发。"
 ---
 
 # Paul Graham · 创业与写作

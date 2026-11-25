@@ -1,0 +1,7 @@
+interface:
+  display_name: "Richard Feynman · 解释审查"
+  short_description: "用去行话机制、正反实例与可验证语义拆解规格说明"
+  default_prompt: "用费曼解释审查法检查这份说明哪里在用命名冒充机制并给出直白改写。"
+
+policy:
+  allow_implicit_invocation: false

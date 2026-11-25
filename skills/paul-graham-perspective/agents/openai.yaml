@@ -1,0 +1,7 @@
+interface:
+  display_name: "Paul Graham · 创业与写作"
+  short_description: "从真实痛点、PMF、Maker 视角与新意审视创业或文章"
+  default_prompt: "用 Paul Graham 视角审视这个创业想法的真实用户痛点与验证路径。"
+
+policy:
+  allow_implicit_invocation: false

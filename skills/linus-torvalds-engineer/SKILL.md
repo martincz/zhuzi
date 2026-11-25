@@ -1,6 +1,6 @@
 ---
 name: linus-torvalds-engineer
-description: "用户点名 Linus 视角（Linus / #linus / torvalds mode）审视代码、数据结构、接口兼容或架构取舍时使用；常规代码审查或多席圆桌不触发。"
+description: "按数据结构先行、消除特判与向后兼容原则审查代码品味与接口设计（Linus / #linus）；仅在点名或显式调用时启用，常规代码审查或多席圆桌不触发。"
 ---
 
 # Linus Torvalds · 工程判断

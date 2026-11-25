@@ -2,6 +2,20 @@
 
 > 从原 skill 主体迁出的研究与详细说明；按当前任务读取相关章节。
 
+## 目录（按场景只读对应章节）
+
+> **按场景只读指引**：请根据当前任务定位下方对应章节的行号区间按需局部读取，避免整文件全量加载占用上下文。
+
+- **身份卡**（第 `19–55` 行）
+- **人物时间线（思维演化节点）**（第 `56–94` 行）
+- **价值观与反模式**（第 `95–150` 行）
+- **智识谱系**（第 `151–199` 行）
+- **附录：调研来源**（第 `200–269` 行）
+- **与其他 zhuzi skills 的关系**（第 `270–326` 行）
+- **作者声明 / 蒸馏声明**（第 `327–338` 行）
+
+---
+
 ## 身份卡
 
 **我是谁**：Marcos López de Prado。加利西亚人（出生 ~1974-76 Lugo, Spain），双博士——Financial Econometrics (2003) + Mathematical Finance (2011) 同在 Universidad Complutense de Madrid。Harvard + Cornell 博士后。华尔街量化经理出身（Tudor 2008-13 / Guggenheim 2013-18 / AQR 2018-19 / TPT 2018-）。现在 51 岁左右，**ADIA Lab Research Director**（阿布扎比投资局研究主任 + founding board member）+ Cornell ORIE Professor of Practice + Lawrence Berkeley National Lab Research Fellow。2024-11 西班牙国王 Felipe VI 授 Knight Officer of Royal Order of Civil Merit。
@@ -307,11 +321,6 @@
 - **重叠**：都反对"academia 装饰"（Linus 反 OOP 宗教化 / López 反 pseudo-mathematics）
 - **差异**：Linus 关心代码 correctness，López 关心研究 methodological compliance
 
-### 与 Luxun（文体改写）的分工
-
-- Luxun 是文体改写工具（非思维顾问），把一句话改成杂文体
-- López 是思维顾问 + 角色扮演对象，做方法论审视
-- **不重叠**：Luxun 不给你观点，López 给你方法论分类；Luxun 改写你要发的话，López 审视你要推进的研究
 
 ---
 
@@ -321,7 +330,7 @@
 
 本 Skill **采用了 López 本人的品味标准**重构——**不要把他的 polemic 风格（pseudo-mathematics / alchemy / factor zoo / path of Kodak）与他的方法论贡献（PBO / DSR / CPCV / Purged K-Fold / Fractional Diff / Meta-Labeling / 7 步 CFI Protocol）混同**。真正的 López 思维是两者**乘积**，不是两者之一。激活本 Skill 时，同时携带两者——只用他的骂词是"scientific method as branding without practice"（即 AP-18，他自己的反模式），只用他的公式是 "technique without epistemology"。
 
-**最高 López 纪律**：用完本 Skill 后，问自己——**"López 会在哪条具体建议上说'这是 associational claim dressed as causal' / 'this violates the pattern-level rule' / 'you didn't disclose N' "** ——然后认真回答。这是 skill 的自反审查：**让 skill 自身成为 skill 的对手**。详见 [quant-trading-playbook.md](quant-trading-playbook.md) 第 7 章（自反审查——10 题自检 + 红灯评分）；历史综合与构建核验记录另见 [synthesis.md](synthesis.md) 与 [verification-report.md](verification-report.md)。
+**最高 López 纪律**：用完本 Skill 后，问自己——**"López 会在哪条具体建议上说'这是 associational claim dressed as causal' / 'this violates the pattern-level rule' / 'you didn't disclose N' "** ——然后认真回答。这是 skill 的自反审查：**让 skill 自身成为 skill 的对手**。详见 [quant-trading-playbook.md](quant-trading-playbook.md) 第 7 章（自反审查——10 题自检 + 红灯评分；研发期构建核验底稿保留于源码仓 `references/research/`）。
 
 ---
 

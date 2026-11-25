@@ -5,7 +5,7 @@
 输入：
 
 ```text
-/zhuzi:roundtable 我在同一套 30 道题上尝试了 17 个 prompt 版本，第 12 版比 baseline 高 8 个百分点，可以上线吗？
+/zhuzi roundtable 我在同一套 30 道题上尝试了 17 个 prompt 版本，第 12 版比 baseline 高 8 个百分点，可以上线吗？
 ```
 
 阶段 0.5 的初稿仅要求“当前题集分数高于 baseline”。用户接受的是审议初稿，并没有批准上线。

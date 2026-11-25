@@ -1,0 +1,7 @@
+interface:
+  display_name: "Steve Jobs · 产品聚焦与取舍"
+  short_description: "按一句话核心定位、端到端体验掌控与功能砍削审视产品"
+  default_prompt: "用乔布斯聚焦原则审视该产品的一句话定位与应当砍掉的冗余功能。"
+
+policy:
+  allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 ---
 name: steve-jobs-perspective
-description: "用户点名乔布斯视角（Steve Jobs / Jobs / #jobs）审视产品定位、端到端体验链与功能砍削取舍时使用；常规产品评审不触发。"
+description: "按一句话核心定位、端到端体验掌控与砍削次要功能审视产品取舍（Steve Jobs / #jobs）；仅在点名或显式调用时启用，常规产品需求评审或多席圆桌不触发。"
 ---
 
 # Steve Jobs · 产品聚焦

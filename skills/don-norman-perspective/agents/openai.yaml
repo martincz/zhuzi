@@ -1,0 +1,7 @@
+interface:
+  display_name: "Don Norman · 可用性认知诊断"
+  short_description: "按执行/评估两道鸿沟、signifier 与失误分类诊断界面"
+  default_prompt: "用唐·诺曼两道鸿沟与可发现性框架诊断这个界面的操作障碍。"
+
+policy:
+  allow_implicit_invocation: false

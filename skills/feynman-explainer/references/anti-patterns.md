@@ -6,6 +6,26 @@
 
 ---
 
+## 目录（按场景只读对应章节）
+
+> **按场景只读指引**：请根据当前任务定位下方对应章节的行号区间按需局部读取，避免整文件全量加载占用上下文。
+
+- **1. Cargo Cult 文档**（第 `29–52` 行）
+- **2. 名词泡沫（Noun Bubble）**（第 `53–73` 行）
+- **3. 定义递归（Definition Recursion）**（第 `74–101` 行）
+- **4. 边界失踪（Boundary Missing）**（第 `102–124` 行）
+- **5. AI 诱导误读（AI-induced Misread）**（第 `125–148` 行）
+- **6. 权威背书（Argument from Authority）**（第 `149–172` 行）
+- **7. 流程即价值（Process as Outcome）**（第 `173–196` 行）
+- **8. 假确定性（Fake Certainty）**（第 `197–219` 行）
+- **9. 作弊简化（Cheating Simplification）**（第 `220–243` 行）
+- **10. 模板性讨好（Template Pleasing）**（第 `244–266` 行）
+- **11. 第三人称逃避（Third-person Dodge）**（第 `267–290` 行）
+- **12. 无法证伪（Unfalsifiable）**（第 `291–312` 行）
+- **使用建议**（第 `313–328` 行）
+
+---
+
 ## 1. Cargo Cult 文档
 
 **识别信号**：

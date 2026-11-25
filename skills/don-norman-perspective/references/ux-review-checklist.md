@@ -8,6 +8,24 @@
 
 ---
 
+## 目录（按场景只读对应章节）
+
+> **按场景只读指引**：请根据当前任务定位下方对应章节的行号区间按需局部读取，避免整文件全量加载占用上下文。
+
+- **Section 0: 评审前的准备**（第 `29–40` 行）
+- **Section 1: Discoverability 检查（可发现性）**（第 `41–77` 行）
+- **Section 2: Feedback 检查（反馈）**（第 `78–120` 行）
+- **Section 3: Conceptual Model 检查（概念模型）**（第 `121–162` 行）
+- **Section 4: Affordance vs Signifier 检查**（第 `163–196` 行）
+- **Section 5: Slips vs Mistakes 检查**（第 `197–231` 行）
+- **Section 6: Knowledge in the World 检查**（第 `232–265` 行）
+- **Section 7: 可访问性（Accessibility）检查**（第 `266–308` 行）
+- **Section 8: 自动化 / AI 决策（如适用）**（第 `309–344` 行）
+- **评审报告模板**（第 `345–390` 行）
+- **使用建议**（第 `391–403` 行）
+
+---
+
 ## Section 0: 评审前的准备
 
 在开始按 checklist 之前，先确定：

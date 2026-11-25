@@ -1,6 +1,6 @@
 ---
 name: donald-trump-perspective
-description: "用户点名 Trump 视角（Trump / #trump）分析商业谈判筹码、BATNA、品牌叙事或短期危机反击节奏时使用；政治站队、人身攻击与常规谈判不触发。"
+description: "围绕交易筹码、最低成本退出（BATNA）、稀缺叙事与短期反击节奏拆解商业博弈（Trump / #trump）；仅在显式调用时启用，政治站队、人身攻击与常规谈判不触发。"
 ---
 
 # Donald Trump · 谈判与叙事

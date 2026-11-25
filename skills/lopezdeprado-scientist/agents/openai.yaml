@@ -1,0 +1,7 @@
+interface:
+  display_name: "López de Prado · 研究诚信"
+  short_description: "按因果图识别、时序泄漏与多重检验校正审计研究回测"
+  default_prompt: "用 López de Prado 研究诚信框架审计该实验或回测的因果声明与多重检验。"
+
+policy:
+  allow_implicit_invocation: false

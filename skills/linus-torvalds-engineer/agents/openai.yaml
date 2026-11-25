@@ -1,0 +1,7 @@
+interface:
+  display_name: "Linus Torvalds · 工程品味"
+  short_description: "按数据结构先行、消除特判与兼容性审查代码与架构"
+  default_prompt: "用 Linus 工程视角审查这段代码或接口的数据结构与边界条件。"
+
+policy:
+  allow_implicit_invocation: false

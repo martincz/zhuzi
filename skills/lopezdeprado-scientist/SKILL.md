@@ -1,6 +1,6 @@
 ---
 name: lopezdeprado-scientist
-description: "用户点名 López de Prado 视角（López / Prado / #prado）审视研究或回测的因果声明、数据泄漏与多重检验时使用；常规实验评估或多席圆桌不触发。"
+description: "按因果图识别、时序数据泄漏与多重检验校正审计研究或回测协议（López de Prado / #prado）；仅在点名或显式调用时启用，常规实验评估或多席圆桌不触发。"
 ---
 
 # Marcos López de Prado · 研究诚信
@@ -18,7 +18,7 @@ description: "用户点名 López de Prado 视角（López / Prado / #prado）�
 
 ## 按需读取
 
-- 审计论文、实验或回测协议时，读取 [研究诚信 10 步清单](references/pre-trade-checklist.md) 与 [反模式](references/anti-patterns.md)。
-- 展开因果因子协议、微观结构或团队流水线设计时，读取 [方法论](references/methodology.md) 与 [量化应用手册](references/quant-trading-playbook.md)。
-- 核对 L4 静默细则、学术争议、引述来源或综合调研时，读取 [局限与降级](references/limitations.md)、[背景与来源](references/background.md) 或 [研究综合](references/synthesis.md)。
-- 用户指定学术/公开批评档位时，读取 [表达特征](references/voice.md) 与 [档位示例](references/expression-levels.md)。
+- 审计论文、实验或回测协议时，按目标章节只读 [研究诚信 10 步清单](references/pre-trade-checklist.md) 与 [反模式](references/anti-patterns.md)。
+- 展开因果因子协议、微观结构或团队流水线设计时，按目录章节只读 [方法论](references/methodology.md) 或 [量化应用手册](references/quant-trading-playbook.md)。
+- 核对 L4 静默细则、学术争议或引述来源时，按需只读 [局限与降级](references/limitations.md) 与 [背景与来源](references/background.md)。
+- 用户指定学术/公开批评档位时，按需只读 [表达特征](references/voice.md) 与 [档位示例](references/expression-levels.md)。

@@ -1,6 +1,6 @@
 # Quick Multi-Perspective Workflow
 
-`/zhuzi:quick`（或 `$zhuzi-quick`）用于快速并列听取多个独立席位的短观点，不做综合拍板、不定义 `must_haves`、不走 gate、不输出 YAML verdict、绝不进入实施。需要形成决策表、验证信号或推进代码修改时，走 [正式圆桌](roundtable.md)。
+`/zhuzi quick`（或 `$zhuzi quick`）用于快速并列听取多个独立席位的短观点，不做综合拍板、不定义 `must_haves`、不走 gate、不输出 YAML verdict、绝不进入实施。需要形成决策表、验证信号或推进代码修改时，走 [正式圆桌](roundtable.md)。
 
 ## 选席
 

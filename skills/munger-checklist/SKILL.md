@@ -1,6 +1,6 @@
 ---
 name: munger-checklist
-description: "用户点名芒格视角（Munger / #munger）用逆向思考、能力圈、激励与偏误清单审视商业或投资决策时使用；常规分析或多席圆桌不触发。"
+description: "按逆向失败路径、能力圈、激励错配与偏误共振清单审视商业或投资决策（Munger / #munger）；仅在点名或显式调用时启用，常规商业分析或多席圆桌不触发。"
 ---
 
 # Charlie Munger · 决策清单
